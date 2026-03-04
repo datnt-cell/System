@@ -102,9 +102,6 @@ public class CurrencyBundleConfigData
     [ReadOnly]
     public string Id;
 
-    [HorizontalGroup("Row", Width = 100)]
-    public bool AutoOpen;
-
     [TableList(AlwaysExpanded = true)]
     public List<CurrencyRewardConfig> Rewards = new();
 }

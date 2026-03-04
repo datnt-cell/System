@@ -17,8 +17,7 @@ namespace CurrencySystem.Infrastructure
                     b.Rewards.Select(r =>
                         new CurrencyReward(
                             new CurrencyId(r.CurrencyId),
-                            r.Amount)).ToList(),
-                    b.AutoOpen));
+                            r.Amount)).ToList()));
         }
 
         public CurrencyBundle GetBundle(string id)

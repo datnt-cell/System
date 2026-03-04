@@ -7,16 +7,14 @@ namespace CurrencySystem.Domain
     {
         public string Id { get; }
         public IReadOnlyList<CurrencyReward> Rewards { get; }
-        public bool AutoOpen { get; }
+
 
         public CurrencyBundle(
             string id,
-            IReadOnlyList<CurrencyReward> rewards,
-            bool autoOpen)
+            IReadOnlyList<CurrencyReward> rewards)
         {
             Id = id;
             Rewards = rewards;
-            AutoOpen = autoOpen;
         }
     }
 }

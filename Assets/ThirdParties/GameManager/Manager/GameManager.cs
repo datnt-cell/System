@@ -6,18 +6,10 @@ using System.Collections;
 public partial class GameManager : SingletonPersistent<GameManager>
 {
     [SerializeField] SettingModel m_SettingModel;
-    [SerializeField] AdsModel m_AdsModel;
 
-
-    [Header("ModelView")]
-    [SerializeField] AdsModelView m_AdsModelView;
+    [Header("Manager")]
+    AdsManager AdsManager;
     [SerializeField] ShopModelView m_ShopModelView;
-
-    public ShopModelView GetShopModelView() => m_ShopModelView;
-    public AdsModelView GetAdsModelView() => m_AdsModelView;
-
-    public SettingModel GetSettingData() => m_SettingModel;
-    public AdsModel GetAdsData() => m_AdsModel;
 
     IEnumerator Start()
     {
@@ -59,17 +51,15 @@ public partial class GameManager : SingletonPersistent<GameManager>
     void InitModels()
     {
         m_SettingModel = new SettingModel();
-        m_AdsModel = new AdsModel();
     }
 
     void InitViews()
     {
-        m_AdsModelView?.Initialize();
         m_ShopModelView?.Initialize();
     }
 
     void InitSystem()
     {
-
+        AdsManager.Initialize();
     }
 }

@@ -25,18 +25,18 @@ namespace CurrencySystem.Application
         /// <summary>
         /// Thêm tiền.
         /// </summary>
-        public void Add(CurrencyId id, int amount)
+        public void Add(CurrencyId id, int amount, string source)
         {
-            _state.Add(id, amount);
+            _state.Add(id, amount, source);
             _repository.Save(_state);
         }
 
         /// <summary>
         /// Trừ tiền.
         /// </summary>
-        public bool Spend(CurrencyId id, int amount)
+        public bool Spend(CurrencyId id, int amount, string source)
         {
-            bool result = _state.Spend(id, amount);
+            bool result = _state.Spend(id, amount, source);
 
             if (result)
                 _repository.Save(_state);

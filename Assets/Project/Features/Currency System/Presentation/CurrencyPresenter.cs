@@ -5,6 +5,7 @@ namespace CurrencySystem.Presentation
 {
     /// <summary>
     /// Presenter kết nối UI và Service.
+    /// Không chứa logic business.
     /// </summary>
     public class CurrencyPresenter
     {
@@ -16,19 +17,30 @@ namespace CurrencySystem.Presentation
         }
 
         /// <summary>
-        /// Ví dụ thêm coin.
+        /// Thêm tiền với source rõ ràng.
         /// </summary>
-        public void AddCoin(int amount)
+        public void Add(string currencyId, int amount, string source)
         {
-            _service.Add(new CurrencyId("coin"), amount);
+            _service.Add(new CurrencyId(currencyId), amount, source);
         }
 
         /// <summary>
-        /// Ví dụ thêm gem.
+        /// Trừ tiền.
         /// </summary>
-        public void AddGem(int amount)
+        public bool Spend(string currencyId, int amount, string source)
         {
-            _service.Add(new CurrencyId("gem"), amount);
+            return _service.Spend(
+                new CurrencyId(currencyId),
+                amount,
+                source);
+        }
+
+        /// <summary>
+        /// Lấy số dư hiện tại (dùng cho debug hoặc logic ngoài UI).
+        /// </summary>
+        public int GetBalance(string currencyId)
+        {
+            return _service.GetBalance(new CurrencyId(currencyId));
         }
     }
 }

@@ -4,11 +4,19 @@ using CurrencySystem.Installer;
 
 public class CurrencyManager : MonoBehaviour
 {
-    private CurrencyPresenter _presenter;
+    public CurrencyViewModel ViewModel { get; private set; }
+    public CurrencyPresenter Presenter { get; private set; }
+
+    private CurrencyInstaller _installer;
 
     public void Initialize()
     {
-        var installer = new CurrencyInstaller();
-        _presenter = installer.Install();
+        _installer = new CurrencyInstaller();
+
+        // Install trả về full dependency graph
+        var result = _installer.Install();
+
+        Presenter = result.Presenter;
+        ViewModel = result.ViewModel;
     }
 }

@@ -12,8 +12,10 @@ namespace CurrencySystem.Installer
     {
         public CurrencyInstallResult Install()
         {
+            ICurrencyMetadataProvider metadataProvider = new BalancyCurrencyMetadataProvider();
+
             // Domain
-            var state = new CurrencyState();
+            var state = new CurrencyState(metadataProvider);
 
             // Infrastructure
             var repository = new EasySaveCurrencyRepository();

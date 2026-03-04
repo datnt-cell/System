@@ -10,11 +10,16 @@ namespace CurrencySystem.Presentation
     public class CurrencyPresenter
     {
         private readonly CurrencyService _service;
+        private readonly CurrencyBundleUseCase _bundleUseCase;
 
-        public CurrencyPresenter(CurrencyService service)
+        public CurrencyPresenter(
+            CurrencyService service,
+            CurrencyBundleUseCase bundleUseCase)
         {
             _service = service;
+            _bundleUseCase = bundleUseCase;
         }
+
 
         /// <summary>
         /// Thêm tiền với source rõ ràng.
@@ -41,6 +46,11 @@ namespace CurrencySystem.Presentation
         public int GetBalance(string currencyId)
         {
             return _service.GetBalance(new CurrencyId(currencyId));
+        }
+
+        public void OpenBundle(string bundleId, string source)
+        {
+            _bundleUseCase.OpenBundle(bundleId, source);
         }
     }
 }

@@ -12,20 +12,25 @@ namespace CurrencySystem.Installer
     {
         public CurrencyInstallResult Install()
         {
-            ICurrencyMetadataProvider metadataProvider = new GlobalConfigCurrencyMetadataProvider(CurrencyGlobalConfig.Instance);
+            var config = CurrencyGlobalConfig.Instance;
+
+            ICurrencyMetadataProvider metadataProvider =
+                new GlobalConfigCurrencyMetadataProvider(config);
 
             // Domain
             var state = new CurrencyState(metadataProvider);
 
             // Infrastructure
             var repository = new EasySaveCurrencyRepository();
+            var bundleProvider = new GlobalConfigBundleProvider(config);
 
             // Application
             var service = new CurrencyService(state, repository);
+            var bundleUseCase = new CurrencyBundleUseCase(service, bundleProvider);
 
             // Presentation
             var viewModel = new CurrencyViewModel(state);
-            var presenter = new CurrencyPresenter(service);
+            var presenter = new CurrencyPresenter(service, bundleUseCase);
 
             return new CurrencyInstallResult(
                 presenter,

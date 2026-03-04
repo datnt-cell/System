@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using DG.Tweening;
+using Sirenix.OdinInspector;
 
 namespace Creator
 {
@@ -30,11 +31,27 @@ namespace Creator
 
         #region SerializeField
 
+        // ===================== 🎞 ANIMATION =====================
+        [FoldoutGroup("🎞 Animation")]
         [SerializeField] private AnimationType m_AnimationType = AnimationType.SlideFromRight;
 
+        // ===================== 🎚 EASE =====================
+        [FoldoutGroup("🎚 Ease")]
+        [ShowIf(nameof(AlwayEaseType))]
         [SerializeField] private Ease m_ShowEaseType = Ease.Linear;
 
+        [FoldoutGroup("🎚 Ease")]
+        [ShowIf(nameof(AlwayEaseType))]
         [SerializeField] private Ease m_HideEaseType = Ease.Linear;
+
+        // ===================== 🖥 STATIC =====================
+        [FoldoutGroup("🖥 Static")]
+        [SerializeField] private CanvasGroup m_Static;
+
+        // ===================== ODIN CONDITION =====================
+        public bool AlwayEaseType() =>
+            m_AnimationType != AnimationType.None &&
+            m_AnimationType != AnimationType.ScaleSpecial;
 
         #endregion
 
@@ -56,7 +73,7 @@ namespace Creator
 
             m_AnimationDuration = Director.SceneAnimationDuration > GetDataNullDefault()
                 ? Director.SceneAnimationDuration
-                : 0.25f;
+                : 0.35f;
         }
 
         #endregion
@@ -153,33 +170,39 @@ namespace Creator
         protected override Tween Effect()
         {
             Ease ease = m_State == State.SHOW ? m_ShowEaseType : m_HideEaseType;
-            Sequence seq = HelperCreator.DOTweenSequence(gameObject);
+
+            Sequence seq = DOTween.Sequence();
+
+            seq.SetLink(gameObject, LinkBehaviour.KillOnDestroy);
 
             switch (m_AnimationType)
             {
                 case AnimationType.Scale:
                     seq.Append(CreateScaleTween(ease));
-                    seq.Join(CreateFadeTween(GetAnimationDuration()));
+                    seq.Join(CreateFadeTween(GetAnimationDurationFlash()));
+                    seq.Join(CreateShieldTween());
+                    if (m_Static)
+                        seq.Join(CreateStaticTween(GetAnimationDurationFlash()));
                     break;
                 case AnimationType.ScaleSpecial:
                     seq.Append(CreateScaleSpecialTween());
-                    seq.Join(CreateFadeTween(0.15f));
+                    seq.Join(CreateFadeTween(GetAnimationDurationFlash()));
+                    seq.Join(CreateShieldTween());
+                    if (m_Static)
+                        seq.Join(CreateStaticTween(GetAnimationDurationFlash()));
                     break;
                 case AnimationType.Fade:
-                    seq.Append(CreateFadeOnlyTween(ease));
+                    seq.Append(CreateFadeTween(GetAnimationDurationFlash(), ease));
+                    seq.Join(CreateShieldTween());
+                    if (m_Static)
+                        seq.Join(CreateStaticTween(GetAnimationDurationFlash()));
                     break;
                 default:
                     seq.Append(CreateMoveTween(ease));
                     seq.Join(CreateFadeTween(GetAnimationDuration()));
+                    seq.Join(CreateShieldTween());
+                    seq.Join(CreateStaticTween(GetAnimationDurationFlash()));
                     break;
-            }
-
-            if (shield != null)
-            {
-                seq.Join(shield
-                    .DOFade(GetFade(true), GetAnimationDuration())
-                    .From(GetFade())
-                    .SetEase(Ease.Linear));
             }
 
             return seq;
@@ -199,10 +222,33 @@ namespace Creator
 
         #region Tween Creators
 
-        private Tween CreateFadeTween(float time) =>
+        private Tween CreateFadeTween(float time, Ease ease = Ease.Linear) =>
             CanvasGroup.DOFade(m_State == State.SHOW ? GetDataDefault() : GetDataNullDefault(), time)
                 .From(m_State == State.SHOW ? GetDataNullDefault() : GetDataDefault())
+                .SetEase(ease);
+
+        private Tween CreateShieldTween()
+        {
+            if (shield == null) return null;
+
+            float time = m_State == State.SHOW ? GetAnimationDurationFlash() : GetAnimationDuration();
+
+            return shield
+                .DOFade(m_State == State.SHOW ? GetFadeDefault() : GetDataNullDefault(), time)
+                .From(m_State == State.SHOW ? GetDataNullDefault() : GetFadeDefault())
                 .SetEase(Ease.Linear);
+        }
+
+        private Tween CreateStaticTween(float time)
+        {
+            if (m_Static == null) return null;
+            if (m_Static == CanvasGroup) return null;
+
+            return m_Static
+                .DOFade(m_State == State.SHOW ? GetDataDefault() : GetDataNullDefault(), time)
+                .From(m_State == State.SHOW ? GetDataNullDefault() : GetDataDefault())
+                .SetEase(Ease.Linear);
+        }
 
         private Tween CreateScaleTween(Ease ease)
         {
@@ -226,20 +272,40 @@ namespace Creator
             Vector3[] scales =
             {
                 new(0, 0, 0),
-                new(1.02f, 1.085f, 1.02f),
+                new(1.1f, 1f, 1f),
                 new(1f, 0.975f, 1f),
-                new(1f, 1.008f, 1f),
+                new(1f, 1f, 1f),
                 Vector3.one
             };
 
-            float[] times = { 0f, 0.13f, 0.1f, 0.11f, 0.11f };
+            float[] scaleRatios =
+            {
+                0f,
+                0.3f,
+                0.25f,
+                0.25f,
+                0.2f
+            };
+
 
             DOTween.Kill(transform);
+
+            float[] times = ConvertRatioToTime(scaleRatios, GetAnimationDuration());
 
             var seq = DOTween.Sequence();
             for (int i = 0; i < scales.Length; i++)
                 seq.Append(transform.DOScale(scales[i], times[i] * 1.5f).SetEase(Ease.Linear));
             return seq;
+        }
+
+        static float[] ConvertRatioToTime(float[] ratios, float totalDuration)
+        {
+            float[] times = new float[ratios.Length];
+
+            for (int i = 0; i < ratios.Length; i++)
+                times[i] = ratios[i] * totalDuration;
+
+            return times;
         }
 
         private Tween CreateScaleSpecialHide()
@@ -247,34 +313,56 @@ namespace Creator
             Vector3[] scales =
             {
                 Vector3.one,
-                new(1, 1.0378f, 1),
+                new Vector3(1f, 1.1f, 1f),
                 Vector3.zero
             };
 
-            float[] times = { 0f, 0.07f, 0.08f };
+
+            float[] ratios =
+            {
+                0f,
+                0.45f,
+                0.55f
+            };
 
             DOTween.Kill(transform);
 
             var seq = DOTween.Sequence();
+
+            float[] times = NormalizeRatios(ratios, GetAnimationDuration());
+
             for (int i = 0; i < scales.Length; i++)
-                seq.Append(transform.DOScale(scales[i], times[i] * 1.5f).SetEase(Ease.Linear));
+            {
+                if (times[i] <= 0f)
+                    continue;
+
+                seq.Append(
+                    transform
+                        .DOScale(scales[i], times[i])
+                        .SetEase(Ease.Linear)
+                );
+            }
+
             return seq;
+        }
+
+        static float[] NormalizeRatios(float[] ratios, float totalDuration)
+        {
+            float sum = 0f;
+            foreach (var r in ratios)
+                sum += r;
+
+            float[] times = new float[ratios.Length];
+            for (int i = 0; i < ratios.Length; i++)
+                times[i] = (ratios[i] / sum) * totalDuration;
+
+            return times;
         }
 
         private Tween CreateMoveTween(Ease ease) =>
             RectTransform.DOAnchorPos(m_End, GetAnimationDuration())
                 .From(m_Start)
                 .SetEase(ease);
-
-        private Tween CreateFadeOnlyTween(Ease ease)
-        {
-            if (m_State == State.SHOW)
-                return HelperCreator.Register(GetAnimationDurationFlash(), () => CreateFadeOnlyTween(ease), gameObject);
-
-            return CanvasGroup.DOFade(m_End.y, GetAnimationDuration())
-                .From(m_Start.x)
-                .SetEase(ease);
-        }
 
         #endregion
 
@@ -312,23 +400,20 @@ namespace Creator
         private float GetAnimationDuration() => m_AnimationDuration;
         private float GetAnimationDurationFlash() => m_AnimationDuration / 2;
 
-        private float GetFade(bool back = false) =>
-            back == false
-                ? (m_State == State.SHOW ? GetDataNullDefault() : GetFadeDefault())
-                : (m_State == State.SHOW ? GetFadeDefault() : GetDataNullDefault());
-
         #endregion
 
         #region Public Methods
 
         public void PlayShow(bool hide = true)
         {
-            Sequence seq = HelperCreator.DOTweenSequence(gameObject);
+            Sequence seq = DOTween.Sequence();
 
-            seq.Append(CanvasGroup.DOFade(GetDataDefault(), GetAnimationDurationFlash()).SetEase(Ease.Linear));
+            seq.SetLink(gameObject, LinkBehaviour.KillOnDestroy);
 
-            if (hide && shield != null)
-                seq.Join(shield.DOFade(GetFadeDefault(), GetAnimationDurationFlash()).SetEase(Ease.Linear));
+            seq.Append(CreateFadeTween(GetAnimationDurationFlash(), Ease.Linear));
+
+            if (hide)
+                seq.Join(CreateShieldTween());
 
             seq.OnComplete(() => CanvasGroup.blocksRaycasts = true);
         }
@@ -349,5 +434,13 @@ namespace Creator
         }
 
         #endregion
+
+        public void SetActiveShiled(bool active)
+        {
+            if (shield)
+            {
+                shield.gameObject.SetActive(active);
+            }
+        }
     }
 }

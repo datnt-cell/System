@@ -3,6 +3,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityUtilities;
+using Sirenix.OdinInspector;
 
 namespace Creator
 {
@@ -11,9 +12,15 @@ namespace Creator
     {
         CanvasGroup m_CanvasGroup;
 
-        [SerializeField] Controller m_Controller;
+        // ===================== 🎮 CONTROLLER =====================
+        [FoldoutGroup("🎮 Controller", false)]
+        [LabelText("🎛 Controller")]
+        [SerializeField] private Controller m_Controller;
 
-        public Image shield;
+        // ===================== 🛡 SHIELD =====================
+        [FoldoutGroup("🛡 Shield", false)]
+        [LabelText("🛡 Shield Image")]
+        [SerializeField] public Image shield;
 
         public CanvasGroup GetCanvasGroup()
         {

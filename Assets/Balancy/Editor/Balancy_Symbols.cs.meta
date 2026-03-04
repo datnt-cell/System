@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: 64eaabb76099a4661a0d91f2a1df6b28
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 128920
+  packageName: Balancy - Run LiveOps with Smart Offers / Game Events. Improve your
+    monetization
+  packageVersion: 3.8.7
+  assetPath: Assets/Balancy/Editor/Balancy_Symbols.cs
+  uploadId: 617344

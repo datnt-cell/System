@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: 0696df83908974378b7cf2aacee4ac1a
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 128920
+  packageName: Balancy - Run LiveOps with Smart Offers / Game Events. Improve your
+    monetization
+  packageVersion: 3.8.7
+  assetPath: Assets/Balancy/Examples/Scripts/ForceTransformUpdater.cs
+  uploadId: 617344

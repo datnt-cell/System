@@ -333,7 +333,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 990736693bb0eb746826f00ae41cbd0c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AdsManager
-  adsView: {fileID: 0}
+  loaidng: {fileID: 451110433276936816}
 --- !u!114 &451110433276936816
 MonoBehaviour:
   m_ObjectHideFlags: 0

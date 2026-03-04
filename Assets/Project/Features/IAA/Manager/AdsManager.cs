@@ -2,13 +2,13 @@ using UnityEngine;
 
 public class AdsManager : MonoBehaviour
 {
-    public AdsView adsView;
+    public AdsLoading loaidng;
 
     public AdsPresenter AdsPresenter;
 
     public void Initialize()
     {
         AdsInstaller adsInstaller = new AdsInstaller();
-        AdsPresenter = adsInstaller.Install(adsView);
+        AdsPresenter = adsInstaller.Install(loaidng);
     }
 }

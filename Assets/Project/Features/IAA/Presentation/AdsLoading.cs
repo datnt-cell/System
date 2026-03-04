@@ -4,7 +4,7 @@ using UnityEngine;
 /// View chỉ chịu trách nhiệm hiển thị.
 /// Không chứa logic business.
 /// </summary>
-public class AdsView : MonoBehaviour
+public class AdsLoading : MonoBehaviour
 {
     [SerializeField] private GameObject shield;
 

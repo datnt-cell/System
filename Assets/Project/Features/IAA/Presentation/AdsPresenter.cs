@@ -7,12 +7,12 @@ using UnityEngine.Events;
 /// </summary>
 public class AdsPresenter
 {
-    private readonly AdsView _view;
+    private readonly AdsLoading _view;
     private readonly AdsViewModel _vm;
     private readonly AdsService _service;
 
     public AdsPresenter(
-        AdsView view,
+        AdsLoading view,
         AdsViewModel vm,
         AdsService service)
     {

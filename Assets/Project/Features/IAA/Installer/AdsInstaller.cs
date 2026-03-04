@@ -3,7 +3,7 @@
 /// </summary>
 public class AdsInstaller
 {
-    public AdsPresenter Install(AdsView view)
+    public AdsPresenter Install(AdsLoading view)
     {
         // Domain
         AdsState state = new AdsState();

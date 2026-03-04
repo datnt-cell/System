@@ -7,7 +7,8 @@ namespace CurrencySystem.Infrastructure
     /// <summary>
     /// Lưu dữ liệu bằng Easy Save.
     /// </summary>
-    public class EasySaveCurrencyRepository : ICurrencyRepository
+    public class EasySaveCurrencyRepository
+        : ICurrencyRepository
     {
         private const string KEY = "currency_data";
 
@@ -33,7 +34,10 @@ namespace CurrencySystem.Infrastructure
 
             foreach (var pair in data)
             {
-                state.Add(new CurrencyId(pair.Key), pair.Value);
+                // DÙNG SetRaw để không trigger event
+                state.SetRaw(
+                    new CurrencyId(pair.Key),
+                    pair.Value);
             }
         }
     }

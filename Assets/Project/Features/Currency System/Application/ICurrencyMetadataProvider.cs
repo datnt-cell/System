@@ -24,5 +24,6 @@ namespace CurrencySystem.Domain
         /// Lấy tên hiển thị (phục vụ UI).
         /// </summary>
         string GetDisplayName(CurrencyId id);
+        
     }
 }

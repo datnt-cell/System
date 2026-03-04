@@ -12,7 +12,7 @@ namespace CurrencySystem.Installer
     {
         public CurrencyInstallResult Install()
         {
-            ICurrencyMetadataProvider metadataProvider = new BalancyCurrencyMetadataProvider();
+            ICurrencyMetadataProvider metadataProvider = new GlobalConfigCurrencyMetadataProvider(CurrencyGlobalConfig.Instance);
 
             // Domain
             var state = new CurrencyState(metadataProvider);

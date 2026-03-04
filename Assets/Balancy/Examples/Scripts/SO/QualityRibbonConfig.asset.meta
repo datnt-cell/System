@@ -1,16 +1,8 @@
 fileFormatVersion: 2
-guid: a4077ed53d6e342d89bdf98e0d5adfa5
+guid: 4a6b3019ae151b04f96835118e64aee0
 NativeFormatImporter:
   externalObjects: {}
-  mainObjectFileID: 11400000
+  mainObjectFileID: 0
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 128920
-  packageName: Balancy - Run LiveOps with Smart Offers / Game Events. Improve your
-    monetization
-  packageVersion: 3.8.7
-  assetPath: Assets/Balancy/Examples/Scripts/SO/QualityRibbonConfig.asset
-  uploadId: 617344

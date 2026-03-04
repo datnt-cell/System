@@ -10,11 +10,12 @@ public class AdsInstaller
 
         // Infrastructure
         IAdsRepository repository = new EasySaveAdsRepository();
-        IAdsPolicy policy = new DefaultAdsPolicy(5, 30f);
+        IAdsPolicy policy = new DefaultAdsPolicy(5, 30f, 15, 30, 0);
         IAdsProvider provider = new GleyAdsProvider();
+        UnityTimeProvider timeProvider = new UnityTimeProvider();
 
         // Application
-        AdsService service = new AdsService(state, repository, policy, provider);
+        AdsService service = new AdsService(state, repository, policy, provider, timeProvider);
 
         // Presentation
         AdsViewModel viewModel = new AdsViewModel(state);

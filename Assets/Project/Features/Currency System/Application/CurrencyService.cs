@@ -1,0 +1,53 @@
+using CurrencySystem.Domain;
+
+namespace CurrencySystem.Application
+{
+    /// <summary>
+    /// Service xử lý logic tiền tệ.
+    /// Không phụ thuộc Unity.
+    /// </summary>
+    public class CurrencyService
+    {
+        private readonly CurrencyState _state;
+        private readonly ICurrencyRepository _repository;
+
+        public CurrencyService(
+            CurrencyState state,
+            ICurrencyRepository repository)
+        {
+            _state = state;
+            _repository = repository;
+
+            // Load dữ liệu khi khởi tạo
+            _repository.Load(_state);
+        }
+
+        /// <summary>
+        /// Thêm tiền.
+        /// </summary>
+        public void Add(CurrencyId id, int amount)
+        {
+            _state.Add(id, amount);
+            _repository.Save(_state);
+        }
+
+        /// <summary>
+        /// Trừ tiền.
+        /// </summary>
+        public bool Spend(CurrencyId id, int amount)
+        {
+            bool result = _state.Spend(id, amount);
+
+            if (result)
+                _repository.Save(_state);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Lấy số dư.
+        /// </summary>
+        public int GetBalance(CurrencyId id)
+            => _state.GetBalance(id);
+    }
+}

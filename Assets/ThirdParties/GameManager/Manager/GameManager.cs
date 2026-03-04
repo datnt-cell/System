@@ -9,6 +9,7 @@ public partial class GameManager : SingletonPersistent<GameManager>
     public AdsManager AdsManager;
     public IAPModule.IAPManager IAPManager;
     public SettingManager SettingManager;
+    public CurrencyManager CurrencyManager;
 
     IEnumerator Start()
     {
@@ -36,5 +37,7 @@ public partial class GameManager : SingletonPersistent<GameManager>
         IAPManager.Initialize();
 
         SettingManager.Initialize();
+
+        CurrencyManager.Initialize();
     }
 }

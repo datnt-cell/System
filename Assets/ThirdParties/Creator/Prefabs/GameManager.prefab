@@ -151,6 +151,7 @@ Transform:
   m_Children:
   - {fileID: 8372216982088750356}
   - {fileID: 4248042350450664700}
+  - {fileID: 7143210108396980139}
   - {fileID: 8398240129883861459}
   m_Father: {fileID: 6578075392098795589}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -396,6 +397,7 @@ MonoBehaviour:
   AdsManager: {fileID: 7885220587143030275}
   IAPManager: {fileID: 8223761890390700125}
   SettingManager: {fileID: 8169388961647755493}
+  CurrencyManager: {fileID: 7714250369056624337}
 --- !u!1 &7516876728816953121
 GameObject:
   m_ObjectHideFlags: 0
@@ -743,6 +745,50 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: ADS BREAK
+--- !u!1 &8791545412522607683
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7143210108396980139}
+  - component: {fileID: 7714250369056624337}
+  m_Layer: 0
+  m_Name: Currency System
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7143210108396980139
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8791545412522607683}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3170347156942585391}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7714250369056624337
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8791545412522607683}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9ca12ab14b24784eae9681311524a1a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CurrencyManager
 --- !u!1 &9139572092643364356
 GameObject:
   m_ObjectHideFlags: 0

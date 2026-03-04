@@ -76,6 +76,50 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &2756770267928732275
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8398240129883861459}
+  - component: {fileID: 8169388961647755493}
+  m_Layer: 0
+  m_Name: Setting
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8398240129883861459
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2756770267928732275}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3170347156942585391}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8169388961647755493
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2756770267928732275}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d2d2fe5a46eaba438644f02cdde8883, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::IAPModule.SettingManager
 --- !u!1 &4300584050097074581
 GameObject:
   m_ObjectHideFlags: 0
@@ -107,6 +151,7 @@ Transform:
   m_Children:
   - {fileID: 8372216982088750356}
   - {fileID: 4248042350450664700}
+  - {fileID: 8398240129883861459}
   m_Father: {fileID: 6578075392098795589}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4459521400542019806
@@ -118,9 +163,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8372216982088750356}
-  - component: {fileID: 6495066347722601384}
+  - component: {fileID: 8327197422853510690}
+  - component: {fileID: 8223761890390700125}
   m_Layer: 0
-  m_Name: ShopModelView
+  m_Name: IAP
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -141,7 +187,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 3170347156942585391}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6495066347722601384
+--- !u!114 &8327197422853510690
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -150,18 +196,23 @@ MonoBehaviour:
   m_GameObject: {fileID: 4459521400542019806}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67defeddeebdf3b4e8c711bc6219c7a4, type: 3}
+  m_Script: {fileID: 11500000, guid: 57a706ff23a38794385ca520052aca90, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
-  m_ShieldShop: {fileID: 7516876729224600106}
-  reviveOffers:
-  - ID: 0
-    weight: 20
-  - ID: 1
-    weight: 50
-  - ID: 2
-    weight: 20
-  IDRevive: 0
+  m_EditorClassIdentifier: Assembly-CSharp::IAPLoading
+  shield: {fileID: 7516876729224600106}
+--- !u!114 &8223761890390700125
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4459521400542019806}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c85bb0d59670a7e42914819828622b2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::IAPModule.IAPManager
+  view: {fileID: 8327197422853510690}
 --- !u!1 &4488726109649496510
 GameObject:
   m_ObjectHideFlags: 0
@@ -249,7 +300,7 @@ GameObject:
   - component: {fileID: 7885220587143030275}
   - component: {fileID: 451110433276936816}
   m_Layer: 0
-  m_Name: AdsModelView
+  m_Name: Ads
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -342,7 +393,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccc8f4cc9eb7b82418c396073e26064f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_ShopModelView: {fileID: 6495066347722601384}
+  AdsManager: {fileID: 7885220587143030275}
+  IAPManager: {fileID: 8223761890390700125}
+  SettingManager: {fileID: 8169388961647755493}
 --- !u!1 &7516876728816953121
 GameObject:
   m_ObjectHideFlags: 0
@@ -428,12 +481,12 @@ GameObject:
   m_Component:
   - component: {fileID: 7516876729224600105}
   m_Layer: 5
-  m_Name: ShieldShop
+  m_Name: ShieldIAP
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &7516876729224600105
 RectTransform:
   m_ObjectHideFlags: 0
@@ -792,7 +845,7 @@ MonoBehaviour:
   m_BlockingObjects: 0
   m_BlockingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 55
 --- !u!1 &9209645789887705952
 GameObject:
   m_ObjectHideFlags: 0
@@ -808,7 +861,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &9113877389784068232
 RectTransform:
   m_ObjectHideFlags: 0

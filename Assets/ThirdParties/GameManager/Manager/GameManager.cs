@@ -1,31 +1,17 @@
 using UnityEngine;
 using DesignPatterns;
-using UniRx;
 using System.Collections;
+using IAPModule;
 
 public partial class GameManager : SingletonPersistent<GameManager>
 {
-    [SerializeField] SettingModel m_SettingModel;
-
     [Header("Manager")]
-    AdsManager AdsManager;
-    [SerializeField] ShopModelView m_ShopModelView;
+    public AdsManager AdsManager;
+    public IAPModule.IAPManager IAPManager;
+    public SettingManager SettingManager;
 
     IEnumerator Start()
     {
-        yield return null; // frame đầu render
-
-        InitLight();
-
-        yield return null;
-        yield return null;
-
-        InitModels();
-
-        yield return null;
-
-        InitViews();
-
         yield return null;
 
         InitSystem();
@@ -43,23 +29,12 @@ public partial class GameManager : SingletonPersistent<GameManager>
             yield return null;
     }
 
-    void InitLight()
-    {
-
-    }
-
-    void InitModels()
-    {
-        m_SettingModel = new SettingModel();
-    }
-
-    void InitViews()
-    {
-        m_ShopModelView?.Initialize();
-    }
-
     void InitSystem()
     {
         AdsManager.Initialize();
+
+        IAPManager.Initialize();
+
+        SettingManager.Initialize();
     }
 }

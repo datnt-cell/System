@@ -1,27 +1,64 @@
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.ResourceManagement.ResourceProviders;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace Creator
 {
+    public enum SceneLoadMode
+    {
+        BuildIn,
+        Addressable
+    }
+
     public class ManagerBase
     {
         public class Data
         {
+            // ===================== PAYLOAD =====================
             public object data;
-            public Callback onShown;
-            public Callback onHidden;
-            public Scene scene;
+
+            // ===================== CALLBACK =====================
+            public ManagerBase.Callback onShown;
+            public ManagerBase.Callback onHidden;
+
+            // ===================== SCENE INFO =====================
             public string sceneName;
+            public Scene scene; // luôn được gán trong OnSceneLoaded
+            public SceneLoadMode loadMode;
+
+            // 🔥 CHỈ dùng khi load bằng Addressables
+            public AsyncOperationHandle<SceneInstance>? addressableHandle;
+
+            // ===================== UI / FLOW =====================
             public bool hasShield;
 
-            public Data(object data, string sceneName, Callback onShown, Callback onHidden, bool hasShield = true)
+            // ===================== STATE =====================
+            public bool IsAddressable => loadMode == SceneLoadMode.Addressable;
+            public bool IsLoaded =>
+             IsAddressable
+                 ? addressableHandle.HasValue && addressableHandle.Value.IsValid()
+                 : scene.IsValid();
+
+            // ===================== CTOR =====================
+            public Data(
+                object data,
+                string sceneName,
+                ManagerBase.Callback onShown = null,
+                ManagerBase.Callback onHidden = null,
+                bool hasShield = true,
+                SceneLoadMode loadMode = SceneLoadMode.BuildIn)
             {
                 this.data = data;
                 this.sceneName = sceneName;
+                this.loadMode = loadMode;
                 this.onShown = onShown;
                 this.onHidden = onHidden;
                 this.hasShield = hasShield;
+
+                scene = default;
+                addressableHandle = null;
             }
         }
 
@@ -57,6 +94,12 @@ namespace Creator
             set;
         }
 
+        public static float ButtonAnimationDuration
+        {
+            get;
+            set;
+        }
+
         public static ManagerObject Object
         {
             get;
@@ -66,5 +109,6 @@ namespace Creator
         protected static string m_MainSceneName;
 
         protected static Controller m_MainController;
+
     }
 }

@@ -36,6 +36,11 @@ namespace Creator
             }
         }
 
+        public void ResetShieldState()
+        {
+            m_State = State.SHIELD_OFF;
+        }
+
         // Scene gradually appear
         public void FadeInScene()
         {

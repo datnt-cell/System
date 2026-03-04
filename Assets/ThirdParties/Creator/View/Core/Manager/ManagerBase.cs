@@ -109,6 +109,5 @@ namespace Creator
         protected static string m_MainSceneName;
 
         protected static Controller m_MainController;
-
     }
 }

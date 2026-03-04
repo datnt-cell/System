@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Sirenix.OdinInspector;
+using UnityEngine;
 using UnityEngine.UI;
 using UnityUtilities;
 
@@ -13,17 +14,26 @@ namespace Creator
     {
         protected GameObject m_Shield;
 
-        [Header("Info")]
+        // ===================== ℹ️ INFO =====================
+        [FoldoutGroup("ℹ️ Info")]
         [SerializeField] protected Canvas m_Canvas;
+
+        [FoldoutGroup("ℹ️ Info")]
         [SerializeField] protected Camera m_Camera;
 
-        [Header("Setting")]
-        public bool FullScreen;
-        public bool HasShield = true;
-        public bool UseCameraUI = true;
+        // ===================== ⚙️ SETTING =====================
+        [FoldoutGroup("⚙️ Setting")]
+        [SerializeField] public bool FullScreen;
 
-        [Header("Effect")]
-        public SceneAnimation Animation;
+        [FoldoutGroup("⚙️ Setting")]
+        [SerializeField] public bool HasShield = true;
+
+        [FoldoutGroup("⚙️ Setting")]
+        [SerializeField] public bool UseCameraUI = true;
+
+        // ===================== ✨ EFFECT =====================
+        [FoldoutGroup("✨ Effect")]
+        [SerializeField] public SceneAnimation Animation;
 
         /// <summary>
         /// Each scene must has an unique scene name.
@@ -65,8 +75,10 @@ namespace Creator
         /// This event is raised right after player pushs the ESC button on keyboard or Back button on android devices.
         /// You should assign this method to OnClick event of your Close Buttons.
         /// </summary>
+        [Button]
         public virtual void OnKeyBack()
         {
+            this.GetCanvasGroup().blocksRaycasts = false;
             Director.PopScene();
         }
 

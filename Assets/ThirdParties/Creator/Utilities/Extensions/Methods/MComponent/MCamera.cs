@@ -1,12 +1,11 @@
 
 using UnityEngine;
-// using UnityEngine.Rendering.Universal;
+using UnityEngine.Rendering.Universal;
 
 namespace YNL.Utilities.Extensions
 {
     public static class MCamera
     {
-
         /// <summary>
         /// Thiết lập camera chính ở chế độ Base và thêm camera UI dạng Overlay vào cameraStack.
         /// </summary>
@@ -14,24 +13,24 @@ namespace YNL.Utilities.Extensions
         /// <param name="uiCamera">Camera UI (Overlay)</param>
         public static void SetupBaseAndOverlayCameras(Camera mainCamera, Camera uiCamera)
         {
-            // if (mainCamera == null || uiCamera == null)
-            // {
-            //     Debug.LogWarning("CameraUtilities: mainCamera hoặc uiCamera bị null.");
-            //     return;
-            // }
+            if (mainCamera == null || uiCamera == null)
+            {
+                Console.LogWarning("CameraUtilities: mainCamera hoặc uiCamera bị null.");
+                return;
+            }
 
-            // var mainData = mainCamera.GetUniversalAdditionalCameraData();
-            // var uiData = uiCamera.GetUniversalAdditionalCameraData();
+            var mainData = mainCamera.GetUniversalAdditionalCameraData();
+            var uiData = uiCamera.GetUniversalAdditionalCameraData();
 
-            // // Thiết lập kiểu cho từng camera
-            // mainData.renderType = CameraRenderType.Base;
-            // uiData.renderType = CameraRenderType.Overlay;
+            // Thiết lập kiểu cho từng camera
+            mainData.renderType = CameraRenderType.Base;
+            uiData.renderType = CameraRenderType.Overlay;
 
-            // // Tránh thêm trùng camera nếu đã có trong stack
-            // if (!mainData.cameraStack.Contains(uiCamera))
-            // {
-            //     mainData.cameraStack.Add(uiCamera);
-            // }
+            // Tránh thêm trùng camera nếu đã có trong stack
+            if (!mainData.cameraStack.Contains(uiCamera))
+            {
+                mainData.cameraStack.Add(uiCamera);
+            }
         }
     }
 }

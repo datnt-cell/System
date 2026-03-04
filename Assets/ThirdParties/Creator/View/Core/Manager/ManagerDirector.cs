@@ -2,45 +2,144 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.Events;
 
 namespace Creator
 {
     public class ManagerDirector : ManagerBase
     {
-        public static void RunScene(string sceneName, object data = null, string log = "")
+        private static Data CreateAndQueue(
+            string sceneName,
+            object data,
+            Callback onShown,
+            Callback onHidden,
+            bool hasShield,
+            SceneLoadMode loadMode)
         {
-            if (Application.CanStreamedLevelBeLoaded(sceneName))
-            {
-                m_DataQueue.Enqueue(new Data(data, sceneName, null, null));
-                m_MainSceneName = sceneName;
-                Object.FadeOutScene();
-            }
+            var sceneData = new Data(
+                data,
+                sceneName,
+                onShown,
+                onHidden,
+                hasShield,
+                loadMode
+            );
+
+            m_DataQueue.Enqueue(sceneData);
+            return sceneData;
         }
 
-        public static void PushScene(string sceneName, object data = null, Callback onShown = null, Callback onHidden = null, bool hasShield = true, string log = "")
+        private static void LoadAdditive(Data sceneData)
         {
-            if (Application.CanStreamedLevelBeLoaded(sceneName))
-            {
-                m_DataQueue.Enqueue(new Data(data, sceneName, onShown, onHidden, hasShield));
-                m_SceneNow = sceneName;
-                m_TimeScene = Time.time;
-                Object.ShieldOn();
-                SceneManager.LoadScene(sceneName, LoadSceneMode.Additive);
-            }
+            SceneLoader.Load(sceneData, LoadSceneMode.Additive);
         }
 
-        public static void ReplaceScene(string sceneName, object data = null, Callback onShown = null, Callback onHidden = null, string log = "")
+        public static void RunScene(
+            string sceneName,
+            object data = null,
+            string log = "",
+            SceneLoadMode loadMode = SceneLoadMode.BuildIn)
         {
-            if (!Application.CanStreamedLevelBeLoaded(sceneName))
+            var sceneData = CreateAndQueue(
+                sceneName,
+                data,
+                onShown: null,
+                onHidden: null,
+                hasShield: true,
+                loadMode
+            );
+
+            m_MainSceneName = sceneName;
+            Object.FadeOutScene();
+        }
+
+        public static void PushScene(
+            string sceneName,
+            object data = null,
+            Callback onShown = null,
+            Callback onHidden = null,
+            bool hasShield = true,
+            string log = "",
+            SceneLoadMode loadMode = SceneLoadMode.BuildIn)
+        {
+            var sceneData = CreateAndQueue(
+                sceneName,
+                data,
+                onShown,
+                onHidden,
+                hasShield,
+                loadMode
+            );
+
+            Object.ShieldOn();
+
+            if (m_ControllerStack.Count > 0)
+                m_ControllerStack.Peek().GetCanvasGroup().blocksRaycasts = false;
+
+            LoadAdditive(sceneData);
+        }
+
+        public static void PushSceneTracked(
+            string sceneName,
+            object data = null,
+            Callback onShown = null,
+            UnityAction onHidden = null,
+            bool hasShield = true,
+            string log = "",
+            SceneLoadMode loadMode = SceneLoadMode.BuildIn)
+        {
+            float startTime = Time.realtimeSinceStartup;
+
+            PushScene(
+                sceneName,
+                data,
+                onShown,
+                () =>
+                {
+                    float duration = Time.realtimeSinceStartup - startTime;
+
+                    // TODO: Hook Firebase / Adjust event here
+                    // Analytics.LogSceneDuration(sceneName, duration);
+
+                    onHidden?.Invoke();
+                },
+                hasShield,
+                log,
+                loadMode
+            );
+        }
+
+        public static void ReplaceScene(
+            string sceneName,
+            object data = null,
+            Callback onShown = null,
+            Callback onHidden = null,
+            string log = "",
+            SceneLoadMode loadMode = SceneLoadMode.BuildIn)
+        {
+            if (m_ControllerStack.Count == 0)
                 return;
 
-            var currentController = m_ControllerStack.First();
+            var currentController = m_ControllerStack.Peek();
             currentController.HidePopup(false);
-            onHidden += () => { currentController.ShowPopup(false); };
 
-            m_DataQueue.Enqueue(new Data(data, sceneName, onShown, onHidden, false));
+            Callback wrappedHidden = () =>
+            {
+                onHidden?.Invoke();
+                currentController.ShowPopup(false);
+            };
+
+            var sceneData = CreateAndQueue(
+                sceneName,
+                data,
+                onShown,
+                wrappedHidden,
+                hasShield: false,
+                loadMode
+            );
+
             Object.ShieldOn();
-            SceneManager.LoadScene(sceneName, LoadSceneMode.Additive);
+            LoadAdditive(sceneData);
         }
 
         public static void PopScene()
@@ -93,6 +192,46 @@ namespace Creator
             }
         }
 
+        public static void PopScenesImmediate(string[] sceneNames)
+        {
+            if (m_ControllerStack == null || m_ControllerStack.Count == 0)
+                return;
+
+            if (sceneNames == null || sceneNames.Length == 0)
+                return;
+
+            var tempStack = new Stack<Controller>();
+
+            while (m_ControllerStack.Count > 0)
+            {
+                var controller = m_ControllerStack.Pop();
+                if (controller == null)
+                    continue;
+
+                var sceneName = controller.SceneName();
+
+                if (sceneNames.Contains(sceneName))
+                {
+                    controller.Data.onHidden?.Invoke();
+                    RemovePendingDataForScene(sceneName);
+                    SceneLoader.Unload(controller.Data);
+                }
+                else
+                {
+                    tempStack.Push(controller);
+                }
+            }
+
+            while (tempStack.Count > 0)
+            {
+                m_ControllerStack.Push(tempStack.Pop());
+            }
+
+            if (m_ControllerStack.Count > 0)
+            {
+                m_ControllerStack.Peek().OnReFocus();
+            }
+        }
 
         protected static void PopTopControllerImmediate()
         {
@@ -101,9 +240,11 @@ namespace Creator
 
             var controller = m_ControllerStack.Pop();
 
+            controller.Data.onHidden?.Invoke();
+
             RemovePendingDataForScene(controller.SceneName());
 
-            SceneManager.UnloadSceneAsync(controller.Data.scene);
+            SceneLoader.Unload(controller.Data);
 
             if (m_ControllerStack.Count > 0)
             {
@@ -207,21 +348,8 @@ namespace Creator
         {
             if (controller != null && controller.Data != null && controller.Data.scene != null)
             {
-                SceneManager.UnloadSceneAsync(controller.Data.scene);
+                SceneLoader.Unload(controller.Data);
             }
-        }
-
-        protected static void RemovePreviousController(Controller controller)
-        {
-            if (m_ControllerStack.Count == 0)
-                return;
-
-
-            if (m_ControllerStack.Peek() != controller)
-                return;
-
-            var removed = m_ControllerStack.Pop();
-            Unload(removed);
         }
 
         protected static Controller GetController(Scene scene)

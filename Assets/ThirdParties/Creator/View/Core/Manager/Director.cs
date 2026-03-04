@@ -3,6 +3,7 @@ using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using System.Collections;
 using YNL.Utilities.Extensions;
+using UnityTimer;
 
 namespace Creator
 {
@@ -30,7 +31,8 @@ namespace Creator
         static Director()
         {
             // CHỈ gán dữ liệu nhẹ, KHÔNG Unity API
-            SceneAnimationDuration = 0.25f;
+            SceneAnimationDuration = 0.35f;
+            ButtonAnimationDuration = 1;
 
             Creator.Director.LoadingSceneName = DLoading.SCENE_NAME;
         }
@@ -77,7 +79,7 @@ namespace Creator
                 ActivatePreviousController(controller, false);
             }
 
-            UnityTimer.Timer.Register(Director.SceneAnimationDuration, () =>
+            Timer.Register(Director.SceneAnimationDuration, () =>
             {
                 controller.OnShown();
                 if (controller.Data != null && controller.Data.onShown != null)
@@ -158,17 +160,14 @@ namespace Creator
                 m_ControllerStack.Clear();
             }
 
-            // Unload resources and collect GC.
-            Resources.UnloadUnusedAssets();
-            System.GC.Collect();
-
             // Get Data
             if (m_DataQueue.Count == 0)
             {
                 m_DataQueue.Enqueue(new Data(null, scene.name, null, null));
             }
 
-            Data data = m_DataQueue.Dequeue();
+            Data data = m_DataQueue.Count > 0 ? m_DataQueue.Dequeue() : new Data(null, scene.name);
+
             while (data.sceneName != scene.name && m_DataQueue.Count > 0)
             {
                 data = m_DataQueue.Dequeue();
@@ -237,8 +236,21 @@ namespace Creator
 
             while (!asyncLoad.isDone)
             {
-                yield return new WaitForEndOfFrame();
+                yield return null;
             }
+
+            m_LoadingController.StartCoroutine(CleanupAfterHeavyScene());
+        }
+
+        static IEnumerator CleanupAfterHeavyScene()
+        {
+            yield return null;
+
+            yield return Resources.UnloadUnusedAssets();
+
+            System.GC.Collect(System.GC.MaxGeneration, System.GCCollectionMode.Optimized);
+
+            yield return new WaitForSeconds(0.5f);
         }
         #endregion
     }

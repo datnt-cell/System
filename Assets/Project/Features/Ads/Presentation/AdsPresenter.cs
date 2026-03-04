@@ -28,9 +28,9 @@ public class AdsPresenter
             });
     }
 
-    public void OnClickInterstitial(int level)
+    public void OnClickInterstitial()
     {
-        _service.TryShowInterstitial(level);
+        _service.TryShowInterstitial(1, 0);
     }
 
     public void OnClickRewarded(UnityAction<bool> callback)

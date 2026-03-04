@@ -7,4 +7,6 @@ public interface IAdsProvider
 {
     void ShowInterstitial();
     void ShowRewarded(UnityAction<bool> callback);
+    bool IsInterstitialAvailable();
+    bool IsRewardedAvailable();
 }

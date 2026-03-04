@@ -15,4 +15,14 @@ public class GleyAdsProvider : IAdsProvider
     {
         Gley.MobileAds.API.ShowRewardedVideo(callback);
     }
+
+    public bool IsRewardedAvailable()
+    {
+        return Gley.MobileAds.API.IsInterstitialAvailable();
+    }
+
+    public bool IsInterstitialAvailable()
+    {
+        return Gley.MobileAds.API.IsRewardedVideoAvailable();
+    }
 }

@@ -48,5 +48,10 @@ public class AdsState
     }
 
     public void ShowShield() => IsShieldVisible.Value = true;
+    
     public void HideShield() => IsShieldVisible.Value = false;
+
+    public void SetNextAdTime(float time) => NextAvailableAdTime = time;
+
+    public float NextAvailableAdTime { get; private set; }
 }

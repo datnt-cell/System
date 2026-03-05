@@ -221,28 +221,36 @@ namespace Creator
 
         void SetupScene()
         {
-            Controller c = GameObject.FindObjectOfType<Controller>();
-            GameObject go = c.gameObject;
+            Controller baseController = GameObject.FindObjectOfType<Controller>();
 
-            go.name = sceneName;
-            if (c != null)
+            if (baseController == null)
             {
-                DestroyImmediate(c);
+                Debug.LogError("No Controller found in template scene!");
+                return;
             }
 
-            var canvas = c.Canvas;
-            var camera = c.Camera;
+            GameObject go = baseController.gameObject;
+            go.name = sceneName;
 
             var type = GetAssemblyType(sceneName + "Controller");
-            go.AddComponent(type);
 
-            c = go.GetComponent<Controller>();
+            if (type == null)
+            {
+                Debug.LogError("Cannot find type: " + sceneName + "Controller");
+                return;
+            }
 
-            c.Canvas = canvas;
-            c.Camera = camera;
-            c.FullScreen = fullScreen;
+            string json = JsonUtility.ToJson(baseController);
 
-            AssetDatabase.ImportAsset(controllerPath);
+            DestroyImmediate(baseController);
+
+            var newController = go.AddComponent(type) as Controller;
+
+            JsonUtility.FromJsonOverwrite(json, newController);
+
+            newController.Animation.SetController(newController);
+
+            EditorUtility.SetDirty(newController);
         }
 
         void SaveScene()

@@ -8,7 +8,7 @@ namespace CurrencySystem.Infrastructure
     {
         private readonly Dictionary<string, CurrencyBundle> _lookup;
 
-        public GlobalConfigBundleProvider(CurrencyGlobalConfig config)
+        public GlobalConfigBundleProvider(CurrencyBundleGlobalConfig config)
         {
             _lookup = config.Bundles.ToDictionary(
                 b => b.Id,

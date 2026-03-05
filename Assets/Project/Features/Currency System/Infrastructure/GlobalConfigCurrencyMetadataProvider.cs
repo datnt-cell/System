@@ -8,7 +8,7 @@ namespace CurrencySystem.Infrastructure
     /// Metadata provider dùng GlobalConfig.
     /// Đây là nơi duy nhất dùng Unity data.
     /// </summary>
-    public class GlobalConfigCurrencyMetadataProvider 
+    public class GlobalConfigCurrencyMetadataProvider
         : ICurrencyMetadataProvider
     {
         private readonly Dictionary<string, CurrencyConfigData> _lookup;
@@ -24,9 +24,14 @@ namespace CurrencySystem.Infrastructure
             => _lookup.ContainsKey(id.Value);
 
         public int GetMaxStack(CurrencyId id)
-            => _lookup.TryGetValue(id.Value, out var data)
-                ? data.MaxStack
-                : int.MaxValue;
+        {
+            if (!_lookup.TryGetValue(id.Value, out var data))
+                return int.MaxValue;
+
+            return data.MaxStack <= 0
+                ? int.MaxValue
+                : data.MaxStack;
+        }
 
         public string GetDisplayName(CurrencyId id)
             => _lookup.TryGetValue(id.Value, out var data)

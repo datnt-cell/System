@@ -13,6 +13,7 @@ namespace CurrencySystem.Installer
         public CurrencyInstallResult Install()
         {
             var config = CurrencyGlobalConfig.Instance;
+            var bundle = CurrencyBundleGlobalConfig.Instance;
 
             ICurrencyMetadataProvider metadataProvider =
                 new GlobalConfigCurrencyMetadataProvider(config);
@@ -22,7 +23,7 @@ namespace CurrencySystem.Installer
 
             // Infrastructure
             var repository = new EasySaveCurrencyRepository();
-            var bundleProvider = new GlobalConfigBundleProvider(config);
+            var bundleProvider = new GlobalConfigBundleProvider(bundle);
 
             // Application
             var service = new CurrencyService(state, repository);

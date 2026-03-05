@@ -63,6 +63,6 @@ public class StoreItemsGlobalConfig : GlobalConfig<StoreItemsGlobalConfig>
 
     public IEnumerable<string> GetAllBundleIds()
     {
-        return CurrencyGlobalConfig.Instance.Bundles.Select(x => x.Id);
+        return CurrencyBundleGlobalConfig.Instance.Bundles.Select(x => x.Id);
     }
 }

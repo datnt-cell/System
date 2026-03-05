@@ -9,14 +9,16 @@ using Sirenix.OdinInspector.Editor;
 [GlobalConfig("Assets/Resources/GlobalConfig/")]
 public class CurrencyGlobalConfig : GlobalConfig<CurrencyGlobalConfig>
 {
-    [Title("CURRENCY LIST")]
+    [Title("💰 CURRENCY LIST", bold: true)]
     [TableList(AlwaysExpanded = true)]
     [Searchable]
     [OnCollectionChanged(nameof(OnCurrencyListChanged))]
     [ValidateInput(nameof(ValidateCurrencyIds), "Currency Id bị trùng!")]
     public List<CurrencyConfigData> Currencies = new();
 
-    [Title("BUNDLE LIST")]
+    [Space(20)]
+
+    [Title("🎁 BUNDLE LIST", bold: true)]
     [TableList(AlwaysExpanded = true)]
     [Searchable]
     [OnCollectionChanged(nameof(OnBundleListChanged))]
@@ -124,19 +126,33 @@ public class CurrencyRewardConfig
 [System.Serializable]
 public class CurrencyConfigData
 {
-    [HorizontalGroup("Row", Width = 90)]
+    [HorizontalGroup("Row", Width = 70)]
     [PreviewField(60)]
     [HideLabel]
     public Sprite Icon;
 
+    // ===== INFO BLOCK =====
     [VerticalGroup("Row/Info")]
-    [ReadOnly] // tránh dev sửa Id sau khi tạo
+    [ReadOnly]
     public string Id;
 
     [VerticalGroup("Row/Info")]
     public string DisplayName;
 
-    [HorizontalGroup("Row", Width = 120)]
+    [VerticalGroup("Row/Info")]
+    [LabelWidth(40)]
+    public ConfigType Type;
+
+    // ===== STACK =====
+    [HorizontalGroup("Row", Width = 110)]
+    [LabelWidth(70)]
     [MinValue(0)]
-    public int MaxStack = int.MaxValue;
+    public int MaxStack = 0;
+}
+
+public enum ConfigType
+{
+    Currency,
+    Item,
+    Event
 }

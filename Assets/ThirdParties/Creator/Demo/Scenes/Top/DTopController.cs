@@ -12,18 +12,18 @@ public class DTopController : Controller
 
     public void OnButtonTap1()
     {
-        Creator.Director.PushScene(DPopupController.SCENE_NAME, new DPopupData("Popup1", true), () =>
+        Creator.Director.PushSceneToStack(DPopupController.SCENE_NAME, new DPopupData("Popup1", true), () =>
          {
              Console.Log("Life cycle", "On Show Popup1");
          }, () =>
          {
              Console.Log("Life cycle", "On Hide Popup1");
-         }, false);
+         }, false, layer: NavigationLayer.Modal);
     }
 
     public void OnButtonTap2()
     {
-        Creator.Director.PushScene(DPopupController.SCENE_NAME, new DPopupData("Popup1", false), () =>
+        Creator.Director.PushSceneToStack(DPopupController.SCENE_NAME, new DPopupData("Popup1", false), () =>
         {
             Console.Log("Life cycle", "On Show Popup1");
         }, () =>
@@ -31,7 +31,7 @@ public class DTopController : Controller
             Console.Log("Life cycle", "On Hide Popup1");
         }, true);
 
-        Creator.Director.PushScene(DPopupController.SCENE_NAME, new DPopupData("Popup2", true), () =>
+        Creator.Director.PushSceneToStack(DPopupController.SCENE_NAME, new DPopupData("Popup2", true), () =>
         {
             Console.Log("Life cycle", "On Show Popup2");
         }, () =>
@@ -42,7 +42,7 @@ public class DTopController : Controller
 
     public void OnSelectTap()
     {
-        Creator.Director.PushScene(DSelectController.DSELECT_SCENE_NAME);
+        Creator.Director.PushSceneToStack(DSelectController.DSELECT_SCENE_NAME);
     }
 
     public override void OnActive(object data)

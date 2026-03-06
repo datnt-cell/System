@@ -8,13 +8,17 @@ namespace Creator
 {
     public class ManagerDirector : ManagerBase
     {
-        private static Data CreateAndQueue(
+        /// <summary>
+        /// Tạo SceneData và đưa vào hàng đợi load
+        /// </summary>
+        private static Data CreateSceneDataAndEnqueue(
             string sceneName,
             object data,
             Callback onShown,
             Callback onHidden,
             bool hasShield,
-            SceneLoadMode loadMode)
+            SceneLoadMode loadMode,
+            NavigationLayer layer = NavigationLayer.Main)
         {
             var sceneData = new Data(
                 data,
@@ -22,25 +26,33 @@ namespace Creator
                 onShown,
                 onHidden,
                 hasShield,
-                loadMode
+                loadMode,
+                layer
             );
 
+            // Đưa scene vào queue chờ load
             m_DataQueue.Enqueue(sceneData);
             return sceneData;
         }
 
-        private static void LoadAdditive(Data sceneData)
+        /// <summary>
+        /// Load scene theo dạng Additive
+        /// </summary>
+        private static void LoadSceneAdditive(Data sceneData)
         {
             SceneLoader.Load(sceneData, LoadSceneMode.Additive);
         }
 
-        public static void RunScene(
+        /// <summary>
+        /// Set scene gốc (Root Scene) của app
+        /// </summary>
+        public static void SetRootScene(
             string sceneName,
             object data = null,
             string log = "",
             SceneLoadMode loadMode = SceneLoadMode.BuildIn)
         {
-            var sceneData = CreateAndQueue(
+            var sceneData = CreateSceneDataAndEnqueue(
                 sceneName,
                 data,
                 onShown: null,
@@ -49,37 +61,50 @@ namespace Creator
                 loadMode
             );
 
+            // Lưu lại tên main scene
             m_MainSceneName = sceneName;
+
+            // Fade out scene hiện tại trước khi load scene mới
             Object.FadeOutScene();
         }
 
-        public static void PushScene(
+        /// <summary>
+        /// Push một scene mới lên stack (giống Push Popup)
+        /// </summary>
+        public static void PushSceneToStack(
             string sceneName,
             object data = null,
             Callback onShown = null,
             Callback onHidden = null,
             bool hasShield = true,
             string log = "",
-            SceneLoadMode loadMode = SceneLoadMode.BuildIn)
+            SceneLoadMode loadMode = SceneLoadMode.BuildIn,
+            NavigationLayer layer = NavigationLayer.Main)
         {
-            var sceneData = CreateAndQueue(
+            var sceneData = CreateSceneDataAndEnqueue(
                 sceneName,
                 data,
                 onShown,
                 onHidden,
                 hasShield,
-                loadMode
+                loadMode,
+                layer
             );
 
+            // Bật shield để chặn input
             Object.ShieldOn();
 
+            // Disable raycast của scene hiện tại
             if (m_ControllerStack.Count > 0)
                 m_ControllerStack.Peek().GetCanvasGroup().blocksRaycasts = false;
 
-            LoadAdditive(sceneData);
+            LoadSceneAdditive(sceneData);
         }
 
-        public static void PushSceneTracked(
+        /// <summary>
+        /// Push scene và track thời gian tồn tại của scene
+        /// </summary>
+        public static void PushSceneWithTracking(
             string sceneName,
             object data = null,
             Callback onShown = null,
@@ -90,7 +115,7 @@ namespace Creator
         {
             float startTime = Time.realtimeSinceStartup;
 
-            PushScene(
+            PushSceneToStack(
                 sceneName,
                 data,
                 onShown,
@@ -98,7 +123,7 @@ namespace Creator
                 {
                     float duration = Time.realtimeSinceStartup - startTime;
 
-                    // TODO: Hook Firebase / Adjust event here
+                    // TODO: Hook Firebase / Adjust event tại đây
                     // Analytics.LogSceneDuration(sceneName, duration);
 
                     onHidden?.Invoke();
@@ -109,7 +134,10 @@ namespace Creator
             );
         }
 
-        public static void ReplaceScene(
+        /// <summary>
+        /// Thay thế scene trên cùng của stack
+        /// </summary>
+        public static void ReplaceTopScene(
             string sceneName,
             object data = null,
             Callback onShown = null,
@@ -121,15 +149,19 @@ namespace Creator
                 return;
 
             var currentController = m_ControllerStack.Peek();
+
+            // Ẩn popup hiện tại (không animation)
             currentController.HidePopup(false);
 
             Callback wrappedHidden = () =>
             {
                 onHidden?.Invoke();
+
+                // Hiện lại popup cũ sau khi scene mới đóng
                 currentController.ShowPopup(false);
             };
 
-            var sceneData = CreateAndQueue(
+            var sceneData = CreateSceneDataAndEnqueue(
                 sceneName,
                 data,
                 onShown,
@@ -139,60 +171,129 @@ namespace Creator
             );
 
             Object.ShieldOn();
-            LoadAdditive(sceneData);
+            LoadSceneAdditive(sceneData);
         }
 
-        public static void PopScene()
+        /// <summary>
+        /// Pop scene trên cùng khỏi stack
+        /// </summary>
+        public static void PopTopScene()
         {
             if (m_ControllerStack.Count <= 1)
-            {
                 return;
-            }
 
             ActivatePreviousController(true);
             HideController(true);
 
             Object.ShieldOn();
+
+            // Hide scene trên cùng
             m_ControllerStack.Peek().Hide();
         }
 
-        public static Controller GetRunningScene()
+        /// <summary>
+        /// Đóng UI hệ thống (System Layer)
+        /// </summary>
+        public static void PopSystem()
         {
-            return m_ControllerStack.First();
+            if (m_ControllerStack.Count == 0)
+                return;
+
+            var top = m_ControllerStack.Peek();
+
+            if (top.Data.layer != NavigationLayer.System)
+                return;
+
+            ActivatePreviousController(true);
+            HideController(true);
+
+            Object.ShieldOn();
+            top.Hide();
         }
 
-        public static void Pause()
+        /// <summary>
+        /// Đóng popup (Modal) trên cùng
+        /// </summary>
+        public static void PopModal()
         {
-            Time.timeScale = 0f;
+            if (m_ControllerStack.Count == 0)
+                return;
+
+            var top = m_ControllerStack.Peek();
+
+            if (top.Data.layer != NavigationLayer.Modal)
+                return;
+
+            ActivatePreviousController(true);
+            HideController(true);
+
+            Object.ShieldOn();
+            top.Hide();
         }
 
-        public static void Resume()
+        /// <summary>
+        /// Đóng toàn bộ Modal + System và quay về Main Scene gần nhất
+        /// </summary>
+        public static void PopToMain()
         {
-            Time.timeScale = 1f;
+            if (m_ControllerStack == null || m_ControllerStack.Count == 0)
+                return;
+
+            while (m_ControllerStack.Count > 0)
+            {
+                var controller = m_ControllerStack.Peek();
+
+                if (controller.Data.layer == NavigationLayer.Main)
+                    break;
+
+                PopTopControllerImmediately();
+            }
+
+            if (m_ControllerStack.Count == 0)
+                return;
+
+            var mainController = m_ControllerStack.Peek();
+
+            if (mainController.Animation
+                .TryGetComponent<CanvasGroup>(out var canvasGroup))
+            {
+                canvasGroup.blocksRaycasts = true;
+            }
+
+            mainController.OnReFocus();
         }
 
-        public static void PopToRootScene()
+        /// <summary>
+        /// Pop tất cả scene về Root
+        /// </summary>
+        public static void PopToRoot()
         {
             if (m_ControllerStack == null || m_ControllerStack.Count == 0)
                 return;
 
             while (m_ControllerStack.Count > 1)
             {
-                PopTopControllerImmediate();
+                PopTopControllerImmediately();
             }
 
             var rootController = m_ControllerStack.Peek();
             if (rootController == null)
                 return;
 
+            // Enable lại raycast cho root
             if (rootController.Animation
                 .TryGetComponent<CanvasGroup>(out var canvasGroup))
             {
                 canvasGroup.blocksRaycasts = true;
             }
+            
+            rootController.OnReFocus();
         }
 
-        public static void PopScenesImmediate(string[] sceneNames)
+        /// <summary>
+        /// Pop ngay lập tức các scene theo danh sách tên truyền vào
+        /// </summary>
+        public static void PopScenesImmediately(string[] sceneNames)
         {
             if (m_ControllerStack == null || m_ControllerStack.Count == 0)
                 return;
@@ -222,18 +323,23 @@ namespace Creator
                 }
             }
 
+            // Restore lại stack
             while (tempStack.Count > 0)
             {
                 m_ControllerStack.Push(tempStack.Pop());
             }
 
+            // Focus lại scene top
             if (m_ControllerStack.Count > 0)
             {
                 m_ControllerStack.Peek().OnReFocus();
             }
         }
 
-        protected static void PopTopControllerImmediate()
+        /// <summary>
+        /// Pop controller trên cùng ngay lập tức (không animation)
+        /// </summary>
+        protected static void PopTopControllerImmediately()
         {
             if (m_ControllerStack.Count == 0)
                 return;
@@ -250,6 +356,21 @@ namespace Creator
             {
                 m_ControllerStack.Peek().OnReFocus();
             }
+        }
+
+        public static Controller GetRunningScene()
+        {
+            return m_ControllerStack.Peek();
+        }
+
+        public static void Pause()
+        {
+            Time.timeScale = 0f;
+        }
+
+        public static void Resume()
+        {
+            Time.timeScale = 1f;
         }
 
         static void RemovePendingDataForScene(string sceneName)
@@ -362,6 +483,20 @@ namespace Creator
                     return component;
                 }
             }
+            return null;
+        }
+
+        /// <summary>
+        /// Lấy controller trên cùng theo layer
+        /// </summary>
+        private static Controller FindTopController(NavigationLayer layer)
+        {
+            foreach (var controller in m_ControllerStack)
+            {
+                if (controller.Data.layer == layer)
+                    return controller;
+            }
+
             return null;
         }
     }

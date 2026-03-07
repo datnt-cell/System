@@ -9,21 +9,14 @@ using Sirenix.OdinInspector.Editor;
 [GlobalConfig("Assets/Resources/GlobalConfig/")]
 public class CurrencyGlobalConfig : GlobalConfig<CurrencyGlobalConfig>
 {
-    [Title("CURRENCY LIST")]
+    [Title("💰 CURRENCY LIST", bold: true)]
     [TableList(AlwaysExpanded = true)]
     [Searchable]
     [OnCollectionChanged(nameof(OnCurrencyListChanged))]
     [ValidateInput(nameof(ValidateCurrencyIds), "Currency Id bị trùng!")]
     public List<CurrencyConfigData> Currencies = new();
 
-    [Title("BUNDLE LIST")]
-    [TableList(AlwaysExpanded = true)]
-    [Searchable]
-    [OnCollectionChanged(nameof(OnBundleListChanged))]
-    [ValidateInput(nameof(ValidateBundleIds), "Bundle Id bị trùng!")]
-    public List<CurrencyBundleConfigData> Bundles = new();
-
-    // ===== AUTO ID CURRENCY =====
+    // ===== AUTO ID =====
 
     private void OnCurrencyListChanged(CollectionChangeInfo info)
     {
@@ -48,46 +41,14 @@ public class CurrencyGlobalConfig : GlobalConfig<CurrencyGlobalConfig>
         return $"CUR_{(max + 1):000}";
     }
 
-    // ===== AUTO ID BUNDLE =====
-
-    private void OnBundleListChanged(CollectionChangeInfo info)
-    {
-        if (info.ChangeType == CollectionChangeType.Add)
-        {
-            var newItem = info.Value as CurrencyBundleConfigData;
-            if (newItem != null && string.IsNullOrEmpty(newItem.Id))
-            {
-                newItem.Id = GenerateNextBundleId();
-            }
-        }
-    }
-
-    private string GenerateNextBundleId()
-    {
-        int max = Bundles
-            .Where(x => !string.IsNullOrEmpty(x.Id))
-            .Select(x => ExtractNumber(x.Id))
-            .DefaultIfEmpty(0)
-            .Max();
-
-        return $"BUNDLE_{(max + 1):000}";
-    }
-
     private int ExtractNumber(string id)
     {
         var digits = new string(id.Where(char.IsDigit).ToArray());
         return int.TryParse(digits, out int number) ? number : 0;
     }
 
-    // ===== VALIDATION =====
-
     private bool ValidateCurrencyIds(List<CurrencyConfigData> list)
         => list.Select(x => x.Id).Distinct().Count() == list.Count;
-
-    private bool ValidateBundleIds(List<CurrencyBundleConfigData> list)
-        => list.Select(x => x.Id).Distinct().Count() == list.Count;
-
-    // ===== DROPDOWN SUPPORT =====
 
     public IEnumerable<string> GetAllCurrencyIds()
     {
@@ -95,48 +56,37 @@ public class CurrencyGlobalConfig : GlobalConfig<CurrencyGlobalConfig>
     }
 }
 
-[System.Serializable]
-public class CurrencyBundleConfigData
-{
-    [HorizontalGroup("Row")]
-    [ReadOnly]
-    public string Id;
-
-    [TableList(AlwaysExpanded = true)]
-    public List<CurrencyRewardConfig> Rewards = new();
-}
-
-[System.Serializable]
-public class CurrencyRewardConfig
-{
-    [ValueDropdown(nameof(GetCurrencyIds))]
-    public string CurrencyId;
-
-    [MinValue(1)]
-    public int Amount;
-
-    private IEnumerable<string> GetCurrencyIds()
-    {
-        return CurrencyGlobalConfig.Instance.GetAllCurrencyIds();
-    }
-}
 
 [System.Serializable]
 public class CurrencyConfigData
 {
-    [HorizontalGroup("Row", Width = 90)]
+    [HorizontalGroup("Row", Width = 70)]
     [PreviewField(60)]
     [HideLabel]
     public Sprite Icon;
 
+    // ===== INFO BLOCK =====
     [VerticalGroup("Row/Info")]
-    [ReadOnly] // tránh dev sửa Id sau khi tạo
+    [ReadOnly]
     public string Id;
 
     [VerticalGroup("Row/Info")]
     public string DisplayName;
 
-    [HorizontalGroup("Row", Width = 120)]
+    [VerticalGroup("Row/Info")]
+    [LabelWidth(40)]
+    public ConfigType Type;
+
+    // ===== STACK =====
+    [HorizontalGroup("Row", Width = 110)]
+    [LabelWidth(70)]
     [MinValue(0)]
-    public int MaxStack = int.MaxValue;
+    public int MaxStack = 0;
+}
+
+public enum ConfigType
+{
+    Currency,
+    Item,
+    Event
 }

@@ -79,7 +79,7 @@ namespace Creator
         public virtual void OnKeyBack()
         {
             this.GetCanvasGroup().blocksRaycasts = false;
-            Director.PopScene();
+            Director.PopTopScene();
         }
 
 

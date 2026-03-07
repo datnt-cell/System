@@ -55,7 +55,7 @@ public class DGameController : Controller
 
     public void OnButtonTap()
     {
-        Creator.Director.PushScene(DTopController.SCENE_NAME);
+        Creator.Director.PushSceneToStack(DTopController.SCENE_NAME);
     }
 
     IEnumerator OnStart()

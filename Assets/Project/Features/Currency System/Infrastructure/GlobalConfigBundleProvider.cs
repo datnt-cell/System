@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using CurrencySystem.Domain;
+using UnityEngine;
 
 namespace CurrencySystem.Infrastructure
 {
@@ -8,7 +9,7 @@ namespace CurrencySystem.Infrastructure
     {
         private readonly Dictionary<string, CurrencyBundle> _lookup;
 
-        public GlobalConfigBundleProvider(CurrencyGlobalConfig config)
+        public GlobalConfigBundleProvider(CurrencyBundleGlobalConfig config)
         {
             _lookup = config.Bundles.ToDictionary(
                 b => b.Id,
@@ -21,6 +22,12 @@ namespace CurrencySystem.Infrastructure
         }
 
         public CurrencyBundle GetBundle(string id)
-            => _lookup[id];
+        {
+            if (_lookup.TryGetValue(id, out var bundle))
+                return bundle;
+
+            Console.LogError($"CurrencyBundle not found: {id}");
+            return null;
+        }
     }
 }

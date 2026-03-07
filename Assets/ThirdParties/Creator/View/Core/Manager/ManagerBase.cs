@@ -12,8 +12,22 @@ namespace Creator
         Addressable
     }
 
+    public enum NavigationLayer
+    {
+        Main = 0,   // Scene chính (Home, Shop, Gameplay...)
+        Modal = 1,  // Popup, Dialog, Panel chồng lên
+        System = 2  // UI hệ thống: GDPR, Update Required, Network Lost...
+    }
+
     public class ManagerBase
     {
+        protected static Dictionary<NavigationLayer, Stack<Controller>> m_LayerStacks = new Dictionary<NavigationLayer, Stack<Controller>>()
+        {
+            { NavigationLayer.Main, new Stack<Controller>() },
+            { NavigationLayer.Modal, new Stack<Controller>() },
+            { NavigationLayer.System, new Stack<Controller>() }
+        };
+
         public class Data
         {
             // ===================== PAYLOAD =====================
@@ -34,8 +48,11 @@ namespace Creator
             // ===================== UI / FLOW =====================
             public bool hasShield;
 
+            public NavigationLayer layer;
+
             // ===================== STATE =====================
             public bool IsAddressable => loadMode == SceneLoadMode.Addressable;
+
             public bool IsLoaded =>
              IsAddressable
                  ? addressableHandle.HasValue && addressableHandle.Value.IsValid()
@@ -48,7 +65,8 @@ namespace Creator
                 ManagerBase.Callback onShown = null,
                 ManagerBase.Callback onHidden = null,
                 bool hasShield = true,
-                SceneLoadMode loadMode = SceneLoadMode.BuildIn)
+                SceneLoadMode loadMode = SceneLoadMode.BuildIn,
+                NavigationLayer layer = NavigationLayer.Main)
             {
                 this.data = data;
                 this.sceneName = sceneName;
@@ -56,6 +74,7 @@ namespace Creator
                 this.onShown = onShown;
                 this.onHidden = onHidden;
                 this.hasShield = hasShield;
+                this.layer = layer;
 
                 scene = default;
                 addressableHandle = null;
@@ -109,5 +128,10 @@ namespace Creator
         protected static string m_MainSceneName;
 
         protected static Controller m_MainController;
+
+        protected static Stack<Controller> GetLayerStack(NavigationLayer layer)
+        {
+            return m_LayerStacks[layer];
+        }
     }
 }

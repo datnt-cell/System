@@ -182,13 +182,33 @@ namespace Creator
 
             // Push the current scene to the stack.
             m_ControllerStack.Push(controller);
+            var layerStack = GetLayerStack(data.layer);
+            layerStack.Push(controller);
 
             // Setup controller
             controller.Data = data;
             controller.HasShield = data.hasShield;
-            controller.SetupCanvas(m_ControllerStack.Count - 1);
+            int baseOrder = 0;
+
+            switch (data.layer)
+            {
+                case NavigationLayer.Main:
+                    baseOrder = 100;
+                    break;
+
+                case NavigationLayer.Modal:
+                    baseOrder = 200;
+                    break;
+
+                case NavigationLayer.System:
+                    baseOrder = 300;
+                    break;
+            }
+
+            controller.SetupCanvas(baseOrder + GetLayerStack(data.layer).Count);
             controller.OnActive(data.data);
             controller.CreateShield();
+
             // Animation
             if (m_ControllerStack.Count == 1)
             {
@@ -210,6 +230,19 @@ namespace Creator
                 controller.Show();
             }
         }
+
+        public static void PopLayer(NavigationLayer layer)
+        {
+            var stack = GetLayerStack(layer);
+
+            if (stack.Count <= 1)
+                return;
+
+            var controller = stack.Peek();
+
+            controller.Hide();
+        }
+
         #endregion
 
         #region LoadingScene

@@ -18,7 +18,5 @@ public class CurrencyManager : MonoBehaviour
 
         Presenter = result.Presenter;
         ViewModel = result.ViewModel;
-
-        Presenter.OpenBundle("BUNDLE_001","test");
     }
 }

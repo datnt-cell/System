@@ -15,9 +15,15 @@ namespace CurrencySystem.Application
             _bundleProvider = bundleProvider;
         }
 
+        /// <summary>
+        /// Mở bundle theo ID.
+        /// </summary>
         public void OpenBundle(string bundleId, string source)
         {
             var bundle = _bundleProvider.GetBundle(bundleId);
+
+            if (bundle == null)
+                throw new System.Exception($"Bundle not found: {bundleId}");
 
             foreach (var reward in bundle.Rewards)
             {

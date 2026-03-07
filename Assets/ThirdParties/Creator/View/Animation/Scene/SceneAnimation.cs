@@ -22,6 +22,11 @@ namespace Creator
         [LabelText("🛡 Shield Image")]
         [SerializeField] public Image shield;
 
+        public void SetController(Controller controller)
+        {
+            m_Controller = controller;
+        }
+
         public CanvasGroup GetCanvasGroup()
         {
             if (m_CanvasGroup == null)

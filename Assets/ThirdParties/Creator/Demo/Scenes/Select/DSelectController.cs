@@ -12,7 +12,7 @@ public class DSelectController : Controller
 
   public void OnGameButtonTap()
   {
-    Creator.Director.RunScene(DGameController.SCENE_NAME);
+    Creator.Director.SetRootScene(DGameController.SCENE_NAME);
   }
 
   public override void OnActive(object data = null)

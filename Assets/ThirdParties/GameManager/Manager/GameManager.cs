@@ -21,7 +21,7 @@ public partial class GameManager : SingletonPersistent<GameManager>
 
         yield return null;
 
-        Creator.Director.RunScene(DGameController.SCENE_NAME);
+        Creator.Director.SetRootScene(DGameController.SCENE_NAME);
     }
 
     IEnumerator DelayFrames(int frames)

@@ -40,5 +40,10 @@ namespace CurrencySystem.Application
 
         public int GetBalance(CurrencyId id)
             => _state.GetBalance(id);
+
+        public bool HasEnough(CurrencyId id, int amount)
+        {
+            return _state.GetBalance(id) >= amount;
+        }
     }
 }

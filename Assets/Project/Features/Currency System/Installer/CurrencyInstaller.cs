@@ -18,41 +18,62 @@ namespace CurrencySystem.Installer
             ICurrencyMetadataProvider metadataProvider =
                 new GlobalConfigCurrencyMetadataProvider(config);
 
-            // Domain
+            // =========================
+            // DOMAIN
+            // =========================
+
             var state = new CurrencyState(metadataProvider);
 
-            // Infrastructure
+            // =========================
+            // INFRASTRUCTURE
+            // =========================
+
             var repository = new EasySaveCurrencyRepository();
             var bundleProvider = new GlobalConfigBundleProvider(bundle);
 
-            // Application
+            // =========================
+            // APPLICATION
+            // =========================
+
             var service = new CurrencyService(state, repository);
             var bundleUseCase = new CurrencyBundleUseCase(service, bundleProvider);
 
-            // Presentation
+            // =========================
+            // PRESENTATION
+            // =========================
+
             var viewModel = new CurrencyViewModel(state);
             var presenter = new CurrencyPresenter(service, bundleUseCase);
 
             return new CurrencyInstallResult(
                 presenter,
-                viewModel);
+                viewModel,
+                service,
+                bundleUseCase);
         }
     }
+}
 
-    /// <summary>
-    /// DTO chứa kết quả install.
-    /// </summary>
-    public readonly struct CurrencyInstallResult
+/// <summary>
+/// DTO chứa kết quả install.
+/// </summary>
+public readonly struct CurrencyInstallResult
+{
+    public CurrencyPresenter Presenter { get; }
+    public CurrencyViewModel ViewModel { get; }
+
+    public CurrencyService CurrencyService { get; }
+    public CurrencyBundleUseCase BundleUseCase { get; }
+
+    public CurrencyInstallResult(
+        CurrencyPresenter presenter,
+        CurrencyViewModel viewModel,
+        CurrencyService currencyService,
+        CurrencyBundleUseCase bundleUseCase)
     {
-        public CurrencyPresenter Presenter { get; }
-        public CurrencyViewModel ViewModel { get; }
-
-        public CurrencyInstallResult(
-            CurrencyPresenter presenter,
-            CurrencyViewModel viewModel)
-        {
-            Presenter = presenter;
-            ViewModel = viewModel;
-        }
+        Presenter = presenter;
+        ViewModel = viewModel;
+        CurrencyService = currencyService;
+        BundleUseCase = bundleUseCase;
     }
 }

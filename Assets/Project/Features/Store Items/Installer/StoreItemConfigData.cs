@@ -7,22 +7,10 @@ using Gley.EasyIAP;
 [Serializable]
 public class StoreItemConfigData
 {
-    // =========================
-    // HEADER
-    // =========================
-
-    [HorizontalGroup("Header", Width = 70)]
-    [PreviewField(60)]
-    [HideLabel]
-    public Sprite Icon;
-
-    [VerticalGroup("Header/Info")]
+    [TableColumnWidth(140, Resizable = false)]
     [ReadOnly]
+    [LabelText("ID")]
     public string Id;
-
-    [VerticalGroup("Header/Info")]
-    public string DisplayName;
-
     // =========================
     // PRICE
     // =========================

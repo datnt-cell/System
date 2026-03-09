@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using StoreSystem.Domain;
 
 namespace StoreSystem.Application
@@ -7,16 +8,44 @@ namespace StoreSystem.Application
     /// </summary>
     public class StoreItemUseCase
     {
-        private readonly StoreItem _storeItem;
+        private readonly Dictionary<string, StoreItem> _items = new();
 
-        public StoreItemUseCase(StoreItem storeItem)
+        public StoreItemUseCase(List<StoreItem> items)
         {
-            _storeItem = storeItem;
+            foreach (var item in items)
+            {
+                _items[item.Id] = item;
+            }
         }
 
-        public bool TryPurchase()
+        /// <summary>
+        /// Lấy toàn bộ item
+        /// </summary>
+        public IReadOnlyCollection<StoreItem> GetAll()
         {
-            return _storeItem.TryPurchase();
+            return _items.Values;
+        }
+
+        /// <summary>
+        /// Lấy item theo id
+        /// </summary>
+        public StoreItem Get(string id)
+        {
+            _items.TryGetValue(id, out var item);
+            return item;
+        }
+
+        /// <summary>
+        /// Thử mua item
+        /// </summary>
+        public bool TryPurchase(string id)
+        {
+            var item = Get(id);
+
+            if (item == null)
+                return false;
+
+            return item.TryPurchase();
         }
     }
 }

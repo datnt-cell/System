@@ -9,32 +9,53 @@ using Sirenix.OdinInspector;
 [Serializable]
 public class GameOfferGroupConfigData
 {
-    [TableColumnWidth(140, Resizable = false)]
+    // =========================
+    // BASIC
+    // =========================
+
+    [BoxGroup("BASIC")]
+    [TableColumnWidth(350, Resizable = false)]
     [ReadOnly]
     [LabelText("ID")]
     public string Id;
 
-    [TableColumnWidth(150)]
+    [BoxGroup("BASIC")]
+    [LabelWidth(100)]
+    public string DisplayName;
+
+
+    [BoxGroup("BASIC")]
+    [TableColumnWidth(350)]
     [LabelText("Group Type")]
     public OfferGroupType Type;
 
-    [TableColumnWidth(110)]
+
+    // =========================
+    // TIME
+    // =========================
+
+    [BoxGroup("TIME")]
+    [TableColumnWidth(160)]
     [LabelText("Duration (s)")]
     [MinValue(1)]
     public int Duration = 86400;
 
-    [TableColumnWidth(120)]
+    [BoxGroup("TIME")]
+    [TableColumnWidth(160)]
     [LabelText("Wait Activation")]
     public bool WaitForActivation;
 
+
+    // =========================
+    // OFFERS
+    // =========================
+
+    [BoxGroup("OFFERS")]
     [TableColumnWidth(260)]
     [LabelText("Offer Ids")]
     [ValueDropdown(nameof(GetOfferIds))]
     public List<string> OfferIds = new();
 
-    /// <summary>
-    /// Dropdown GameOfferId
-    /// </summary>
     private static IEnumerable<string> GetOfferIds()
     {
         if (GameOfferGlobalConfig.Instance == null)

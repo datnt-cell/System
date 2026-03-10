@@ -4,10 +4,9 @@ using System.Linq;
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;
 using Sirenix.OdinInspector.Editor;
-using Gley.EasyIAP;
 
 [CreateAssetMenu(fileName = "StoreItemsGlobalConfig", menuName = "GlobalConfigs/StoreItemsGlobalConfig")]
-[GlobalConfig("Assets/Resources/GlobalConfig/")]
+[GlobalConfig("Assets/Resources/GlobalConfig/StoreItems")]
 public class StoreItemsGlobalConfig : GlobalConfig<StoreItemsGlobalConfig>
 {
     [Title("STORE ITEM LIST")]

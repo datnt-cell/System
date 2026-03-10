@@ -6,11 +6,11 @@ using Sirenix.Utilities;
 using Sirenix.OdinInspector.Editor;
 
 [CreateAssetMenu(fileName = "CurrencyGlobalConfig", menuName = "GlobalConfigs/CurrencyGlobalConfig")]
-[GlobalConfig("Assets/Resources/GlobalConfig/")]
+[GlobalConfig("Assets/Resources/GlobalConfig/Items/")]
 public class CurrencyGlobalConfig : GlobalConfig<CurrencyGlobalConfig>
 {
     [Title("💰 CURRENCY LIST", bold: true)]
-    [TableList(AlwaysExpanded = true)]
+    [TableList(AlwaysExpanded = false)]
     [Searchable]
     [OnCollectionChanged(nameof(OnCurrencyListChanged))]
     [ValidateInput(nameof(ValidateCurrencyIds), "Currency Id bị trùng!")]
@@ -56,29 +56,44 @@ public class CurrencyGlobalConfig : GlobalConfig<CurrencyGlobalConfig>
     }
 }
 
-
 [System.Serializable]
 public class CurrencyConfigData
 {
-    [HorizontalGroup("Row", Width = 70)]
+    // =========================
+    // INFO
+    // =========================
+
+    [HorizontalGroup("Content")]
+    [BoxGroup("Content/INFO")]
+    [HorizontalGroup("Content/INFO/Split", Width = 70)]
     [PreviewField(60)]
     [HideLabel]
     public Sprite Icon;
 
-    // ===== INFO BLOCK =====
-    [VerticalGroup("Row/Info")]
+    [HorizontalGroup("Content")]
+    [BoxGroup("Content/INFO")]
+    [VerticalGroup("Content/INFO/Split/Fields")]
     [ReadOnly]
     public string Id;
 
-    [VerticalGroup("Row/Info")]
+    [HorizontalGroup("Content")]
+    [BoxGroup("Content/INFO")]
+    [VerticalGroup("Content/INFO/Split/Fields")]
     public string DisplayName;
 
-    [VerticalGroup("Row/Info")]
+    [HorizontalGroup("Content")]
+    [BoxGroup("Content/INFO")]
+    [VerticalGroup("Content/INFO/Split/Fields")]
     [LabelWidth(40)]
     public ConfigType Type;
 
-    // ===== STACK =====
-    [HorizontalGroup("Row", Width = 110)]
+
+    // =========================
+    // STACK
+    // =========================
+
+    [HorizontalGroup("Content", Width = 120)]
+    [BoxGroup("Content/STACK")]
     [LabelWidth(70)]
     [MinValue(0)]
     public int MaxStack = 0;

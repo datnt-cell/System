@@ -10,7 +10,7 @@ using Sirenix.OdinInspector.Editor;
 /// Dùng để config các personalised offers cho LiveOps
 /// </summary>
 [CreateAssetMenu(fileName = "GameOfferGlobalConfig", menuName = "GlobalConfigs/GameOfferGlobalConfig")]
-[GlobalConfig("Assets/Resources/GlobalConfig/")]
+[GlobalConfig("Assets/Resources/GlobalConfig/Offers/")]
 public class GameOfferGlobalConfig : GlobalConfig<GameOfferGlobalConfig>
 {
     [Title("🎁 GAME OFFERS", bold: true)]
@@ -89,16 +89,5 @@ public class GameOfferGlobalConfig : GlobalConfig<GameOfferGlobalConfig>
     private bool ValidateIds(List<GameOfferConfigData> list)
     {
         return list.Select(x => x.Id).Distinct().Count() == list.Count;
-    }
-
-    /// <summary>
-    /// Sort offer theo ID
-    /// </summary>
-    [Button(ButtonSizes.Medium)]
-    private void SortOffers()
-    {
-        Offers = Offers
-            .OrderBy(x => x.Id)
-            .ToList();
     }
 }

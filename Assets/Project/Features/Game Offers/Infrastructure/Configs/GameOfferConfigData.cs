@@ -3,35 +3,53 @@ using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using System.Linq;
 
-/// <summary>
-/// Dữ liệu config của một Game Offer
-/// </summary>
 [Serializable]
 public class GameOfferConfigData
 {
-    [TableColumnWidth(140, Resizable = false)]
+    // =========================
+    // BASIC
+    // =========================
+    [BoxGroup("Info")]
     [ReadOnly]
-    [LabelText("ID")]
+    [LabelWidth(40)]
     public string Id;
 
-    [TableColumnWidth(110)]
+    [BoxGroup("Info")]
+    [LabelWidth(100)]
+    public string DisplayName;
+
+    // =========================
+    // TIME
+    // =========================
+
+    [BoxGroup("TIME")]
+    [TableColumnWidth(140)]
     [LabelText("Duration (s)")]
     [MinValue(1)]
     public int Duration = 86400;
 
-    [TableColumnWidth(160)]
+    [BoxGroup("TIME")]
+    [TableColumnWidth(140)]
+    [LabelText("Wait Activation")]
+    public bool WaitForActivation;
+
+
+    // =========================
+    // STORE
+    // =========================
+
+    [BoxGroup("STORE")]
+    [TableColumnWidth(180)]
     [LabelText("Store Item")]
     [ValueDropdown(nameof(GetStoreItemIds))]
     public string StoreItemId;
 
-    [TableColumnWidth(110)]
+    [BoxGroup("STORE")]
+    [TableColumnWidth(120)]
     [LabelText("Purchase Limit")]
     [MinValue(1)]
     public int Limit = 1;
 
-    [TableColumnWidth(110)]
-    [LabelText("Wait Activation")]
-    public bool WaitForActivation;
 
     /// <summary>
     /// Dropdown StoreItemId

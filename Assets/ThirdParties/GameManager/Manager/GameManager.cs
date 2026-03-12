@@ -2,6 +2,7 @@ using UnityEngine;
 using DesignPatterns;
 using System.Collections;
 using IAPModule;
+using StoreSystem.Presentation;
 
 public partial class GameManager : SingletonPersistent<GameManager>
 {
@@ -10,6 +11,8 @@ public partial class GameManager : SingletonPersistent<GameManager>
     public IAPModule.IAPManager IAPManager;
     public SettingManager SettingManager;
     public CurrencyManager CurrencyManager;
+    public StoreItemsManager storeItemsManager;
+    public GameOfferManager gameOfferManager;
 
     IEnumerator Start()
     {
@@ -39,5 +42,9 @@ public partial class GameManager : SingletonPersistent<GameManager>
         SettingManager.Initialize();
 
         CurrencyManager.Initialize();
+
+        storeItemsManager.Initialize(CurrencyManager);
+
+        gameOfferManager.Initialize();
     }
 }

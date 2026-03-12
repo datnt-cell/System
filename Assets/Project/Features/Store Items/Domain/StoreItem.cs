@@ -6,19 +6,16 @@ namespace StoreSystem.Domain
     public class StoreItem
     {
         public string Id { get; }
-        public string Name { get; }
 
         private readonly IPriceStrategy _priceStrategy;
         private readonly IRewardStrategy _rewardStrategy;
 
         public StoreItem(
             string id,
-            string name,
             IPriceStrategy priceStrategy,
             IRewardStrategy rewardStrategy)
         {
             Id = id;
-            Name = name;
             _priceStrategy = priceStrategy;
             _rewardStrategy = rewardStrategy;
         }

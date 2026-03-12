@@ -1,50 +1,69 @@
-using StoreSystem.Domain;
+using System.Collections.Generic;
 using StoreSystem.Application;
+using StoreSystem.Domain;
 using CurrencySystem.Application;
 
-public class StoreInstaller
+namespace StoreSystem.Installer
 {
-    public StoreItemUseCase Create(
-        StoreItemConfigData config,
-        CurrencyBundleUseCase bundleUseCase,
-        CurrencyService currencyService)
+    public class StoreInstaller
     {
-        // =========================
-        // PRICE
-        // =========================
+        private readonly CurrencyService _currencyService;
+        private readonly CurrencyBundleUseCase _bundleUseCase;
 
-        IPriceStrategy priceStrategy = config.PriceType switch
+        public StoreInstaller(
+            CurrencyService currencyService,
+            CurrencyBundleUseCase bundleUseCase)
         {
-            StorePriceType.Free => new FreePriceStrategy(),
-            StorePriceType.IAP => new IapPriceStrategy(config.ProductId),
-            _ => throw new System.Exception("Unknown price type")
-        };
-
-        // =========================
-        // REWARD
-        // =========================
-
-        IRewardStrategy rewardStrategy;
-
-        if (config.RewardMode == StoreRewardMode.UseExistingBundle)
-        {
-            rewardStrategy = new BundleRewardStrategy(
-                bundleUseCase,
-                config.RewardBundleId);
+            _currencyService = currencyService;
+            _bundleUseCase = bundleUseCase;
         }
-        else
+
+        public StoreInstallerResult Install()
         {
-            rewardStrategy = new CustomBundleRewardStrategy(
-                currencyService,
+            var globalConfig = StoreItemsGlobalConfig.Instance;
+
+            var items = new List<StoreItem>();
+
+            foreach (var config in globalConfig.Items)
+            {
+                var priceStrategy = CreatePriceStrategy(config);
+                var rewardStrategy = CreateRewardStrategy(config);
+
+                var item = new StoreItem(
+                    config.Id,
+                    priceStrategy,
+                    rewardStrategy);
+
+                items.Add(item);
+            }
+
+            var useCase = new StoreItemUseCase(items);
+
+            return new StoreInstallerResult(useCase);
+        }
+
+        private IPriceStrategy CreatePriceStrategy(StoreItemConfigData config)
+        {
+            return config.PriceType switch
+            {
+                StorePriceType.Free => new FreePriceStrategy(),
+                StorePriceType.IAP => new IapPriceStrategy(config.ProductId),
+                _ => throw new System.Exception("Unknown price type")
+            };
+        }
+
+        private IRewardStrategy CreateRewardStrategy(StoreItemConfigData config)
+        {
+            if (config.RewardMode == StoreRewardMode.UseExistingBundle)
+            {
+                return new BundleRewardStrategy(
+                    _bundleUseCase,
+                    config.RewardBundleId);
+            }
+
+            return new CustomBundleRewardStrategy(
+                _currencyService,
                 config.CustomRewards);
         }
-
-        var storeItem = new StoreItem(
-            config.Id,
-            config.DisplayName,
-            priceStrategy,
-            rewardStrategy);
-
-        return new StoreItemUseCase(storeItem);
     }
 }

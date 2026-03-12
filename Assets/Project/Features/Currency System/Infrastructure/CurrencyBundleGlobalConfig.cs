@@ -6,7 +6,7 @@ using Sirenix.Utilities;
 using Sirenix.OdinInspector.Editor;
 
 [CreateAssetMenu(fileName = "CurrencyBundleGlobalConfig", menuName = "GlobalConfigs/CurrencyBundleGlobalConfig")]
-[GlobalConfig("Assets/Resources/GlobalConfig/")]
+[GlobalConfig("Assets/Resources/GlobalConfig/Items/")]
 public class CurrencyBundleGlobalConfig : GlobalConfig<CurrencyBundleGlobalConfig>
 {
     [Title("🎁 BUNDLE LIST", bold: true)]
@@ -54,25 +54,54 @@ public class CurrencyBundleGlobalConfig : GlobalConfig<CurrencyBundleGlobalConfi
 [System.Serializable]
 public class CurrencyBundleConfigData
 {
-    [HorizontalGroup("Row")]
+    // =========================
+    // INFO
+    // =========================
+    [BoxGroup("BUNDLE")]
     [ReadOnly]
+    [LabelWidth(40)]
     public string Id;
 
-    [TableList(AlwaysExpanded = true)]
+    [BoxGroup("BUNDLE")]
+    [LabelWidth(100)]
+    public string DisplayName;
+
+    // =========================
+    // REWARDS
+    // =========================
+
+    [BoxGroup("REWARDS")]
+    [TableList(AlwaysExpanded = false)]
+    [LabelText("Currencies")]
     public List<CurrencyRewardConfig> Rewards = new();
 }
 
 [System.Serializable]
 public class CurrencyRewardConfig
 {
+    [HorizontalGroup("Row")]
+    [LabelWidth(70)]
     [ValueDropdown(nameof(GetCurrencyIds))]
     public string CurrencyId;
 
+    [HorizontalGroup("Row", Width = 120)]
+    [LabelWidth(50)]
     [MinValue(1)]
-    public int Amount;
+    public int Amount = 1;
 
-    private IEnumerable<string> GetCurrencyIds()
+    private static IEnumerable<ValueDropdownItem<string>> GetCurrencyIds()
     {
-        return CurrencyGlobalConfig.Instance.GetAllCurrencyIds();
+        if (CurrencyGlobalConfig.Instance == null)
+            return Enumerable.Empty<ValueDropdownItem<string>>();
+
+        return CurrencyGlobalConfig.Instance.Currencies
+            .Select(c =>
+            {
+                string label = string.IsNullOrEmpty(c.DisplayName)
+                    ? c.Id
+                    : c.DisplayName;
+
+                return new ValueDropdownItem<string>(label, c.Id);
+            });
     }
 }

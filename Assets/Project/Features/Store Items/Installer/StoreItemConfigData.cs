@@ -3,24 +3,18 @@ using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using Gley.EasyIAP;
+using System.Linq;
 
 [Serializable]
 public class StoreItemConfigData
 {
-    // =========================
-    // HEADER
-    // =========================
-
-    [HorizontalGroup("Header", Width = 70)]
-    [PreviewField(60)]
-    [HideLabel]
-    public Sprite Icon;
-
-    [VerticalGroup("Header/Info")]
+    [BoxGroup("Info")]
     [ReadOnly]
+    [LabelWidth(40)]
     public string Id;
 
-    [VerticalGroup("Header/Info")]
+    [BoxGroup("Info")]
+    [LabelWidth(100)]
     public string DisplayName;
 
     // =========================
@@ -60,13 +54,23 @@ public class StoreItemConfigData
     // =========================
 
     private bool IsIap() => PriceType == StorePriceType.IAP;
-
     private bool UseExistingBundle() => RewardMode == StoreRewardMode.UseExistingBundle;
     private bool UseCustomBundle() => RewardMode == StoreRewardMode.CustomBundle;
-
-    private IEnumerable<string> GetBundleIds()
+    
+    private static IEnumerable<ValueDropdownItem<string>> GetBundleIds()
     {
-        return StoreItemsGlobalConfig.Instance.GetAllBundleIds();
+        if (CurrencyBundleGlobalConfig.Instance == null)
+            return Enumerable.Empty<ValueDropdownItem<string>>();
+
+        return CurrencyBundleGlobalConfig.Instance.Bundles
+            .Select(b =>
+            {
+                string label = string.IsNullOrEmpty(b.DisplayName)
+                    ? b.Id
+                    : b.DisplayName;
+
+                return new ValueDropdownItem<string>(label, b.Id);
+            });
     }
 }
 

@@ -50,9 +50,19 @@ public class StoreItemConfigData
 
     [BoxGroup("REWARD")]
     [ShowIf(nameof(UseCustomBundle))]
-    [TableList()]
+    [TableList(AlwaysExpanded = false)]
+    [LabelText("Currencies")]
+    [ValidateInput(nameof(ValidateRewards), "Currency bị trùng!")]
     public List<CurrencyRewardConfig> CustomRewards = new();
-
+    
+    private bool ValidateRewards(List<CurrencyRewardConfig> list)
+    {
+        return list
+            .Where(x => !string.IsNullOrEmpty(x.CurrencyId))
+            .Select(x => x.CurrencyId)
+            .Distinct()
+            .Count() == list.Count;
+    }
     // =========================
     // HELPERS
     // =========================

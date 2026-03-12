@@ -84,7 +84,6 @@ public class CurrencyConfigData
     [HorizontalGroup("Content")]
     [BoxGroup("Content/INFO")]
     [VerticalGroup("Content/INFO/Split/Fields")]
-    [LabelWidth(40)]
     public ConfigType Type;
 
 
@@ -92,7 +91,7 @@ public class CurrencyConfigData
     // STACK
     // =========================
 
-    [HorizontalGroup("Content", Width = 120)]
+    [HorizontalGroup("Content", Width = 300)]
     [BoxGroup("Content/STACK")]
     [LabelWidth(70)]
     [MinValue(0)]

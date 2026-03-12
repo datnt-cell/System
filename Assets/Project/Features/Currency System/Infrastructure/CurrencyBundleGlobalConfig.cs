@@ -74,7 +74,17 @@ public class CurrencyBundleConfigData
     [BoxGroup("REWARDS")]
     [TableList(AlwaysExpanded = false)]
     [LabelText("Currencies")]
+    [ValidateInput(nameof(ValidateRewards), "Currency bị trùng!")]
     public List<CurrencyRewardConfig> Rewards = new();
+
+    private bool ValidateRewards(List<CurrencyRewardConfig> list)
+    {
+        return list
+            .Where(x => !string.IsNullOrEmpty(x.CurrencyId))
+            .Select(x => x.CurrencyId)
+            .Distinct()
+            .Count() == list.Count;
+    }
 }
 
 [System.Serializable]

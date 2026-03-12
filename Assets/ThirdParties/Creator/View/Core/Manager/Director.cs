@@ -139,7 +139,7 @@ namespace Creator
 
             if (controller.SceneName() == LoadingSceneName)
             {
-                SettingController(ref m_LoadingController, 90);
+                SettingController(ref m_LoadingController, 400);
                 return;
             }
 

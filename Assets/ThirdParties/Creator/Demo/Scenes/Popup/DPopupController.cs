@@ -57,6 +57,6 @@ public class DPopupController : Controller
 
     public void CloseTwice()
     {
-        Creator.Director.PopTopScene();
+        Creator.Director.PopToRoot();
     }
 }

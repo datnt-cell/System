@@ -18,8 +18,6 @@ public class DLoading : Controller, ILoading
         return SCENE_NAME;
     }
 
-    [SerializeField] Animation m_Anim;
-
     public override void CreateShield() { }
 
     private bool m_Init;

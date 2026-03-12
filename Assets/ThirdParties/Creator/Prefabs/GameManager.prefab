@@ -445,6 +445,7 @@ MonoBehaviour:
   SettingManager: {fileID: 8169388961647755493}
   CurrencyManager: {fileID: 7714250369056624337}
   storeItemsManager: {fileID: 2316430197385865433}
+  gameOfferManager: {fileID: 7499306055628625845}
 --- !u!1 &6837759918660898741
 GameObject:
   m_ObjectHideFlags: 0

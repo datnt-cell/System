@@ -4,13 +4,14 @@ using Sirenix.OdinInspector;
 using System.Linq;
 using Sirenix.Utilities;
 using Sirenix.OdinInspector.Editor;
+using CurrencySystem.Domain;
 
 [CreateAssetMenu(fileName = "CurrencyBundleGlobalConfig", menuName = "GlobalConfigs/CurrencyBundleGlobalConfig")]
 [GlobalConfig("Assets/Resources/GlobalConfig/Items/")]
 public class CurrencyBundleGlobalConfig : GlobalConfig<CurrencyBundleGlobalConfig>
 {
     [Title("🎁 BUNDLE LIST", bold: true)]
-    [TableList(AlwaysExpanded = true)]
+    [TableList()]
     [Searchable]
     [OnCollectionChanged(nameof(OnBundleListChanged))]
     [ValidateInput(nameof(ValidateBundleIds), "Bundle Id bị trùng!")]
@@ -103,5 +104,10 @@ public class CurrencyRewardConfig
 
                 return new ValueDropdownItem<string>(label, c.Id);
             });
+    }
+
+    public CurrencyId GetCurrencyId()
+    {
+        return new CurrencyId(CurrencyId);
     }
 }

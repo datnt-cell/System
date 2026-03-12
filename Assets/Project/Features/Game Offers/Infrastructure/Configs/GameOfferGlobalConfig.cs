@@ -15,7 +15,7 @@ public class GameOfferGlobalConfig : GlobalConfig<GameOfferGlobalConfig>
 {
     [Title("🎁 GAME OFFERS", bold: true)]
 
-    [TableList(AlwaysExpanded = true)]
+    [TableList()]
     [Searchable]
     [OnCollectionChanged(nameof(OnOfferListChanged))]
     [ValidateInput(nameof(ValidateIds), "Offer Id bị trùng!")]

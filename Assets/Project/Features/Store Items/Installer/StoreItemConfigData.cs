@@ -28,6 +28,10 @@ public class StoreItemConfigData
     [ShowIf(nameof(IsIap))]
     public ShopProductNames ProductId;
 
+    [BoxGroup("PRICE")]
+    [ShowIf(nameof(IsCurrency))]
+    public CurrencyRewardConfig CurrencyPrice;
+
     // =========================
     // REWARD MODE
     // =========================
@@ -46,7 +50,7 @@ public class StoreItemConfigData
 
     [BoxGroup("REWARD")]
     [ShowIf(nameof(UseCustomBundle))]
-    [TableList(AlwaysExpanded = true)]
+    [TableList()]
     public List<CurrencyRewardConfig> CustomRewards = new();
 
     // =========================
@@ -56,6 +60,7 @@ public class StoreItemConfigData
     private bool IsIap() => PriceType == StorePriceType.IAP;
     private bool UseExistingBundle() => RewardMode == StoreRewardMode.UseExistingBundle;
     private bool UseCustomBundle() => RewardMode == StoreRewardMode.CustomBundle;
+    private bool IsCurrency() => PriceType == StorePriceType.Currency;
     
     private static IEnumerable<ValueDropdownItem<string>> GetBundleIds()
     {
@@ -77,7 +82,8 @@ public class StoreItemConfigData
 public enum StorePriceType
 {
     Free,
-    IAP
+    IAP,
+    Currency
 }
 
 public enum StoreRewardMode

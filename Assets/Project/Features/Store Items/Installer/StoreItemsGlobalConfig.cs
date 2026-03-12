@@ -10,7 +10,7 @@ using Sirenix.OdinInspector.Editor;
 public class StoreItemsGlobalConfig : GlobalConfig<StoreItemsGlobalConfig>
 {
     [Title("STORE ITEM LIST")]
-    [TableList(AlwaysExpanded = true, ShowIndexLabels = true)]
+    [TableList(ShowIndexLabels = true)]
     [Searchable]
     [OnCollectionChanged(nameof(OnStoreItemListChanged))]
     [ValidateInput(nameof(ValidateStoreItemIds), "Store Item Id bị trùng!")]

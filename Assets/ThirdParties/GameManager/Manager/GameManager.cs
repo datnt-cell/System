@@ -2,6 +2,7 @@ using UnityEngine;
 using DesignPatterns;
 using System.Collections;
 using StoreSystem.Presentation;
+using IAPModule;
 
 /// <summary>
 /// GameManager là entry point của game.

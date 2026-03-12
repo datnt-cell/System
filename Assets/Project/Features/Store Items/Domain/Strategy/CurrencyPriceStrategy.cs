@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using CurrencySystem.Application;
 using CurrencySystem.Domain;
 
@@ -27,9 +28,14 @@ namespace StoreSystem.Domain
             return _currencyService.HasEnough(_currencyId, _amount);
         }
 
-        public void Pay()
+        public UniTask<bool> Pay()
         {
+            if (!CanPay())
+                return UniTask.FromResult(false);
+
             _currencyService.Spend(_currencyId, _amount, "store_item");
+
+            return UniTask.FromResult(true);
         }
     }
 }

@@ -1,23 +1,26 @@
 using UnityEngine;
 
-/// <summary>
-/// Manager là entry point của Unity.
-/// Giữ reference Presenter.
-/// </summary>
-public class IAPManager : MonoBehaviour
+namespace IAPModule
 {
-    [SerializeField] private IAPLoading view;
-
-    public IAPPresenter Presenter { get; private set; }
-
-    public void Initialize()
+    /// <summary>
+    /// Manager là entry point của Unity.
+    /// Giữ reference Presenter.
+    /// </summary>
+    public class IAPManager : MonoBehaviour
     {
-        IAPInstaller installer = new IAPInstaller();
-        Presenter = installer.Install(view);
-    }
+        [SerializeField] private IAPLoading view;
 
-    private void OnDestroy()
-    {
-        Presenter?.Dispose();
+        public IAPPresenter Presenter { get; private set; }
+
+        public void Initialize()
+        {
+            IAPInstaller installer = new IAPInstaller();
+            Presenter = installer.Install(view);
+        }
+
+        private void OnDestroy()
+        {
+            Presenter?.Dispose();
+        }
     }
 }

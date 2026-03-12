@@ -1,27 +1,27 @@
 using R3;
-using IAPModule.Presentation.ViewModel;
 using Gley.EasyIAP;
 using Cysharp.Threading.Tasks;
+using IAPModule.Application.UseCases;
+using IAPModule.Domain.Entities;
 
 /// <summary>
 /// Presenter kết nối View và ViewModel.
 /// Không chứa logic business.
 /// Không chứa logic SDK.
 /// </summary>
-public class IAPPresenter
+public class IAPPresenter : IIapPaymentService
 {
-    private readonly IAPLoading _view;
-    private readonly IAPViewModel _vm;
-
+    private readonly IAPLoading _loading;
+    private readonly PurchaseUseCase _useCase;
     private readonly CompositeDisposable _disposables = new();
 
-    public IAPPresenter(
-        IAPLoading view,
-        IAPViewModel vm)
-    {
-        _view = view;
-        _vm = vm;
+    public ReactiveProperty<bool> IsProcessing = new(false);
+    public Subject<(ShopProductNames, PurchaseResult)> OnPurchaseResult = new();
 
+    public IAPPresenter(IAPLoading loading, PurchaseUseCase useCase)
+    {
+        _loading = loading;
+        _useCase = useCase;
         Bind();
     }
 
@@ -31,19 +31,19 @@ public class IAPPresenter
     private void Bind()
     {
         // Shield loading
-        _vm.IsProcessing
+        IsProcessing
             .Subscribe(active =>
             {
-                _view.SetShield(active);
+                _loading.SetShield(active);
             })
             .AddTo(_disposables);
 
         // Purchase success
-        _vm.OnPurchaseSuccess
-            .Subscribe(productId =>
+        OnPurchaseResult
+            .Subscribe(r =>
             {
-                UnityEngine.Debug.Log("Mua thành công: " + productId);
-                _view.ShowSuccess(productId);
+                var log = string.Format("{0} {1}", r.Item1.ToString(), r.Item2.IsSuccess ? "Thành Công" : "Thất Bại");
+                UnityEngine.Debug.Log(log);
             })
             .AddTo(_disposables);
     }
@@ -51,9 +51,27 @@ public class IAPPresenter
     /// <summary>
     /// View gọi khi click buy
     /// </summary>
-    public void OnClickBuy(ShopProductNames productId)
+    public async UniTask<PurchaseResult> Purchase(ShopProductNames productId)
     {
-        _vm.BuyAsync(productId).Forget();
+        // bật trạng thái processing
+        // UI có thể disable button
+        IsProcessing.Value = true;
+
+        // gọi UseCase xử lý nghiệp vụ purchase
+        var result = await _useCase.ExecuteAsync(productId);
+
+        // tắt trạng thái processing
+        IsProcessing.Value = false;
+
+        // nếu purchase thành công
+        OnPurchaseResult.OnNext(new(productId, result));
+
+        return result;
+    }
+
+    public bool CanPurchase(ShopProductNames productId)
+    {
+        return _useCase.CanBuy(productId);
     }
 
     /// <summary>

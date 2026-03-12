@@ -11,13 +11,13 @@ public class GameOfferGroupGlobalConfig : GlobalConfig<GameOfferGroupGlobalConfi
 {
     [Title("🎁 GAME OFFERS GROUP", bold: true)]
 
-    [TableList(AlwaysExpanded = true)]
+    [TableList()]
     [Searchable]
     [OnCollectionChanged(nameof(OnOfferListChanged))]
     [ValidateInput(nameof(ValidateIds), "Offer Id bị trùng!")]
     public List<GameOfferGroupConfigData> Groups = new();
 
-     /// <summary>
+    /// <summary>
     /// Lấy offer theo ID
     /// </summary>
     public GameOfferGroupConfigData Get(string id)

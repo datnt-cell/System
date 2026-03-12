@@ -1,3 +1,5 @@
+using Cysharp.Threading.Tasks;
+
 namespace StoreSystem.Domain
 {
     /// <summary>
@@ -23,15 +25,24 @@ namespace StoreSystem.Domain
         /// <summary>
         /// Thử mua item.
         /// </summary>
-        public bool TryPurchase()
+        public async UniTask<bool> TryPurchase()
         {
             if (!_priceStrategy.CanPay())
                 return false;
 
-            _priceStrategy.Pay();
-            _rewardStrategy.Grant();
+            bool paid = await _priceStrategy.Pay();
+
+            if (!paid)
+                return false;
+
+            GrantReward();
 
             return true;
+        }
+
+        public void GrantReward()
+        {
+            _rewardStrategy.Grant();
         }
     }
 }

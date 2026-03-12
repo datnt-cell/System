@@ -29,5 +29,11 @@ namespace IAPModule.Infrastructure.Providers
             API.RestorePurchases(null, null);
             return UniTask.CompletedTask;
         }
+
+        public ProductType GetProductType(ShopProductNames productId)
+        {
+            var product = API.GetProductType(productId);
+            return product;
+        }
     }
 }

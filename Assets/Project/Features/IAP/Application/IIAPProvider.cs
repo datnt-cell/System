@@ -12,5 +12,6 @@ namespace IAPModule.Application.Interfaces
     {
         UniTask<PurchaseResult> BuyAsync(ShopProductNames productId);
         UniTask RestoreAsync();
+        ProductType GetProductType(ShopProductNames productId);
     }
 }

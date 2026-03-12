@@ -1,9 +1,7 @@
-using UnityEngine;
 using IAPModule.Infrastructure.Providers;
 using IAPModule.Infrastructure.Repositories;
 using IAPModule.Infrastructure.Analytics;
 using IAPModule.Application.UseCases;
-using IAPModule.Presentation.ViewModel;
 using IAPModule.Domain.Policies;
 
 public class IAPInstaller
@@ -28,10 +26,8 @@ public class IAPInstaller
         // =========================
         // Presentation
         // =========================
-        IAPViewModel viewModel = new IAPViewModel(purchaseUseCase);
-
         IAPPresenter presenter =
-            new IAPPresenter(view, viewModel);
+            new IAPPresenter(view, purchaseUseCase);
 
         return presenter;
     }

@@ -2,6 +2,8 @@ using System;
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using System.Linq;
+using Sirenix.Serialization;
+using UniLabs.Time;
 
 [Serializable]
 public class GameOfferConfigData
@@ -21,12 +23,9 @@ public class GameOfferConfigData
     // =========================
     // TIME
     // =========================
-
     [BoxGroup("TIME")]
-    [TableColumnWidth(140)]
-    [LabelText("Duration (s)")]
-    [MinValue(1)]
-    public int Duration = 86400;
+    [LabelText("Duration")]
+    public UTimeSpan Duration = TimeSpan.FromDays(1);
 
     [BoxGroup("TIME")]
     [TableColumnWidth(140)]
@@ -50,17 +49,22 @@ public class GameOfferConfigData
     [MinValue(1)]
     public int Limit = 1;
 
-
     /// <summary>
     /// Dropdown StoreItemId
     /// </summary>
-    private static IEnumerable<string> GetStoreItemIds()
+    private static IEnumerable<ValueDropdownItem<string>> GetStoreItemIds()
     {
         if (StoreItemsGlobalConfig.Instance == null)
-            return new List<string>();
+            return Enumerable.Empty<ValueDropdownItem<string>>();
 
-        return StoreItemsGlobalConfig.Instance
-            .Items
-            .Select(x => x.Id);
+        return StoreItemsGlobalConfig.Instance.Items
+            .Select(item =>
+            {
+                string label = string.IsNullOrEmpty(item.DisplayName)
+                    ? item.Id
+                    : item.DisplayName;
+
+                return new ValueDropdownItem<string>(label, item.Id);
+            });
     }
 }

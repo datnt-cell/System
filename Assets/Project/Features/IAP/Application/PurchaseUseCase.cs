@@ -30,6 +30,23 @@ namespace IAPModule.Application.UseCases
             _rewardPolicy = rewardPolicy;
         }
 
+        /// <summary>
+        /// Kiểm tra product có thể mua hay không
+        /// </summary>
+        public bool CanBuy(ShopProductNames productId)
+        {
+            if (_provider.GetProductType(productId) == ProductType.NonConsumable)
+            {
+                if (!_rewardPolicy.CanGrant(productId))
+                    return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Thực hiện mua hàng
+        /// </summary>
         public async UniTask<PurchaseResult> ExecuteAsync(ShopProductNames productId)
         {
             // Log show popup
@@ -45,12 +62,15 @@ namespace IAPModule.Application.UseCases
                 return result;
 
             // Kiểm tra policy reward
-            if (_rewardPolicy.CanGrant(productId))
+            if (_provider.GetProductType(productId) == ProductType.NonConsumable)
             {
-                _repository.MarkRewarded(productId);
-                _rewardPolicy.MarkGranted(productId);
+                if (_rewardPolicy.CanGrant(productId))
+                {
+                    _repository.MarkRewarded(productId);
+                    _rewardPolicy.MarkGranted(productId);
+                }
             }
-
+            
             return result;
         }
     }

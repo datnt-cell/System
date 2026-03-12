@@ -16,10 +16,11 @@ public class GameOfferRuntimeData
     public bool IsActivated;
 
     // kiểm tra offer có hết hạn chưa
-    public bool IsExpired(int duration)
+    public bool IsExpired(TimeSpan duration)
     {
         long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        long endTime = StartTime + (long)duration.TotalSeconds;
 
-        return now > StartTime + duration;
+        return now > endTime;
     }
 }

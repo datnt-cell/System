@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Sirenix.OdinInspector;
+using UniLabs.Time;
 
 /// <summary>
 /// Dữ liệu config của một Game Offer Group
@@ -14,7 +15,6 @@ public class GameOfferGroupConfigData
     // =========================
 
     [BoxGroup("BASIC")]
-    [TableColumnWidth(350, Resizable = false)]
     [ReadOnly]
     [LabelText("ID")]
     public string Id;
@@ -23,46 +23,46 @@ public class GameOfferGroupConfigData
     [LabelWidth(100)]
     public string DisplayName;
 
-
     [BoxGroup("BASIC")]
-    [TableColumnWidth(350)]
+    [TableColumnWidth(80)]
     [LabelText("Group Type")]
     public OfferGroupType Type;
-
-
-    // =========================
-    // TIME
-    // =========================
-
-    [BoxGroup("TIME")]
-    [TableColumnWidth(160)]
-    [LabelText("Duration (s)")]
-    [MinValue(1)]
-    public int Duration = 86400;
-
-    [BoxGroup("TIME")]
-    [TableColumnWidth(160)]
-    [LabelText("Wait Activation")]
-    public bool WaitForActivation;
-
 
     // =========================
     // OFFERS
     // =========================
 
     [BoxGroup("OFFERS")]
-    [TableColumnWidth(260)]
+    [TableColumnWidth(50)]
     [LabelText("Offer Ids")]
     [ValueDropdown(nameof(GetOfferIds))]
     public List<string> OfferIds = new();
 
-    private static IEnumerable<string> GetOfferIds()
+    // =========================
+    // TIME
+    // =========================
+    [BoxGroup("TIME")]
+    [LabelText("Duration")]
+    public UTimeSpan Duration = TimeSpan.FromDays(1);
+
+    [BoxGroup("TIME")]
+    [LabelText("Wait Activation")]
+    public bool WaitForActivation;
+
+    private static IEnumerable<ValueDropdownItem<string>> GetOfferIds()
     {
         if (GameOfferGlobalConfig.Instance == null)
-            return Enumerable.Empty<string>();
+            return Enumerable.Empty<ValueDropdownItem<string>>();
 
         return GameOfferGlobalConfig.Instance
             .Offers
-            .Select(x => x.Id);
+            .Select(offer =>
+            {
+                string label = string.IsNullOrEmpty(offer.DisplayName)
+                    ? offer.Id
+                    : offer.DisplayName;
+
+                return new ValueDropdownItem<string>(label, offer.Id);
+            });
     }
 }

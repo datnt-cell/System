@@ -9,9 +9,4 @@ public class IAPLoading : MonoBehaviour
     {
         shield.SetActive(active);
     }
-
-    public void ShowSuccess(ShopProductNames productId)
-    {
-        Debug.Log("Show popup success: " + productId);
-    }
 }

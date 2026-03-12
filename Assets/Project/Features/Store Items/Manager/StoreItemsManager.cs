@@ -1,6 +1,7 @@
 using UnityEngine;
 using StoreSystem.Application;
 using StoreSystem.Installer;
+using Cysharp.Threading.Tasks;
 
 namespace StoreSystem.Presentation
 {
@@ -30,7 +31,7 @@ namespace StoreSystem.Presentation
         /// <summary>
         /// Mua item
         /// </summary>
-        public bool Purchase(string itemId)
+        public async UniTask<bool> Purchase(string itemId)
         {
             if (UseCase == null)
             {
@@ -38,7 +39,7 @@ namespace StoreSystem.Presentation
                 return false;
             }
 
-            return UseCase.TryPurchase(itemId);
+            return await UseCase.TryPurchase(itemId);
         }
     }
 }

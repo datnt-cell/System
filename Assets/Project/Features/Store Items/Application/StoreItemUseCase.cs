@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using StoreSystem.Domain;
 
 namespace StoreSystem.Application
@@ -38,14 +39,14 @@ namespace StoreSystem.Application
         /// <summary>
         /// Thử mua item
         /// </summary>
-        public bool TryPurchase(string id)
+        public async UniTask<bool> TryPurchase(string id)
         {
             var item = Get(id);
 
             if (item == null)
                 return false;
 
-            return item.TryPurchase();
+            return await item.TryPurchase();
         }
     }
 }

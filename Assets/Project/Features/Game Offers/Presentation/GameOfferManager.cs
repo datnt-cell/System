@@ -52,6 +52,8 @@ public class GameOfferManager : MonoBehaviour
     [ContextMenu("TestOfferService")]
     public void TestOfferService()
     {
+        Presenter.ActivateOffer("OFFER_001");
+        
         var result = Presenter.PurchaseOffer("OFFER_001");
 
         if (!result.Success)

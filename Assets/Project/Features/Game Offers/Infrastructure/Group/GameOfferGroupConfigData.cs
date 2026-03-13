@@ -51,11 +51,11 @@ public class GameOfferGroupConfigData
     // =========================
     private static IEnumerable<ValueDropdownItem<string>> GetOfferIds()
     {
-        if (GameOfferGlobalConfig.Instance == null)
+        if (StoreItemsGlobalConfig.Instance == null)
             return Enumerable.Empty<ValueDropdownItem<string>>();
 
-        return GameOfferGlobalConfig.Instance
-            .Offers
+        return StoreItemsGlobalConfig.Instance
+            .Items
             .Select(offer =>
             {
                 string label = string.IsNullOrEmpty(offer.DisplayName)

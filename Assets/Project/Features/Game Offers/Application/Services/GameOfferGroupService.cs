@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using GameOfferSystem.Infrastructure;
 using GameOfferSystem.Domain;
+using UnityEngine;
 
 /// <summary>
 /// Service quản lý toàn bộ business logic của Offer Groups
@@ -172,27 +173,44 @@ public class GameOfferGroupService
     /// <summary>
     /// Player mua offer
     /// </summary>
-    public OfferPurchaseError Purchase(string groupId, string offerId)
+    public PurchaseOfferGroupResponse Purchase(string groupId, string offerId)
     {
         var data = state.Get(groupId);
         if (data == null)
         {
             events?.OnGroupPurchaseFailed(groupId, offerId, "Group not found");
-            return OfferPurchaseError.OfferNotFound;
+
+            return PurchaseOfferGroupResponse.Fail(
+                OfferPurchaseError.OfferNotFound,
+                groupId,
+                offerId
+            );
         }
 
         var group = config.Get(groupId);
         if (group == null)
         {
             events?.OnGroupPurchaseFailed(groupId, offerId, "Config not found");
-            return OfferPurchaseError.OfferNotFound;
+
+            return PurchaseOfferGroupResponse.Fail(
+                OfferPurchaseError.OfferNotFound,
+                groupId,
+                offerId,
+                data
+            );
         }
 
         var check = CanPurchase(groupId, offerId);
         if (check != OfferPurchaseError.None)
         {
             events?.OnGroupPurchaseFailed(groupId, offerId, check.ToString());
-            return check;
+
+            return PurchaseOfferGroupResponse.Fail(
+                check,
+                groupId,
+                offerId,
+                data
+            );
         }
 
         ApplyPurchase(group, data, offerId);
@@ -201,7 +219,7 @@ public class GameOfferGroupService
 
         events?.OnGroupOfferPurchased(groupId, offerId);
 
-        return OfferPurchaseError.None;
+        return PurchaseOfferGroupResponse.SuccessResult(groupId, offerId, data);
     }
 
     private void ApplyPurchase(

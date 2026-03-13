@@ -94,7 +94,7 @@ namespace GameOfferSystem.Presentation
         /// <summary>
         /// Mua offer trong group
         /// </summary>
-        public OfferPurchaseError PurchaseGroupOffer(string groupId, string offerId)
+        public PurchaseOfferGroupResponse PurchaseGroupOffer(string groupId, string offerId)
         {
             return _groupService.Purchase(groupId, offerId);
         }

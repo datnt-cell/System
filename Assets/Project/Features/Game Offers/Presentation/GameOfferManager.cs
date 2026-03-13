@@ -53,7 +53,7 @@ public class GameOfferManager : MonoBehaviour
     public void TestOfferService()
     {
         Presenter.ActivateOffer("OFFER_001");
-        
+
         var result = Presenter.PurchaseOffer("OFFER_001");
 
         if (!result.Success)
@@ -63,5 +63,21 @@ public class GameOfferManager : MonoBehaviour
         }
 
         Debug.Log("Purchased: " + result.Offer.OfferId);
+    }
+
+    [ContextMenu("TestOfferGROUPService")]
+    public void TestOfferGROUPService()
+    {
+        Presenter.ActivateGroup("GROUP_001");
+
+        var result = Presenter.PurchaseGroupOffer("GROUP_001", "STORE_001");
+
+        if (!result.Success)
+        {
+            Debug.LogError(result.Error);
+            return;
+        }
+
+        Debug.Log($"Purchased offer {result.OfferId} in group {result.GroupId}");
     }
 }

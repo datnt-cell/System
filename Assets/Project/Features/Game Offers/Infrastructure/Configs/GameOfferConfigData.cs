@@ -27,11 +27,6 @@ public class GameOfferConfigData
     [LabelText("Duration")]
     public UTimeSpan Duration = TimeSpan.FromDays(1);
 
-    [BoxGroup("TIME")]
-    [TableColumnWidth(140)]
-    [LabelText("Wait Activation")]
-    public bool WaitForActivation;
-
 
     // =========================
     // STORE

@@ -66,7 +66,7 @@ public class GameOfferService
             OfferId = offerId,
             StartTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
             PurchasedCount = 0,
-            IsActivated = !offerConfig.WaitForActivation
+            // IsActivated = !offerConfig.WaitForActivation
         };
 
         state.Add(runtime);

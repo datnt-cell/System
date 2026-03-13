@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace IAPModule
@@ -12,10 +13,11 @@ namespace IAPModule
 
         public IAPPresenter Presenter { get; private set; }
 
-        public void Initialize()
+        public async UniTask Initialize()
         {
             IAPInstaller installer = new IAPInstaller();
-            Presenter = installer.Install(view);
+
+            Presenter = await installer.Install(view);   // ✅ await initialize IAP
         }
 
         private void OnDestroy()

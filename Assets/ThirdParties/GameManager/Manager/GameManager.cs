@@ -3,6 +3,8 @@ using DesignPatterns;
 using System.Collections;
 using StoreSystem.Presentation;
 using IAPModule;
+using Sirenix.OdinInspector;
+using Cysharp.Threading.Tasks;
 
 /// <summary>
 /// GameManager là entry point của game.
@@ -13,38 +15,40 @@ using IAPModule;
 /// </summary>
 public partial class GameManager : SingletonPersistent<GameManager>
 {
-    [Header("Manager")]
+    [Title("🎮 Game Systems")]
 
-    /// <summary>
-    /// Quản lý quảng cáo (Admob, Applovin, IronSource...)
-    /// </summary>
-    public AdsManager AdsManager;
-
-    /// <summary>
-    /// Quản lý In-App Purchase
-    /// </summary>
-    public IAPManager IAPManager;
-
-    /// <summary>
-    /// Quản lý setting game (sound, vibration...)
-    /// </summary>
+    [BoxGroup("Game Systems")]
+    [PropertyOrder(0)]
+    [LabelText("Settings")]
     public SettingManager SettingManager;
 
-    /// <summary>
-    /// Quản lý toàn bộ currency (coin, gem...)
-    /// </summary>
-    public CurrencyManager CurrencyManager;
+    [BoxGroup("Game Systems")]
+    [PropertyOrder(1)]
+    [LabelText("Currency")]
+    public CurrencyManager Currency;
 
-    /// <summary>
-    /// Quản lý các item trong store
-    /// </summary>
-    public StoreItemsManager StoreItemsManager;
 
-    /// <summary>
-    /// Quản lý các offer trong game (bundle, starter pack...)
-    /// </summary>
-    public GameOfferManager GameOfferManager;
+    [Title("💰 Monetization Systems")]
 
+    [BoxGroup("Monetization")]
+    [PropertyOrder(10)]
+    [LabelText("Ads")]
+    public AdsManager AdsManager;
+
+    [BoxGroup("Monetization")]
+    [PropertyOrder(11)]
+    [LabelText("IAP")]
+    public IAPManager IAPManager;
+
+    [BoxGroup("Monetization")]
+    [PropertyOrder(12)]
+    [LabelText("Store")]
+    public StoreItemsManager Store;
+
+    [BoxGroup("Monetization")]
+    [PropertyOrder(13)]
+    [LabelText("Game Offers")]
+    public GameOfferManager GameOffers;
 
     /// <summary>
     /// Unity Start Coroutine
@@ -56,8 +60,8 @@ public partial class GameManager : SingletonPersistent<GameManager>
         // đợi 1 frame để đảm bảo tất cả object trong scene đã Awake xong
         yield return null;
 
-        // khởi tạo toàn bộ system
-        InitSystem();
+        // khởi tạo toàn bộ system và đợi hoàn thành
+        yield return InitSystem().ToCoroutine();
 
         // đợi vài frame để các system async initialize xong
         yield return DelayFrames(5);
@@ -86,24 +90,24 @@ public partial class GameManager : SingletonPersistent<GameManager>
     /// Khởi tạo toàn bộ core system của game
     /// Thứ tự init khá quan trọng vì có dependency.
     /// </summary>
-    void InitSystem()
+    async UniTask InitSystem()
     {
         // khởi tạo Ads SDK
-        AdsManager.Initialize();
+        await AdsManager.Initialize();
 
         // khởi tạo hệ thống IAP
-        IAPManager.Initialize();
+        await IAPManager.Initialize();
 
         // load setting (sound, vibration...)
         SettingManager.Initialize();
 
         // load currency từ save
-        CurrencyManager.Initialize();
+        Currency.Initialize();
 
         // khởi tạo store item (cần CurrencyManager để check tiền)
-        StoreItemsManager.Initialize(CurrencyManager);
+        Store.Initialize(Currency);
 
         // khởi tạo hệ thống offer (bundle, special pack)
-        GameOfferManager.Initialize();
+        GameOffers.Initialize();
     }
 }

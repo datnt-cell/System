@@ -1,5 +1,40 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &228353794948647359
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4771459423749197003}
+  m_Layer: 0
+  m_Name: "\U0001F4B0 Monetization Systems"
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4771459423749197003
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 228353794948647359}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 8372216982088750356}
+  - {fileID: 4248042350450664700}
+  - {fileID: 6690415605332333351}
+  - {fileID: 8193817652475676239}
+  m_Father: {fileID: 3170347156942585391}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1082823650702821447
 GameObject:
   m_ObjectHideFlags: 0
@@ -87,7 +122,7 @@ GameObject:
   - component: {fileID: 6690415605332333351}
   - component: {fileID: 2316430197385865433}
   m_Layer: 0
-  m_Name: Store Items
+  m_Name: 'Store '
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -106,7 +141,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 3170347156942585391}
+  m_Father: {fileID: 4771459423749197003}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2316430197385865433
 MonoBehaviour:
@@ -120,6 +155,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e5e83a5f90e8d14895d0f0c38efb043, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StoreSystem.Presentation.StoreItemsManager
+  test: 
 --- !u!1 &2756770267928732275
 GameObject:
   m_ObjectHideFlags: 0
@@ -150,7 +186,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 3170347156942585391}
+  m_Father: {fileID: 5599267637901203969}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8169388961647755493
 MonoBehaviour:
@@ -193,12 +229,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 8372216982088750356}
-  - {fileID: 4248042350450664700}
-  - {fileID: 7143210108396980139}
-  - {fileID: 6690415605332333351}
-  - {fileID: 8398240129883861459}
-  - {fileID: 8193817652475676239}
+  - {fileID: 5599267637901203969}
+  - {fileID: 4771459423749197003}
   m_Father: {fileID: 6578075392098795589}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4459521400542019806
@@ -232,7 +264,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 3170347156942585391}
+  m_Father: {fileID: 4771459423749197003}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8327197422853510690
 MonoBehaviour:
@@ -366,7 +398,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 3170347156942585391}
+  m_Father: {fileID: 4771459423749197003}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7885220587143030275
 MonoBehaviour:
@@ -440,12 +472,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccc8f4cc9eb7b82418c396073e26064f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SettingManager: {fileID: 8169388961647755493}
+  Currency: {fileID: 7714250369056624337}
   AdsManager: {fileID: 7885220587143030275}
   IAPManager: {fileID: 8223761890390700125}
-  SettingManager: {fileID: 8169388961647755493}
-  CurrencyManager: {fileID: 7714250369056624337}
-  storeItemsManager: {fileID: 2316430197385865433}
-  gameOfferManager: {fileID: 7499306055628625845}
+  Store: {fileID: 2316430197385865433}
+  GameOffers: {fileID: 7499306055628625845}
 --- !u!1 &6837759918660898741
 GameObject:
   m_ObjectHideFlags: 0
@@ -457,7 +489,7 @@ GameObject:
   - component: {fileID: 8193817652475676239}
   - component: {fileID: 7499306055628625845}
   m_Layer: 0
-  m_Name: Game Offer
+  m_Name: Game Offers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -476,7 +508,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 3170347156942585391}
+  m_Father: {fileID: 4771459423749197003}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7499306055628625845
 MonoBehaviour:
@@ -837,6 +869,39 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: ADS BREAK
+--- !u!1 &8756402713811865285
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5599267637901203969}
+  m_Layer: 0
+  m_Name: "\U0001F3AE Game Systems"
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5599267637901203969
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8756402713811865285}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 8398240129883861459}
+  - {fileID: 7143210108396980139}
+  m_Father: {fileID: 3170347156942585391}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8791545412522607683
 GameObject:
   m_ObjectHideFlags: 0
@@ -848,7 +913,7 @@ GameObject:
   - component: {fileID: 7143210108396980139}
   - component: {fileID: 7714250369056624337}
   m_Layer: 0
-  m_Name: Currency System
+  m_Name: 'Currency '
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -867,7 +932,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 3170347156942585391}
+  m_Father: {fileID: 5599267637901203969}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7714250369056624337
 MonoBehaviour:

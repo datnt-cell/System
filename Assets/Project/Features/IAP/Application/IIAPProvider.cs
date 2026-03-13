@@ -1,6 +1,5 @@
 using Cysharp.Threading.Tasks;
 using Gley.EasyIAP;
-using IAPModule.Domain.Entities;
 
 namespace IAPModule.Application.Interfaces
 {
@@ -10,7 +9,7 @@ namespace IAPModule.Application.Interfaces
     /// </summary>
     public interface IIAPProvider
     {
-        UniTask<PurchaseResult> BuyAsync(ShopProductNames productId);
+        UniTask<PurchaseProductResponseData> BuyAsync(ShopProductNames productId);
         UniTask RestoreAsync();
         ProductType GetProductType(ShopProductNames productId);
     }

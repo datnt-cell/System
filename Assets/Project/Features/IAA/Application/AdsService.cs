@@ -29,7 +29,25 @@ public class AdsService
         _repo.Load(_state);
     }
 
-    public void TryShowInterstitial(int level, int season)
+    public bool CanShowInterstitial(int level = 0, int season = 0)
+    {
+        if (_state.IsRemoveAds.Value)
+            return false;
+
+        if (!_provider.IsInterstitialAvailable())
+            return false;
+
+        float now = _timeProvider.CurrentTime;
+
+        return _policy.CanShowInterstitial(
+            level,
+            season,
+            now,
+            _state.NextAvailableAdTime);
+    }
+
+
+    public void TryShowInterstitial(int level = 0, int season = 0)
     {
         if (_state.IsRemoveAds.Value)
             return;

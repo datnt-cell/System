@@ -2,7 +2,6 @@ using R3;
 using Gley.EasyIAP;
 using Cysharp.Threading.Tasks;
 using IAPModule.Application.UseCases;
-using IAPModule.Domain.Entities;
 
 /// <summary>
 /// Presenter kết nối View và ViewModel.
@@ -16,7 +15,8 @@ public class IAPPresenter : IIapPaymentService
     private readonly CompositeDisposable _disposables = new();
 
     public ReactiveProperty<bool> IsProcessing = new(false);
-    public Subject<(ShopProductNames, PurchaseResult)> OnPurchaseResult = new();
+
+    public Subject<(ShopProductNames, PurchaseProductResponseData)> OnPurchaseResult = new();
 
     public IAPPresenter(IAPLoading loading, PurchaseUseCase useCase)
     {
@@ -38,11 +38,16 @@ public class IAPPresenter : IIapPaymentService
             })
             .AddTo(_disposables);
 
-        // Purchase success
+        // Purchase result
         OnPurchaseResult
             .Subscribe(r =>
             {
-                var log = string.Format("{0} {1}", r.Item1.ToString(), r.Item2.IsSuccess ? "Thành Công" : "Thất Bại");
+                var log = string.Format(
+                    "{0} {1}",
+                    r.Item1.ToString(),
+                    r.Item2.Success ? "Thành Công" : "Thất Bại"
+                );
+
                 UnityEngine.Debug.Log(log);
             })
             .AddTo(_disposables);
@@ -51,11 +56,18 @@ public class IAPPresenter : IIapPaymentService
     /// <summary>
     /// View gọi khi click buy
     /// </summary>
-    public async UniTask<PurchaseResult> Purchase(ShopProductNames productId)
+    public async UniTask<PurchaseProductResponseData> Purchase(ShopProductNames productId)
     {
         // bật trạng thái processing
-        // UI có thể disable button
         IsProcessing.Value = true;
+
+        // validate trước khi mua
+        var validation = _useCase.ValidatePurchase(productId);
+        if (!validation.Success)
+        {
+            IsProcessing.Value = false;
+            return validation;
+        }
 
         // gọi UseCase xử lý nghiệp vụ purchase
         var result = await _useCase.ExecuteAsync(productId);
@@ -63,15 +75,15 @@ public class IAPPresenter : IIapPaymentService
         // tắt trạng thái processing
         IsProcessing.Value = false;
 
-        // nếu purchase thành công
+        // push result cho UI
         OnPurchaseResult.OnNext(new(productId, result));
 
         return result;
     }
 
-    public bool CanPurchase(ShopProductNames productId)
+    public PurchaseProductResponseData ValidatePurchase(ShopProductNames productId)
     {
-        return _useCase.CanBuy(productId);
+        return _useCase.ValidatePurchase(productId);
     }
 
     /// <summary>

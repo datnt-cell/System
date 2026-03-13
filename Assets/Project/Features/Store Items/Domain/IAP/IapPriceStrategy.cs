@@ -1,6 +1,5 @@
 using Cysharp.Threading.Tasks;
 using Gley.EasyIAP;
-using IAPModule.Domain.Entities;
 
 namespace StoreSystem.Domain
 {
@@ -21,12 +20,14 @@ namespace StoreSystem.Domain
             _paymentService = paymentService;
         }
 
-        public bool CanPay() => _paymentService.CanPurchase(_productId);
-
-        public async UniTask<bool> Pay()
+        public PurchaseProductResponseData ValidatePayment()
         {
-            var result = await _paymentService.Purchase(_productId);
-            return result.IsSuccess;
+            return _paymentService.ValidatePurchase(_productId);
+        }
+
+        public async UniTask<PurchaseProductResponseData> ExecutePayment()
+        {
+            return await _paymentService.Purchase(_productId);
         }
     }
 }

@@ -1,14 +1,21 @@
 using UnityEngine;
+using Cysharp.Threading.Tasks;
 
 public class AdsManager : MonoBehaviour
 {
-    public AdsLoading loaidng;
+    [SerializeField] private AdsLoading loading;
 
-    public AdsPresenter AdsPresenter;
+    public AdsPresenter AdsPresenter { get; private set; }
 
-    public void Initialize()
+    public async UniTask Initialize()
     {
         AdsInstaller adsInstaller = new AdsInstaller();
-        AdsPresenter = adsInstaller.Install(loaidng);
+
+        AdsPresenter = await adsInstaller.Install(loading);
+    }
+
+    private void OnDestroy()
+    {
+        AdsPresenter?.Dispose();
     }
 }

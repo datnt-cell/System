@@ -37,16 +37,21 @@ namespace StoreSystem.Application
         }
 
         /// <summary>
-        /// Thử mua item
+        /// Mua item
         /// </summary>
-        public async UniTask<bool> TryPurchase(string id)
+        public async UniTask<PurchaseProductResponseData> Purchase(string id)
         {
             var item = Get(id);
 
             if (item == null)
-                return false;
+            {
+                return ResponseData.GetErrorResponse<PurchaseProductResponseData>(
+                    Errors.NotAvailable,
+                    $"Store item not found: {id}"
+                );
+            }
 
-            return await item.TryPurchase();
+            return await item.Purchase();
         }
     }
 }

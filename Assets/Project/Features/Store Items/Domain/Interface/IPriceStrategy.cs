@@ -1,5 +1,4 @@
 using Cysharp.Threading.Tasks;
-using IAPModule.Domain.Entities;
 
 namespace StoreSystem.Domain
 {
@@ -8,7 +7,8 @@ namespace StoreSystem.Domain
     /// </summary>
     public interface IPriceStrategy
     {
-        bool CanPay();
-        UniTask<bool> Pay();
+        PurchaseProductResponseData ValidatePayment();
+
+        UniTask<PurchaseProductResponseData> ExecutePayment();
     }
 }

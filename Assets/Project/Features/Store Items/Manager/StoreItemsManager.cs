@@ -2,6 +2,7 @@ using UnityEngine;
 using StoreSystem.Application;
 using StoreSystem.Installer;
 using Cysharp.Threading.Tasks;
+using Sirenix.OdinInspector;
 
 namespace StoreSystem.Presentation
 {
@@ -27,19 +28,43 @@ namespace StoreSystem.Presentation
             UseCase = result.UseCase;
         }
 
-
         /// <summary>
-        /// Mua item
+        /// Mua item trong Store
         /// </summary>
-        public async UniTask<bool> Purchase(string itemId)
+        public async UniTask<PurchaseProductResponseData> PurchaseStoreItem(string itemId)
         {
             if (UseCase == null)
             {
                 Debug.LogError("StoreItemsManager not initialized");
-                return false;
+
+                return ResponseData.GetErrorResponse<PurchaseProductResponseData>(
+                    Errors.NotAvailable,
+                    "Store system not initialized"
+                );
             }
 
-            return await UseCase.TryPurchase(itemId);
+            return await UseCase.Purchase(itemId);
+        }
+
+        public string test;
+
+        [Button]
+        public void BuyCheck()
+        {
+            Buy().Forget();
+        }
+
+        async UniTask Buy()
+        {
+            var result = await PurchaseStoreItem(test);
+
+            if (!result.Success)
+            {
+                Debug.LogError(result.Error);
+                return;
+            }
+
+            Debug.Log("Item purchased!");
         }
     }
 }

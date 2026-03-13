@@ -23,19 +23,31 @@ namespace StoreSystem.Domain
             _amount = amount;
         }
 
-        public bool CanPay()
+        public PurchaseProductResponseData ValidatePayment()
         {
-            return _currencyService.HasEnough(_currencyId, _amount);
+            if (!_currencyService.HasEnough(_currencyId, _amount))
+            {
+                return ResponseData.GetErrorResponse<PurchaseProductResponseData>(
+                    Errors.NotEnoughResources,
+                    $"Not enough {_currencyId}"
+                );
+            }
+
+            return ResponseData.GetSuccessResponse<PurchaseProductResponseData>();
         }
 
-        public UniTask<bool> Pay()
+        public UniTask<PurchaseProductResponseData> ExecutePayment()
         {
-            if (!CanPay())
-                return UniTask.FromResult(false);
+            var validation = ValidatePayment();
+
+            if (!validation.Success)
+                return UniTask.FromResult(validation);
 
             _currencyService.Spend(_currencyId, _amount, "store_item");
 
-            return UniTask.FromResult(true);
+            var result = ResponseData.GetSuccessResponse<PurchaseProductResponseData>();
+
+            return UniTask.FromResult(result);
         }
     }
 }

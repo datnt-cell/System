@@ -1,11 +1,28 @@
+using Cysharp.Threading.Tasks;
 using UnityEngine.Events;
 
-/// <summary>
-/// Adapter cho Gley Ads.
-/// Nếu sau này đổi sang LevelPlay chỉ cần đổi class này.
-/// </summary>
 public class GleyAdsProvider : IAdsProvider
 {
+    private bool _initialized;
+
+    public bool IsInitialized()
+    {
+        return _initialized;
+    }
+
+    public UniTask InitializeAsync()
+    {
+        var tcs = new UniTaskCompletionSource();
+
+        Gley.MobileAds.API.Initialize(() =>
+        {
+            _initialized = true;
+            tcs.TrySetResult();
+        });
+
+        return tcs.Task;
+    }
+
     public void ShowInterstitial()
     {
         Gley.MobileAds.API.ShowInterstitial();
@@ -18,11 +35,11 @@ public class GleyAdsProvider : IAdsProvider
 
     public bool IsRewardedAvailable()
     {
-        return Gley.MobileAds.API.IsInterstitialAvailable();
+        return Gley.MobileAds.API.IsRewardedVideoAvailable();
     }
 
     public bool IsInterstitialAvailable()
     {
-        return Gley.MobileAds.API.IsRewardedVideoAvailable();
+        return Gley.MobileAds.API.IsInterstitialAvailable();
     }
 }

@@ -48,7 +48,7 @@ namespace StoreSystem.Installer
             {
                 StorePriceType.Free => new FreePriceStrategy(),
                 StorePriceType.IAP => new IapPriceStrategy(config.ProductId, GameManager.Instance.IAPManager.Presenter),
-                StorePriceType.Currency => new CurrencyPriceStrategy(GameManager.Instance.CurrencyManager.CurrencyService, config.CurrencyPrice.GetCurrencyId(), config.CurrencyPrice.Amount),
+                StorePriceType.Currency => new CurrencyPriceStrategy(GameManager.Instance.Currency.CurrencyService, config.CurrencyPrice.GetCurrencyId(), config.CurrencyPrice.Amount),
                 _ => throw new System.Exception("Unknown price type")
             };
         }

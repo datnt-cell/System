@@ -1,5 +1,4 @@
 using Cysharp.Threading.Tasks;
-using IAPModule.Domain.Entities;
 
 namespace StoreSystem.Domain
 {
@@ -8,11 +7,15 @@ namespace StoreSystem.Domain
     /// </summary>
     public class FreePriceStrategy : IPriceStrategy
     {
-        public bool CanPay() => true;
-
-        public async UniTask<bool> Pay()
+        public PurchaseProductResponseData ValidatePayment()
         {
-            return true;
+            return ResponseData.GetSuccessResponse<PurchaseProductResponseData>();
+        }
+
+        public UniTask<PurchaseProductResponseData> ExecutePayment()
+        {
+            var result = ResponseData.GetSuccessResponse<PurchaseProductResponseData>();
+            return UniTask.FromResult(result);
         }
     }
 }

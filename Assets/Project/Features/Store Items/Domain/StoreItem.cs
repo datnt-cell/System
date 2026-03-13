@@ -23,21 +23,24 @@ namespace StoreSystem.Domain
         }
 
         /// <summary>
-        /// Thử mua item.
+        /// Thực hiện mua item.
         /// </summary>
-        public async UniTask<bool> TryPurchase()
+        public async UniTask<PurchaseProductResponseData> Purchase()
         {
-            if (!_priceStrategy.CanPay())
-                return false;
+            // Validate payment
+            var validation = _priceStrategy.ValidatePayment();
+            if (!validation.Success)
+                return validation;
 
-            bool paid = await _priceStrategy.Pay();
+            // Execute payment
+            var payment = await _priceStrategy.ExecutePayment();
+            if (!payment.Success)
+                return payment;
 
-            if (!paid)
-                return false;
-
+            // Grant reward
             GrantReward();
 
-            return true;
+            return payment;
         }
 
         public void GrantReward()

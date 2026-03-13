@@ -1,12 +1,17 @@
+using Cysharp.Threading.Tasks;
 using UnityEngine.Events;
 
-/// <summary>
-/// Adapter layer giữa hệ thống và SDK quảng cáo.
-/// </summary>
 public interface IAdsProvider
 {
+    UniTask InitializeAsync();
+
+    bool IsInitialized();
+
     void ShowInterstitial();
+
     void ShowRewarded(UnityAction<bool> callback);
+
     bool IsInterstitialAvailable();
+
     bool IsRewardedAvailable();
 }

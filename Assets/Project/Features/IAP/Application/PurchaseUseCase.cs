@@ -1,5 +1,4 @@
 using Cysharp.Threading.Tasks;
-using IAPModule.Domain.Entities;
 using IAPModule.Domain.Policies;
 using IAPModule.Application.Interfaces;
 using Gley.EasyIAP;
@@ -33,32 +32,42 @@ namespace IAPModule.Application.UseCases
         /// <summary>
         /// Kiểm tra product có thể mua hay không
         /// </summary>
-        public bool CanBuy(ShopProductNames productId)
+        public PurchaseProductResponseData ValidatePurchase(ShopProductNames productId)
         {
             if (_provider.GetProductType(productId) == ProductType.NonConsumable)
             {
                 if (!_rewardPolicy.CanGrant(productId))
-                    return false;
+                {
+                    return ResponseData.GetErrorResponse<PurchaseProductResponseData>(
+                        Errors.NotAvailable,
+                        "Product already purchased"
+                    );
+                }
             }
 
-            return true;
+            return ResponseData.GetSuccessResponse<PurchaseProductResponseData>();
         }
 
         /// <summary>
         /// Thực hiện mua hàng
         /// </summary>
-        public async UniTask<PurchaseResult> ExecuteAsync(ShopProductNames productId)
+        public async UniTask<PurchaseProductResponseData> ExecuteAsync(ShopProductNames productId)
         {
             // Log show popup
             _analytics.LogPurchaseShow(productId);
+
+            // Validate trước khi mua
+            var validation = ValidatePurchase(productId);
+            if (!validation.Success)
+                return validation;
 
             // Gọi provider mua hàng
             var result = await _provider.BuyAsync(productId);
 
             // Log kết quả
-            _analytics.LogPurchaseResult(productId, result.IsSuccess);
+            _analytics.LogPurchaseResult(productId, result.Success);
 
-            if (!result.IsSuccess)
+            if (!result.Success)
                 return result;
 
             // Kiểm tra policy reward
@@ -70,7 +79,7 @@ namespace IAPModule.Application.UseCases
                     _rewardPolicy.MarkGranted(productId);
                 }
             }
-            
+
             return result;
         }
     }

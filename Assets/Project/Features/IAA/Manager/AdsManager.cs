@@ -3,7 +3,7 @@ using Cysharp.Threading.Tasks;
 
 public class AdsManager : MonoBehaviour
 {
-    [SerializeField] private AdsLoading loading;
+    [SerializeField] private LoadingView loading;
 
     public AdsPresenter AdsPresenter { get; private set; }
 

@@ -46,25 +46,25 @@ namespace StoreSystem.Presentation
             return await UseCase.Purchase(itemId);
         }
 
-        public string test;
+        // public string test;
 
-        [Button]
-        public void BuyCheck()
-        {
-            Buy().Forget();
-        }
+        // [Button]
+        // public void BuyCheck()
+        // {
+        //     Buy().Forget();
+        // }
 
-        async UniTask Buy()
-        {
-            var result = await PurchaseStoreItem(test);
+        // async UniTask Buy()
+        // {
+        //     var result = await PurchaseStoreItem(test);
 
-            if (!result.Success)
-            {
-                Debug.LogError(result.Error);
-                return;
-            }
+        //     if (!result.Success)
+        //     {
+        //         Debug.LogError(result.Error);
+        //         return;
+        //     }
 
-            Debug.Log("Item purchased!");
-        }
+        //     Debug.Log("Item purchased!");
+        // }
     }
 }

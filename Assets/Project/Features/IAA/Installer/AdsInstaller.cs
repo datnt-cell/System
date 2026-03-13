@@ -5,7 +5,7 @@ using Cysharp.Threading.Tasks;
 /// </summary>
 public class AdsInstaller
 {
-    public async UniTask<AdsPresenter> Install(AdsLoading view)
+    public async UniTask<AdsPresenter> Install(LoadingView view)
     {
         // =========================
         // Domain

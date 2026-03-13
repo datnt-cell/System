@@ -85,7 +85,6 @@ namespace IAPModule.Infrastructure.Providers
                     tcs.TrySetResult(response);
                 }
             });
-
             return tcs.Task;
         }
 

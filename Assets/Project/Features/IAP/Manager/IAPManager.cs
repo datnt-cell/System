@@ -9,7 +9,7 @@ namespace IAPModule
     /// </summary>
     public class IAPManager : MonoBehaviour
     {
-        [SerializeField] private IAPLoading view;
+        [SerializeField] private LoadingView view;
 
         public IAPPresenter Presenter { get; private set; }
 

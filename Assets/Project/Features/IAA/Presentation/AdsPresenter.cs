@@ -8,14 +8,14 @@ using System;
 /// </summary>
 public class AdsPresenter : IDisposable
 {
-    private readonly AdsLoading _view;
+    private readonly LoadingView _view;
     private readonly AdsViewModel _vm;
     private readonly AdsService _service;
 
     private readonly CompositeDisposable _disposables = new();
 
     public AdsPresenter(
-        AdsLoading view,
+        LoadingView view,
         AdsViewModel vm,
         AdsService service)
     {
@@ -30,9 +30,10 @@ public class AdsPresenter : IDisposable
     {
         // Bind ViewModel -> View
         _vm.IsShieldVisible
+            .DistinctUntilChanged()
             .Subscribe(active =>
             {
-                _view.SetShieldActive(active);
+                _view.SetShield(active);
             })
             .AddTo(_disposables);
     }

@@ -7,7 +7,7 @@ using Cysharp.Threading.Tasks;
 
 public class IAPInstaller
 {
-    public async UniTask<IAPPresenter> Install(IAPLoading view)
+    public async UniTask<IAPPresenter> Install(LoadingView view)
     {
         // =========================
         // Infrastructure

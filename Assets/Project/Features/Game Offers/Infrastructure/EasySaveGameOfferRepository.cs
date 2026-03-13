@@ -8,25 +8,26 @@ namespace GameOfferSystem.Infrastructure
     /// </summary>
     public class EasySaveGameOfferRepository : IGameOfferRepository
     {
-        private const string SaveKey = "GAME_OFFER_RUNTIME_DATA";
+        private const string KEY = "GAME_OFFER_RUNTIME_DATA";
+        private const string FILE = "GameOfferRuntime.es3";
 
         /// <summary>
-        /// Lưu runtime data
+        /// Lưu runtime data của các Offer
         /// </summary>
         public void Save(List<GameOfferRuntimeData> offers)
         {
-            ES3.Save(SaveKey, offers);
+            ES3.Save(KEY, offers, FILE);
         }
 
         /// <summary>
-        /// Load runtime data
+        /// Load runtime data từ file
         /// </summary>
         public List<GameOfferRuntimeData> Load()
         {
-            if (!ES3.KeyExists(SaveKey))
+            if (!ES3.KeyExists(KEY, FILE))
                 return new List<GameOfferRuntimeData>();
 
-            return ES3.Load<List<GameOfferRuntimeData>>(SaveKey);
+            return ES3.Load<List<GameOfferRuntimeData>>(KEY, FILE);
         }
     }
 }

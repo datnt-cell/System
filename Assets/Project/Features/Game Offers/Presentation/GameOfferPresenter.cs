@@ -1,3 +1,5 @@
+using GameOfferSystem.Domain;
+
 namespace GameOfferSystem.Presentation
 {
     /// <summary>
@@ -40,7 +42,7 @@ namespace GameOfferSystem.Presentation
         /// <summary>
         /// Kiểm tra player có thể mua offer không
         /// </summary>
-        public bool CanPurchase(string offerId)
+        public OfferPurchaseError CanPurchase(string offerId)
         {
             return _offerService.CanPurchase(offerId);
         }
@@ -48,7 +50,7 @@ namespace GameOfferSystem.Presentation
         /// <summary>
         /// Thực hiện mua offer
         /// </summary>
-        public bool PurchaseOffer(string offerId)
+        public PurchaseOfferResponse PurchaseOffer(string offerId)
         {
             return _offerService.Purchase(offerId);
         }
@@ -84,7 +86,7 @@ namespace GameOfferSystem.Presentation
         /// <summary>
         /// Kiểm tra có thể mua offer trong group
         /// </summary>
-        public bool CanPurchaseGroupOffer(string groupId, string offerId)
+        public OfferPurchaseError CanPurchaseGroupOffer(string groupId, string offerId)
         {
             return _groupService.CanPurchase(groupId, offerId);
         }
@@ -92,7 +94,7 @@ namespace GameOfferSystem.Presentation
         /// <summary>
         /// Mua offer trong group
         /// </summary>
-        public bool PurchaseGroupOffer(string groupId, string offerId)
+        public OfferPurchaseError PurchaseGroupOffer(string groupId, string offerId)
         {
             return _groupService.Purchase(groupId, offerId);
         }

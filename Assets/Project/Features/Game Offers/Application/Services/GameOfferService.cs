@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using GameOfferSystem.Domain;
 using GameOfferSystem.Infrastructure;
+using UnityEngine;
 
 /// <summary>
 /// Service quản lý toàn bộ business logic của Game Offers
@@ -82,74 +83,72 @@ public class GameOfferService
     /// </summary>
     public void MarkSeen(string offerId)
     {
+        if (string.IsNullOrEmpty(offerId))
+            return;
+
         var data = state.Get(offerId);
 
         if (data == null)
             return;
 
-        if (!data.IsActivated)
-        {
-            data.IsActivated = true;
-            data.StartTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        if (data.IsActivated)
+            return;
 
-            Save();
-        }
+        data.IsActivated = true;
+        data.StartTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        Save();
     }
 
     /// <summary>
     /// Kiểm tra có thể mua offer không
     /// </summary>
-    public bool CanPurchase(string offerId)
+    public OfferPurchaseError CanPurchase(string offerId)
     {
         var offer = config.Get(offerId);
 
         if (offer == null)
-            return false;
+            return OfferPurchaseError.OfferNotFound;
 
         var data = state.Get(offerId);
 
         if (data == null)
-            return false;
+            return OfferPurchaseError.OfferNotActive;
 
         if (!data.IsActivated)
-            return false;
+            return OfferPurchaseError.OfferNotActive;
 
         if (data.IsExpired(offer.Duration))
-            return false;
+            return OfferPurchaseError.OfferExpired;
 
         if (data.PurchasedCount >= offer.Limit)
-            return false;
+            return OfferPurchaseError.PurchaseLimitReached;
 
-        return true;
+        return OfferPurchaseError.None;
     }
 
     /// <summary>
     /// Player mua offer
     /// </summary>
-    public bool Purchase(string offerId)
+    public PurchaseOfferResponse Purchase(string offerId)
     {
+        var check = CanPurchase(offerId);
+
+        if (check != OfferPurchaseError.None)
+        {
+            events?.OnOfferPurchaseFailed(null, check.ToString());
+            return PurchaseOfferResponse.Fail(check);
+        }
+
         var data = state.Get(offerId);
-
-        if (data == null)
-        {
-            events?.OnOfferPurchaseFailed(null, "Offer not found");
-            return false;
-        }
-
-        if (!CanPurchase(offerId))
-        {
-            events?.OnOfferPurchaseFailed(data, "Purchase not allowed");
-            return false;
-        }
 
         data.PurchasedCount++;
 
         Save();
 
-        // 🔔 Event
         events?.OnOfferPurchased(data);
 
-        return true;
+        return PurchaseOfferResponse.SuccessResult(data);
     }
 
     /// <summary>

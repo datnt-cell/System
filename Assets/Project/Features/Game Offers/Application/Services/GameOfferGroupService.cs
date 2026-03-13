@@ -153,68 +153,72 @@ public class GameOfferGroupService
     /// <summary>
     /// Kiểm tra có thể mua offer trong group
     /// </summary>
-    public bool CanPurchase(string groupId, string offerId)
+    public OfferPurchaseError CanPurchase(string groupId, string offerId)
     {
-        var offer = GetAvailableOffer(groupId);
+        if (string.IsNullOrEmpty(groupId) || string.IsNullOrEmpty(offerId))
+            return OfferPurchaseError.OfferNotFound;
 
-        if (offer == null)
-            return false;
+        var availableOffer = GetAvailableOffer(groupId);
 
-        return offer == offerId;
+        if (availableOffer == null)
+            return OfferPurchaseError.OfferNotActive;
+
+        if (availableOffer != offerId)
+            return OfferPurchaseError.PurchaseNotAllowed;
+
+        return OfferPurchaseError.None;
     }
 
     /// <summary>
     /// Player mua offer
     /// </summary>
-    public bool Purchase(string groupId, string offerId)
+    public OfferPurchaseError Purchase(string groupId, string offerId)
     {
         var data = state.Get(groupId);
-
         if (data == null)
         {
             events?.OnGroupPurchaseFailed(groupId, offerId, "Group not found");
-            return false;
+            return OfferPurchaseError.OfferNotFound;
         }
 
         var group = config.Get(groupId);
-
         if (group == null)
         {
             events?.OnGroupPurchaseFailed(groupId, offerId, "Config not found");
-            return false;
+            return OfferPurchaseError.OfferNotFound;
         }
 
-        if (!CanPurchase(groupId, offerId))
+        var check = CanPurchase(groupId, offerId);
+        if (check != OfferPurchaseError.None)
         {
-            events?.OnGroupPurchaseFailed(groupId, offerId, "Purchase not allowed");
-            return false;
+            events?.OnGroupPurchaseFailed(groupId, offerId, check.ToString());
+            return check;
         }
 
-        switch (group.Type)
-        {
-            case OfferGroupType.ChainDeals:
-
-                data.CurrentIndex++;
-
-                break;
-
-            case OfferGroupType.OnlyOnePurchase:
-
-                data.PurchasedOffers.Add(offerId);
-
-                break;
-
-            case OfferGroupType.PurchaseEachOfferOnce:
-
-                data.PurchasedOffers.Add(offerId);
-
-                break;
-        }
+        ApplyPurchase(group, data, offerId);
 
         Save();
 
         events?.OnGroupOfferPurchased(groupId, offerId);
 
-        return true;
+        return OfferPurchaseError.None;
+    }
+
+    private void ApplyPurchase(
+    GameOfferGroupConfigData group,
+    GameOfferGroupRuntimeData data,
+    string offerId)
+    {
+        switch (group.Type)
+        {
+            case OfferGroupType.ChainDeals:
+                data.CurrentIndex++;
+                break;
+
+            case OfferGroupType.OnlyOnePurchase:
+            case OfferGroupType.PurchaseEachOfferOnce:
+                data.PurchasedOffers.Add(offerId);
+                break;
+        }
     }
 }

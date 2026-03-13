@@ -33,24 +33,12 @@ public class GameOfferManager : MonoBehaviour
 
     private GameOfferInstaller _installer;
 
-    private bool _initialized;
-
-    private void Awake()
-    {
-        Initialize();
-    }
-
     /// <summary>
     /// Khởi tạo toàn bộ Game Offer System.
     /// Chỉ được gọi một lần.
     /// </summary>
     public void Initialize()
     {
-        if (_initialized)
-            return;
-
-        _initialized = true;
-
         _installer = new GameOfferInstaller();
 
         var result = _installer.Install();
@@ -59,5 +47,19 @@ public class GameOfferManager : MonoBehaviour
         ViewModel = result.ViewModel;
         OfferService = result.OfferService;
         GroupService = result.GroupService;
+    }
+
+    [ContextMenu("TestOfferService")]
+    public void TestOfferService()
+    {
+        var result = Presenter.PurchaseOffer("OFFER_001");
+
+        if (!result.Success)
+        {
+            Debug.Log(result.Error);
+            return;
+        }
+
+        Debug.Log("Purchased: " + result.Offer.OfferId);
     }
 }

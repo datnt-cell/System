@@ -1,6 +1,7 @@
 using Cysharp.Threading.Tasks;
 using CurrencySystem.Application;
 using CurrencySystem.Domain;
+using System.Collections.Generic;
 
 namespace StoreSystem.Domain
 {
@@ -10,31 +11,32 @@ namespace StoreSystem.Domain
     public class CurrencyPriceStrategy : IPriceStrategy
     {
         private readonly CurrencyService _currencyService;
-        private readonly CurrencyId _currencyId;
-        private readonly int _amount;
+        private readonly List<CurrencyPrice> _prices;
 
         public CurrencyPriceStrategy(
             CurrencyService currencyService,
-            CurrencyId currencyId,
-            int amount)
+            List<CurrencyPrice> prices)
         {
             _currencyService = currencyService;
-            _currencyId = currencyId;
-            _amount = amount;
+            _prices = prices;
         }
 
         public PurchaseProductResponseData ValidatePayment()
         {
-            if (!_currencyService.HasEnough(_currencyId, _amount))
+            foreach (var price in _prices)
             {
-                return ResponseData.GetErrorResponse<PurchaseProductResponseData>(
-                    Errors.NotEnoughResources,
-                    $"Not enough {_currencyId}"
-                );
+                if (!_currencyService.HasEnough(price.CurrencyId, price.Amount))
+                {
+                    return ResponseData.GetErrorResponse<PurchaseProductResponseData>(
+                        Errors.NotEnoughResources,
+                        $"Not enough {price.CurrencyId}"
+                    );
+                }
             }
 
             return ResponseData.GetSuccessResponse<PurchaseProductResponseData>();
         }
+
 
         public UniTask<PurchaseProductResponseData> ExecutePayment()
         {
@@ -43,7 +45,14 @@ namespace StoreSystem.Domain
             if (!validation.Success)
                 return UniTask.FromResult(validation);
 
-            _currencyService.Spend(_currencyId, _amount, "store_item");
+            foreach (var price in _prices)
+            {
+                _currencyService.Spend(
+                    price.CurrencyId,
+                    price.Amount,
+                    "store_item"
+                );
+            }
 
             var result = ResponseData.GetSuccessResponse<PurchaseProductResponseData>();
 

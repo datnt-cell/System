@@ -95,7 +95,7 @@ namespace Gley.EasyIAP.Editor
 #if GleyIAPEnabled
                 try
                 {
-                    UnityEditor.Purchasing.UnityPurchasingEditor.TargetAndroidStore(UnityEngine.Purchasing.AppStore.AmazonAppStore);
+                  //  UnityEditor.Purchasing.UnityPurchasingEditor.TargetAndroidStore(UnityEngine.Purchasing.AppStore.AmazonAppStore);
                 }
                 catch
                 {

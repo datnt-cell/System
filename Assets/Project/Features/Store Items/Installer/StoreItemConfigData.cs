@@ -30,7 +30,8 @@ public class StoreItemConfigData
 
     [BoxGroup("PRICE")]
     [ShowIf(nameof(IsCurrency))]
-    public CurrencyRewardConfig CurrencyPrice;
+    [ValidateInput(nameof(ValidateCurrencyPrices), "Currency bị trùng!")]
+    public List<CurrencyRewardConfig> CurrencyPrices;
 
     // =========================
     // REWARD MODE
@@ -54,8 +55,17 @@ public class StoreItemConfigData
     [LabelText("Currencies")]
     [ValidateInput(nameof(ValidateRewards), "Currency bị trùng!")]
     public List<CurrencyRewardConfig> CustomRewards = new();
-    
+
     private bool ValidateRewards(List<CurrencyRewardConfig> list)
+    {
+        return list
+            .Where(x => !string.IsNullOrEmpty(x.CurrencyId))
+            .Select(x => x.CurrencyId)
+            .Distinct()
+            .Count() == list.Count;
+    }
+
+    private bool ValidateCurrencyPrices(List<CurrencyRewardConfig> list)
     {
         return list
             .Where(x => !string.IsNullOrEmpty(x.CurrencyId))
@@ -71,7 +81,7 @@ public class StoreItemConfigData
     private bool UseExistingBundle() => RewardMode == StoreRewardMode.UseExistingBundle;
     private bool UseCustomBundle() => RewardMode == StoreRewardMode.CustomBundle;
     private bool IsCurrency() => PriceType == StorePriceType.Currency;
-    
+
     private static IEnumerable<ValueDropdownItem<string>> GetBundleIds()
     {
         if (CurrencyBundleGlobalConfig.Instance == null)

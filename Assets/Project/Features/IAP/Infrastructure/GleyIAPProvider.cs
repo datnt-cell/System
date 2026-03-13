@@ -1,6 +1,7 @@
 using Cysharp.Threading.Tasks;
 using Gley.EasyIAP;
 using IAPModule.Application.Interfaces;
+using UnityEngine;
 
 namespace IAPModule.Infrastructure.Providers
 {
@@ -22,8 +23,11 @@ namespace IAPModule.Infrastructure.Providers
             return _initialized;
         }
 
-        public UniTask InitializeAsync()
+        public async UniTask InitializeAsync()
         {
+            if (_initialized)
+                return;
+
             var tcs = new UniTaskCompletionSource();
 
             API.Initialize((status, message) =>
@@ -31,16 +35,23 @@ namespace IAPModule.Infrastructure.Providers
                 if (status == IAPOperationStatus.Success)
                 {
                     _initialized = true;
-                    tcs.TrySetResult();
+                    Debug.Log("IAP Initialized");
                 }
                 else
                 {
-                    _initialized = false;
-                    tcs.TrySetException(new System.Exception(message));
+                    Debug.LogWarning($"IAP Init Failed: {message}");
                 }
+
+                tcs.TrySetResult();
             });
 
-            return tcs.Task;
+            var result = await UniTask.WhenAny(
+                tcs.Task,
+                UniTask.Delay(1000)
+            );
+
+            if (result == 1)
+                Debug.LogWarning("IAP Init Timeout (continue game)");
         }
 
         /// <summary>

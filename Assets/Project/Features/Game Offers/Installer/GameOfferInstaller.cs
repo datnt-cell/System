@@ -14,51 +14,71 @@ namespace GameOfferSystem.Installer
     {
         public GameOfferInstallResult Install()
         {
-            var config = GameOfferGlobalConfig.Instance;
+            // =========================
+            // CONFIG
+            // =========================
+
+            var offerConfig = GameOfferGlobalConfig.Instance;
+            var groupConfig = GameOfferGroupGlobalConfig.Instance;
 
             // =========================
             // DOMAIN
             // =========================
 
-            // Runtime state của toàn bộ GameOffer
-            var state = new GameOfferState();
+            var offerState = new GameOfferState();
+            var groupState = new GameOfferGroupState();
 
             // =========================
             // INFRASTRUCTURE
             // =========================
 
-            // Repository dùng để Save/Load dữ liệu runtime
-            IGameOfferRepository repository =
+            IGameOfferRepository offerRepository =
                 new EasySaveGameOfferRepository();
+
+            IGameOfferGroupRepository groupRepository =
+                new EasySaveGameOfferGroupRepository();
+
+            // =========================
+            // EVENTS
+            // =========================
+
+            var offerEvents = new GameOfferEvents();
+            var groupEvents = new GameOfferGroupEvents();
 
             // =========================
             // APPLICATION
             // =========================
 
-            // Service chứa toàn bộ business logic
-            var events = new GameOfferEvents(); 
+            var offerService = new GameOfferService(
+                offerState,
+                offerRepository,
+                offerConfig,
+                offerEvents
+            );
 
-            var service = new GameOfferService(
-                state,
-                repository,
-                config,
-                events
+            var groupService = new GameOfferGroupService(
+                groupState,
+                groupRepository,
+                groupConfig,
+                groupEvents
             );
 
             // =========================
             // PRESENTATION
             // =========================
 
-            // ViewModel cho UI binding
-            var viewModel = new GameOfferViewModel(state);
+            var viewModel = new GameOfferViewModel(offerState, groupState);
 
-            // Presenter cho gameplay gọi
-            var presenter = new GameOfferPresenter(service);
+            var presenter = new GameOfferPresenter(
+                offerService,
+                groupService
+            );
 
             return new GameOfferInstallResult(
                 presenter,
                 viewModel,
-                service
+                offerService,
+                groupService
             );
         }
     }

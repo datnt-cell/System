@@ -6,43 +6,95 @@ namespace GameOfferSystem.Presentation
     /// </summary>
     public class GameOfferPresenter
     {
-        private readonly GameOfferService _service;
+        private readonly GameOfferService _offerService;
+        private readonly GameOfferGroupService _groupService;
 
-        public GameOfferPresenter(GameOfferService service)
+        public GameOfferPresenter(
+            GameOfferService offerService,
+            GameOfferGroupService groupService)
         {
-            _service = service;
+            _offerService = offerService;
+            _groupService = groupService;
         }
 
+        // =========================
+        // OFFER
+        // =========================
+
         /// <summary>
-        /// Kích hoạt một offer.
+        /// Kích hoạt một offer
         /// </summary>
         public void ActivateOffer(string offerId)
         {
-            _service.ActivateOffer(offerId);
+            _offerService.ActivateOffer(offerId);
         }
 
         /// <summary>
-        /// Đánh dấu player đã nhìn thấy offer.
+        /// Đánh dấu player đã nhìn thấy offer
         /// </summary>
         public void MarkSeen(string offerId)
         {
-            _service.MarkSeen(offerId);
+            _offerService.MarkSeen(offerId);
         }
 
         /// <summary>
-        /// Kiểm tra player có thể mua offer không.
+        /// Kiểm tra player có thể mua offer không
         /// </summary>
         public bool CanPurchase(string offerId)
         {
-            return _service.CanPurchase(offerId);
+            return _offerService.CanPurchase(offerId);
         }
 
         /// <summary>
-        /// Thực hiện mua offer.
+        /// Thực hiện mua offer
         /// </summary>
-        public bool Purchase(string offerId)
+        public bool PurchaseOffer(string offerId)
         {
-            return _service.Purchase(offerId);
+            return _offerService.Purchase(offerId);
+        }
+
+        // =========================
+        // GROUP
+        // =========================
+
+        /// <summary>
+        /// Kích hoạt group
+        /// </summary>
+        public void ActivateGroup(string groupId)
+        {
+            _groupService.ActivateGroup(groupId);
+        }
+
+        /// <summary>
+        /// Player nhìn thấy group
+        /// </summary>
+        public void MarkGroupSeen(string groupId)
+        {
+            _groupService.MarkSeen(groupId);
+        }
+
+        /// <summary>
+        /// Lấy offer hiện tại trong group
+        /// </summary>
+        public string GetAvailableOfferInGroup(string groupId)
+        {
+            return _groupService.GetAvailableOffer(groupId);
+        }
+
+        /// <summary>
+        /// Kiểm tra có thể mua offer trong group
+        /// </summary>
+        public bool CanPurchaseGroupOffer(string groupId, string offerId)
+        {
+            return _groupService.CanPurchase(groupId, offerId);
+        }
+
+        /// <summary>
+        /// Mua offer trong group
+        /// </summary>
+        public bool PurchaseGroupOffer(string groupId, string offerId)
+        {
+            return _groupService.Purchase(groupId, offerId);
         }
     }
 }

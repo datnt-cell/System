@@ -9,22 +9,30 @@ namespace GameOfferSystem.Presentation
     /// </summary>
     public class GameOfferViewModel
     {
-        private readonly GameOfferState _state;
+        private readonly GameOfferState _offerState;
+        private readonly GameOfferGroupState _groupState;
 
-        public GameOfferViewModel(GameOfferState state)
+        public GameOfferViewModel(
+            GameOfferState offerState,
+            GameOfferGroupState groupState)
         {
-            _state = state;
+            _offerState = offerState;
+            _groupState = groupState;
         }
+
+        // =========================
+        // OFFER
+        // =========================
 
         /// <summary>
         /// Danh sách offer đang active.
-        /// UI Shop sẽ đọc từ đây.
+        /// UI Shop / Popup đọc từ đây.
         /// </summary>
         public IReadOnlyList<GameOfferRuntimeData> ActiveOffers
         {
             get
             {
-                return _state.ActiveOffers;
+                return _offerState.ActiveOffers;
             }
         }
 
@@ -33,15 +41,46 @@ namespace GameOfferSystem.Presentation
         /// </summary>
         public GameOfferRuntimeData GetOffer(string offerId)
         {
-            return _state.Get(offerId);
+            return _offerState.Get(offerId);
         }
 
         /// <summary>
         /// Kiểm tra offer có active không.
         /// </summary>
-        public bool IsActive(string offerId)
+        public bool IsOfferActive(string offerId)
         {
-            return _state.Contains(offerId);
+            return _offerState.Contains(offerId);
+        }
+
+        // =========================
+        // GROUP
+        // =========================
+
+        /// <summary>
+        /// Danh sách group đang active.
+        /// </summary>
+        public IReadOnlyCollection<GameOfferGroupRuntimeData> ActiveGroups
+        {
+            get
+            {
+                return _groupState.Values;
+            }
+        }
+
+        /// <summary>
+        /// Lấy runtime data của một group.
+        /// </summary>
+        public GameOfferGroupRuntimeData GetGroup(string groupId)
+        {
+            return _groupState.Get(groupId);
+        }
+
+        /// <summary>
+        /// Kiểm tra group có active không.
+        /// </summary>
+        public bool IsGroupActive(string groupId)
+        {
+            return _groupState.ContainsKey(groupId);
         }
     }
 }

@@ -18,6 +18,10 @@ public class GameOfferRuntimeData
     // kiểm tra offer có hết hạn chưa
     public bool IsExpired(TimeSpan duration)
     {
+        // duration = 0 => infinity (never expire)
+        if (duration == TimeSpan.Zero)
+            return false;
+
         long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         long endTime = StartTime + (long)duration.TotalSeconds;
 

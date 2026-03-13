@@ -23,26 +23,27 @@ public class GameOfferConfigData
     // =========================
     // TIME
     // =========================
-    [BoxGroup("TIME")]
+    [BoxGroup("CONFIG")]
     [LabelText("Duration")]
     public UTimeSpan Duration = TimeSpan.FromDays(1);
 
+    [BoxGroup("CONFIG")]
+    [LabelText("Wait Activation")]
+    public bool WaitForActivation;
 
+    [BoxGroup("CONFIG")]
+    [LabelText("Purchase Limit")]
+    [MinValue(1)]
+    public int Limit = 1;
     // =========================
     // STORE
     // =========================
 
     [BoxGroup("STORE")]
-    [TableColumnWidth(180)]
+    [TableColumnWidth(80)]
     [LabelText("Store Item")]
     [ValueDropdown(nameof(GetStoreItemIds))]
     public string StoreItemId;
-
-    [BoxGroup("STORE")]
-    [TableColumnWidth(120)]
-    [LabelText("Purchase Limit")]
-    [MinValue(1)]
-    public int Limit = 1;
 
     /// <summary>
     /// Dropdown StoreItemId

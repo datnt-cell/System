@@ -4,31 +4,60 @@ using GameOfferSystem.Installer;
 
 /// <summary>
 /// Entry point của Game Offer System trong Scene.
-///
-/// Manager chỉ giữ reference tới các layer cần thiết
-/// và khởi tạo hệ thống thông qua Installer.
+/// 
+/// Manager chịu trách nhiệm:
+/// - Khởi tạo hệ thống thông qua Installer
+/// - Giữ reference tới Presenter / ViewModel / Services
 /// </summary>
 public class GameOfferManager : MonoBehaviour
 {
+    /// <summary>
+    /// ViewModel dùng cho UI binding
+    /// </summary>
     public GameOfferViewModel ViewModel { get; private set; }
 
+    /// <summary>
+    /// Presenter dùng cho Gameplay/UI gọi logic
+    /// </summary>
     public GameOfferPresenter Presenter { get; private set; }
 
-    public GameOfferService Service { get; private set; }
+    /// <summary>
+    /// Service xử lý logic Offer
+    /// </summary>
+    public GameOfferService OfferService { get; private set; }
+
+    /// <summary>
+    /// Service xử lý logic Offer Group
+    /// </summary>
+    public GameOfferGroupService GroupService { get; private set; }
 
     private GameOfferInstaller _installer;
 
+    private bool _initialized;
+
+    private void Awake()
+    {
+        Initialize();
+    }
+
     /// <summary>
     /// Khởi tạo toàn bộ Game Offer System.
+    /// Chỉ được gọi một lần.
     /// </summary>
     public void Initialize()
     {
+        if (_initialized)
+            return;
+
+        _initialized = true;
+
         _installer = new GameOfferInstaller();
 
         var result = _installer.Install();
 
         Presenter = result.Presenter;
         ViewModel = result.ViewModel;
-        Service = result.Service;
+        OfferService = result.OfferService;
+        GroupService = result.GroupService;
     }
 }

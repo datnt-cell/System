@@ -9,18 +9,23 @@ namespace GameOfferSystem.Installer
     public readonly struct GameOfferInstallResult
     {
         public GameOfferPresenter Presenter { get; }
+
         public GameOfferViewModel ViewModel { get; }
 
-        public GameOfferService Service { get; }
+        public GameOfferService OfferService { get; }
+
+        public GameOfferGroupService GroupService { get; }
 
         public GameOfferInstallResult(
             GameOfferPresenter presenter,
             GameOfferViewModel viewModel,
-            GameOfferService service)
+            GameOfferService offerService,
+            GameOfferGroupService groupService)
         {
             Presenter = presenter;
             ViewModel = viewModel;
-            Service = service;
+            OfferService = offerService;
+            GroupService = groupService;
         }
     }
 }

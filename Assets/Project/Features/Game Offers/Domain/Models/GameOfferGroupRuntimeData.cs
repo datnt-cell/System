@@ -23,9 +23,15 @@ public class GameOfferGroupRuntimeData
     /// </summary>
     public HashSet<string> PurchasedOffers = new();
 
-    public bool IsExpired(int duration)
+    public bool IsExpired(TimeSpan duration)
     {
-        var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        return now > StartTime + duration;
+        // duration = 0 => infinity (never expire)
+        if (duration == TimeSpan.Zero)
+            return false;
+
+        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        long endTime = StartTime + (long)duration.TotalSeconds;
+
+        return now > endTime;
     }
 }

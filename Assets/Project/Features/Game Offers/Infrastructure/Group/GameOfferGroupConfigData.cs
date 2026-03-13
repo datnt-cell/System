@@ -14,26 +14,34 @@ public class GameOfferGroupConfigData
     // BASIC
     // =========================
 
-    [BoxGroup("BASIC")]
+    [BoxGroup("Info")]
     [ReadOnly]
-    [LabelText("ID")]
+    [LabelWidth(40)]
     public string Id;
 
-    [BoxGroup("BASIC")]
+    [BoxGroup("Info")]
     [LabelWidth(100)]
     public string DisplayName;
 
-    [BoxGroup("BASIC")]
-    [TableColumnWidth(80)]
+    [BoxGroup("Info")]
+    [TableColumnWidth(40)]
     [LabelText("Group Type")]
     public OfferGroupType Type;
+
+    [BoxGroup("CONFIG")]
+    [LabelText("Duration")]
+    public UTimeSpan Duration = TimeSpan.FromDays(1);
+
+    [BoxGroup("CONFIG")]
+    [LabelText("Wait Activation")]
+    public bool WaitForActivation;
 
     // =========================
     // OFFERS
     // =========================
 
     [BoxGroup("OFFERS")]
-    [TableColumnWidth(50)]
+    [TableColumnWidth(80)]
     [LabelText("Offer Ids")]
     [ValueDropdown(nameof(GetOfferIds))]
     public List<string> OfferIds = new();
@@ -41,14 +49,6 @@ public class GameOfferGroupConfigData
     // =========================
     // TIME
     // =========================
-    [BoxGroup("TIME")]
-    [LabelText("Duration")]
-    public UTimeSpan Duration = TimeSpan.FromDays(1);
-
-    [BoxGroup("TIME")]
-    [LabelText("Wait Activation")]
-    public bool WaitForActivation;
-
     private static IEnumerable<ValueDropdownItem<string>> GetOfferIds()
     {
         if (GameOfferGlobalConfig.Instance == null)

@@ -11,7 +11,7 @@ namespace ConditionEngine.Infrastructure
         public ConditionService Install()
         {
             // providers lấy dữ liệu runtime
-            var playerProvider = new PlayerProvider();
+            var playerProvider = new PlayerProvider(GameManager.Instance.Player.PlayerService);
             var purchaseProvider = new PurchaseProvider();
             var adsProvider = new AdsProvider();
             var timeProvider = new TimeProvider();

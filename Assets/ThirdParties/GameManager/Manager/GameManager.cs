@@ -5,6 +5,7 @@ using StoreSystem.Presentation;
 using IAPModule;
 using Sirenix.OdinInspector;
 using Cysharp.Threading.Tasks;
+using PlayerSystem.Presentation;
 
 /// <summary>
 /// GameManager là entry point của game.
@@ -24,6 +25,11 @@ public partial class GameManager : SingletonPersistent<GameManager>
 
     [BoxGroup("Game Systems")]
     [PropertyOrder(1)]
+    [LabelText("Player")]
+    public PlayerManager Player;
+
+    [BoxGroup("Game Systems")]
+    [PropertyOrder(2)]
     [LabelText("Currency")]
     public CurrencyManager Currency;
 
@@ -92,17 +98,20 @@ public partial class GameManager : SingletonPersistent<GameManager>
     /// </summary>
     async UniTask InitSystem()
     {
+        // load setting (sound, vibration...)
+        SettingManager.Initialize();
+
+        // khởi tạo player data (load save, session...)
+        Player.Initialize();
+
+        // load currency từ save
+        Currency.Initialize();
+
         // khởi tạo Ads SDK
         await AdsManager.Initialize();
 
         // khởi tạo hệ thống IAP
         await IAPManager.Initialize();
-
-        // load setting (sound, vibration...)
-        SettingManager.Initialize();
-
-        // load currency từ save
-        Currency.Initialize();
 
         // khởi tạo store item (cần CurrencyManager để check tiền)
         Store.Initialize(Currency);

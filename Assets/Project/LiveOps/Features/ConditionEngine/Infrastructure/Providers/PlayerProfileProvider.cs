@@ -1,63 +1,34 @@
+using PlayerSystem.Application;
+using ConditionEngine.Domain;
+
 namespace ConditionEngine.Infrastructure
 {
     /// <summary>
-    /// Provider cung cấp thông tin player
-    /// Thực tế sẽ lấy dữ liệu từ PlayerData / SaveData
+    /// Adapter lấy dữ liệu từ PlayerService
     /// </summary>
-    public class PlayerProvider
+    public class PlayerProvider : IPlayerProvider
     {
-        // =====================
-        // PLAYER PROGRESS
-        // =====================
+        private readonly PlayerService _playerService;
 
-        /// <summary>
-        /// Level hiện tại của player
-        /// </summary>
-        public int Level { get; set; }
+        public PlayerProvider(PlayerService playerService)
+        {
+            _playerService = playerService;
+        }
 
-        /// <summary>
-        /// Stage / Level map hiện tại
-        /// </summary>
-        public int Stage { get; set; }
+        public int Level => _playerService.Level.Value;
 
-        /// <summary>
-        /// Số session player đã chơi
-        /// </summary>
-        public int SessionCount { get; set; }
+        public int Stage => _playerService.Stage.Value;
 
-        /// <summary>
-        /// Player có phải new user không
-        /// </summary>
-        public bool IsNewUser { get; set; }
+        public int SessionCount => _playerService.SessionCount.Value;
 
-        // =====================
-        // PLAYER INFO
-        // =====================
+        public bool IsNewUser => _playerService.IsNewUser.Value;
 
-        /// <summary>
-        /// Country của player (ISO code)
-        /// </summary>
-        public string Country { get; set; }
+        public string Country => _playerService.Country.Value;
 
+        public string Segment => _playerService.Segment.Value;
 
-        /// <summary>
-        /// Segment của player
-        /// Ví dụ: whale / spender / non_spender
-        /// </summary>
-        public string Segment { get; set; }
+        public int DaysSinceInstall => _playerService.DaysSinceInstall.Value;
 
-        // =====================
-        // TIME
-        // =====================
-
-        /// <summary>
-        /// Số ngày kể từ khi player cài game
-        /// </summary>
-        public int DaysSinceInstall { get; set; }
-
-        /// <summary>
-        /// Tổng play time của player (phút)
-        /// </summary>
-        public int TotalPlayTimeMinutes { get; set; }
+        public int TotalPlayTimeMinutes => _playerService.PlayTimeMinutes.Value;
     }
 }

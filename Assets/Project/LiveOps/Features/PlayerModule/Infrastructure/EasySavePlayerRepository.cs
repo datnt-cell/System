@@ -1,3 +1,4 @@
+using System;
 using PlayerSystem.Domain;
 
 namespace PlayerSystem.Infrastructure
@@ -28,16 +29,70 @@ namespace PlayerSystem.Infrastructure
         /// </summary>
         private PlayerData CreateDefault()
         {
+            long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
             return new PlayerData
             {
+                // =====================
+                // PROGRESS
+                // =====================
+
                 Level = 1,
                 Stage = 1,
+                TutorialStep = 0,
+
+                // =====================
+                // SESSION
+                // =====================
+
                 SessionCount = 0,
+                TotalPlayTimeSeconds = 0,
+
+                // =====================
+                // USER
+                // =====================
+
                 IsNewUser = true,
+                DontDisturb = false,
+
+                // =====================
+                // REGION
+                // =====================
+
                 Country = "US",
-                Segment = PlayerSegment.NonSpender,
-                DaysSinceInstall = 0,
-                TotalPlayTimeMinutes = 0
+                SystemLanguage = UnityEngine.Application.systemLanguage.ToString(),
+
+                // =====================
+                // TRAFFIC
+                // =====================
+
+                TrafficSource = "Organic",
+                TrafficCampaign = "",
+
+                // =====================
+                // IDENTITY
+                // =====================
+
+                ProfileId = Guid.NewGuid().ToString(),
+                DeviceId = UnityEngine.SystemInfo.deviceUniqueIdentifier,
+                CustomId = "",
+
+                // =====================
+                // DEVICE
+                // =====================
+
+                Platform = UnityEngine.Application.platform.ToString(),
+                AppVersion = HelperLiveOps.GetBuildNumber(),
+                EngineVersion = UnityEngine.Application.unityVersion,
+
+                // =====================
+                // TIME
+                // =====================
+
+                FirstLoginTime = now,
+                LastLoginTime = now,
+                CurrentDay = now / 86400,
+                LastPurchaseTime = -1
             };
         }
     }

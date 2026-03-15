@@ -26,7 +26,35 @@ namespace ConditionEngine.Domain
 
         float TotalSpend { get; }
 
+        /// <summary>
+        /// Tổng số ads đã xem
+        /// </summary>
         int AdsWatchCount { get; }
+
+        /// <summary>
+        /// Rewarded ads đã xem
+        /// </summary>
+        int RewardedAdsWatched { get; }
+
+        /// <summary>
+        /// Interstitial ads đã hiển thị
+        /// </summary>
+        int InterstitialAdsWatched { get; }
+
+        /// <summary>
+        /// Tổng revenue từ ads
+        /// </summary>
+        double TotalAdsRevenue { get; }
+
+        /// <summary>
+        /// Revenue ads hôm nay
+        /// </summary>
+        double AdsRevenueToday { get; }
+
+        /// <summary>
+        /// Player đã mua remove ads
+        /// </summary>
+        bool IsRemoveAdsPurchased { get; }
 
         bool HasPurchased(string productId);
 

@@ -11,18 +11,18 @@ namespace IAPModule
     {
         [SerializeField] private LoadingView view;
 
-        public IAPPresenter Presenter { get; private set; }
+        public IAPService Service { get; private set; }
 
         public async UniTask Initialize()
         {
             IAPInstaller installer = new IAPInstaller();
 
-            Presenter = await installer.Install(view);   // ✅ await initialize IAP
+            Service = await installer.Install(view);   // ✅ await initialize IAP
         }
 
         private void OnDestroy()
         {
-            Presenter?.Dispose();
+            Service?.Dispose();
         }
     }
 }

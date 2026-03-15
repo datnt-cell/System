@@ -11,7 +11,7 @@ public class CurrencyManager : MonoBehaviour
 {
     public CurrencyViewModel ViewModel { get; private set; }
     public CurrencyPresenter Presenter { get; private set; }
-    public CurrencyService CurrencyService { get; private set; }
+    public CurrencyService Service { get; private set; }
     public CurrencyBundleUseCase BundleUseCase { get; private set; }
 
     private CurrencyInstaller _installer;
@@ -25,7 +25,7 @@ public class CurrencyManager : MonoBehaviour
         Presenter = result.Presenter;
         ViewModel = result.ViewModel;
 
-        CurrencyService = result.CurrencyService;
+        Service = result.CurrencyService;
         BundleUseCase = result.BundleUseCase;
     }
 }

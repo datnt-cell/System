@@ -1,29 +1,27 @@
-
 using System;
 using Newtonsoft.Json;
 
 [Serializable]
 public class PurchaseProductResponseData : ResponseData
 {
-    [JsonIgnore]
-    private string product_id;
+    [JsonProperty("productId")]
+    public string ProductId;
 
     [JsonIgnore]
     public bool PurchasedOnClient;
+
+    [JsonProperty("price")]
+    public float Price;
+
+    [JsonProperty("currency")]
+    public string Currency;
+
+    [JsonProperty("localizedPrice")]
+    public string LocalizedPrice;
 
     [JsonIgnore]
     public string Receipt;
 
     [JsonIgnore]
-    public string ProductId
-    {
-        get
-        {
-            return product_id;
-        }
-        set
-        {
-            product_id = value;
-        }
-    }
+    public int RewardValue;
 }

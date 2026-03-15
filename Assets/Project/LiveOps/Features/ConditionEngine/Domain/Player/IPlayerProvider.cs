@@ -6,13 +6,35 @@ namespace ConditionEngine.Domain
     /// </summary>
     public interface IPlayerProvider
     {
+        // =====================
+        // PROGRESS
+        // =====================
+
         int Level { get; }
 
         int Stage { get; }
 
+        int TutorialStep { get; }
+
+        // =====================
+        // SESSION
+        // =====================
+
         int SessionCount { get; }
 
+        int TotalPlayTimeSeconds { get; }
+
+        // =====================
+        // USER
+        // =====================
+
         bool IsNewUser { get; }
+
+        bool DontDisturb { get; }
+
+        // =====================
+        // REGION
+        // =====================
 
         string Country { get; }
 
@@ -20,6 +42,18 @@ namespace ConditionEngine.Domain
 
         int DaysSinceInstall { get; }
 
-        int TotalPlayTimeMinutes { get; }
+        // =====================
+        // TRAFFIC
+        // =====================
+
+        string TrafficSource { get; }
+
+        string TrafficCampaign { get; }
+
+        // =====================
+        // PURCHASE
+        // =====================
+
+        long TimeSincePurchase { get; }
     }
 }

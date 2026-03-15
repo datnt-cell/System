@@ -10,60 +10,41 @@ namespace PlayerSystem.Domain
     [Serializable]
     public class PlayerData
     {
-        // =====================
-        // PLAYER PROGRESS
-        // =====================
-
-        /// <summary>
-        /// Level hiện tại của player
-        /// </summary>
+        // PROGRESS
         public int Level;
-
-        /// <summary>
-        /// Stage / Map hiện tại player đang chơi
-        /// </summary>
         public int Stage;
+        public int TutorialStep;
 
-        /// <summary>
-        /// Tổng số session player đã chơi
-        /// </summary>
+        // SESSION
         public int SessionCount;
+        public int TotalPlayTimeSeconds;
 
-        /// <summary>
-        /// Player có phải new user hay không
-        /// </summary>
+        // USER
         public bool IsNewUser;
+        public bool DontDisturb;
 
-        // =====================
-        // PLAYER INFO
-        // =====================
-
-        /// <summary>
-        /// Country của player (ISO code)
-        /// Ví dụ: VN, US, JP
-        /// </summary>
+        // REGION
         public string Country;
+        public string SystemLanguage;
 
-        /// <summary>
-        /// Segment của player
-        /// Ví dụ: whale / spender / non_spender
-        /// </summary>
-        public string Segment;
+        // TRAFFIC
+        public string TrafficSource;
+        public string TrafficCampaign;
 
-        // =====================
+        // IDENTITY
+        public string ProfileId;
+        public string DeviceId;
+        public string CustomId;
+
+        // DEVICE
+        public string Platform;
+        public int AppVersion;
+        public string EngineVersion;
+
         // TIME
-        // =====================
-
-        /// <summary>
-        /// Số ngày kể từ khi player cài game
-        /// </summary>
-        public int DaysSinceInstall;
-
-        /// <summary>
-        /// Tổng playtime của player (tính bằng phút)
-        /// </summary>
-        public int TotalPlayTimeMinutes;
-
-        public long FirstInstallTimestamp;
+        public long FirstLoginTime;
+        public long LastLoginTime;
+        public long CurrentDay;
+        public long LastPurchaseTime;
     }
 }

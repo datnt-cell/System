@@ -1,16 +1,29 @@
+using Gley.EasyIAP;
+using IAPModule.Domain;
+using IAPModule.Application.Interfaces;
+
 namespace ConditionEngine.Infrastructure
 {
     /// <summary>
-    /// Provider cung cấp dữ liệu IAP
+    /// Provider cung cấp dữ liệu IAP cho ConditionEngine
     /// </summary>
     public class PurchaseProvider
     {
-        public float TotalSpend { get; set; }
+        private readonly IAPService _iAPService;
 
-        public bool HasPurchased(string productId)
+        public PurchaseProvider(IAPService iAPService)
         {
-            // TODO: kết nối hệ thống IAP thật
-            return false;
+            _iAPService = iAPService;
+
         }
+
+        public float TotalSpend => _iAPService.GetPaymentService().GetTotalSpend();
+
+        public int PurchaseCount => _iAPService.GetPaymentService().GetPurchaseCount();
+
+        public bool HasPurchased(string productId) => _iAPService.GetPaymentService().HasPurchased(productId);
+
+        public bool HasAnyPurchase() => _iAPService.GetPaymentService().HasAnyPurchase();
+
     }
 }

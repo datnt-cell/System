@@ -19,7 +19,7 @@ namespace StoreSystem.Presentation
         public void Initialize(CurrencyManager currencyManager)
         {
             var installer = new StoreInstaller(
-                currencyManager.CurrencyService,
+                currencyManager.Service,
                 currencyManager.BundleUseCase
             );
 

@@ -2,6 +2,7 @@ using UnityEditor;
 using UnityEngine;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
+using ConditionEngine.Presentation;
 
 public class GameConfigManagerWindow : OdinMenuEditorWindow
 {
@@ -32,6 +33,9 @@ public class GameConfigManagerWindow : OdinMenuEditorWindow
         tree.Add("OFFERS/🎁 Game Offers", GameOfferGlobalConfig.Instance);
         tree.Add("OFFERS/🗂 Offer Groups", GameOfferGroupGlobalConfig.Instance);
 
+        // CONDITIONS
+        tree.Add("CONDITIONS/⚙ Condition Config", ConditionGlobalConfig.Instance);
+
         return tree;
     }
 
@@ -49,13 +53,11 @@ public class GameConfigManagerWindow : OdinMenuEditorWindow
 
         GUILayout.FlexibleSpace();
 
-        // Save button
         if (SirenixEditorGUI.ToolbarButton(new GUIContent("💾 Save All", "Save all config assets")))
         {
             SaveAllConfigs();
         }
 
-        // Reload button
         if (SirenixEditorGUI.ToolbarButton(new GUIContent("🔄 Reload", "Reload all configs")))
         {
             ReloadConfigs();

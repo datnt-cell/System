@@ -1,16 +1,21 @@
+using R3;
 using UnityEngine.Events;
+using System;
 
-/// <summary>
-/// Xử lý toàn bộ logic quảng cáo.
-/// Không biết View là gì.
-/// </summary>
-public class AdsService
+public class AdsService : IDisposable
 {
     private readonly AdsState _state;
     private readonly IAdsRepository _repo;
     private readonly IAdsPolicy _policy;
     private readonly IAdsProvider _provider;
     private readonly ITimeProvider _timeProvider;
+
+    private readonly CompositeDisposable _disposables = new();
+
+    // View binding
+    private LoadingView _view;
+    public AdsViewModel vm;
+    public AdsState GetState() => _state;
 
     public AdsService(
         AdsState state,
@@ -25,9 +30,33 @@ public class AdsService
         _provider = provider;
         _timeProvider = timeProvider;
 
-        // Load dữ liệu khi khởi tạo
         _repo.Load(_state);
+
+        _provider.SetRemoveAds(_state.IsRemoveAds.Value);
     }
+
+    // =========================
+    // VIEW BINDING
+    // =========================
+
+    public void BindView(LoadingView view)
+    {
+        _view = view;
+
+        vm = new AdsViewModel(_state);
+
+        vm.IsShieldVisible
+            .DistinctUntilChanged()
+            .Subscribe(active =>
+            {
+                _view.SetShield(active);
+            })
+            .AddTo(_disposables);
+    }
+
+    // =========================
+    // INTERSTITIAL
+    // =========================
 
     public bool CanShowInterstitial(int level = 0, int season = 0)
     {
@@ -46,36 +75,27 @@ public class AdsService
             _state.NextAvailableAdTime);
     }
 
-
     public void TryShowInterstitial(int level = 0, int season = 0)
     {
-        if (_state.IsRemoveAds.Value)
-            return;
-
-        if (!_provider.IsInterstitialAvailable())
+        if (!CanShowInterstitial(level, season))
             return;
 
         float now = _timeProvider.CurrentTime;
 
-        bool canShow = _policy.CanShowInterstitial(
-            level,
-            season,
-            now,
-            _state.NextAvailableAdTime);
+        _provider.ShowInterstitial(revenue =>
+        {
+            _state.AddAdRevenue(AdType.Interstitial, revenue);
 
-        if (!canShow)
-            return;
+            float nextTime = _policy.GetNextCooldown(false, now);
+            _state.SetNextAdTime(nextTime);
 
-        _provider.ShowInterstitial();
-
-        _state.IncreaseInterstitial();
-
-        float nextTime = _policy.GetNextCooldown(false, now);
-
-        _state.SetNextAdTime(nextTime);
-
-        _repo.Save(_state);
+            _repo.Save(_state);
+        });
     }
+
+    // =========================
+    // REWARDED
+    // =========================
 
     public void ShowRewarded(UnityAction<bool> callback)
     {
@@ -89,11 +109,11 @@ public class AdsService
 
         _state.ShowShield();
 
-        _provider.ShowRewarded(success =>
+        _provider.ShowRewarded((success, revenue) =>
         {
             if (success)
             {
-                _state.IncreaseReward();
+                _state.AddAdRevenue(AdType.Rewarded, revenue);
 
                 float nextTime = _policy.GetNextCooldown(true, now);
                 _state.SetNextAdTime(nextTime);
@@ -107,9 +127,40 @@ public class AdsService
         });
     }
 
+    // =========================
+    // CUSTOM ADS
+    // =========================
+
+    public void TrackCustomAd(double revenue)
+    {
+        _state.AddAdRevenue(AdType.Custom, revenue);
+        _repo.Save(_state);
+    }
+
+    // =========================
+    // REMOVE ADS
+    // =========================
+
     public void RemoveAds()
     {
         _state.SetRemoveAds();
+
+        _provider.SetRemoveAds(true);
+
         _repo.Save(_state);
+    }
+
+    // =========================
+    // SAVE
+    // =========================
+
+    public void SaveState()
+    {
+        _repo.Save(_state);
+    }
+
+    public void Dispose()
+    {
+        _disposables.Dispose();
     }
 }

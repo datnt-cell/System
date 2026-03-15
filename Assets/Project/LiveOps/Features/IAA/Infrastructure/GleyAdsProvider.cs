@@ -37,23 +37,62 @@ public class GleyAdsProvider : IAdsProvider
         _initialized = true;
     }
 
-    public void ShowInterstitial()
+    // =========================
+    // INTERSTITIAL
+    // =========================
+
+    public bool IsInterstitialAvailable()
     {
-        Gley.MobileAds.API.ShowInterstitial();
+        return Gley.MobileAds.API.IsInterstitialAvailable();
     }
 
-    public void ShowRewarded(UnityAction<bool> callback)
+    public void ShowInterstitial(UnityAction<double> onClosed)
     {
-        Gley.MobileAds.API.ShowRewardedVideo(callback);
+        if (!IsInterstitialAvailable())
+        {
+            onClosed?.Invoke(0);
+            return;
+        }
+
+        Gley.MobileAds.API.ShowInterstitial(() =>
+        {
+            // Gley không trả revenue -> return 0
+            onClosed?.Invoke(0);
+        });
     }
+
+    // =========================
+    // REWARDED
+    // =========================
 
     public bool IsRewardedAvailable()
     {
         return Gley.MobileAds.API.IsRewardedVideoAvailable();
     }
 
-    public bool IsInterstitialAvailable()
+    public void ShowRewarded(UnityAction<bool, double> callback)
     {
-        return Gley.MobileAds.API.IsInterstitialAvailable();
+        if (!IsRewardedAvailable())
+        {
+            callback?.Invoke(false, 0);
+            return;
+        }
+
+        Gley.MobileAds.API.ShowRewardedVideo(success =>
+        {
+            // Gley không có revenue callback
+            double revenue = 0;
+
+            callback?.Invoke(success, revenue);
+        });
+    }
+
+    // =========================
+    // SETTINGS
+    // =========================
+
+    public void SetRemoveAds(bool remove)
+    {
+        Gley.MobileAds.API.RemoveAds(remove);
     }
 }

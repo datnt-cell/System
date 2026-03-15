@@ -67,20 +67,29 @@ namespace IAPModule.Infrastructure.Providers
                 {
                     var response = ResponseData.GetSuccessResponse<PurchaseProductResponseData>();
 
-                    response.ProductId = product.GetStoreID();
+                    response.ProductId = productId.ToString();
+                    response.Price = (float)API.GetPrice(productId);
+                    response.Currency = API.GetIsoCurrencyCode(productId);
+                    response.LocalizedPrice = API.GetLocalizedPriceString(productId);
+                    response.Receipt = API.GetReceipt(productId);
+                    response.RewardValue = API.GetValue(productId);
+
                     response.PurchasedOnClient = true;
+
+                    Debug.Log($"[IAP] Purchase Success: {productId}");
 
                     tcs.TrySetResult(response);
                 }
                 else
                 {
                     var response = ResponseData.GetErrorResponse<PurchaseProductResponseData>(
-                        Errors.UnityPurchasing_PurchaseFailed,
-                        message
-                    );
+                           Errors.UnityPurchasing_PurchaseFailed,
+                           message
+                       );
 
-                    if (product != null)
-                        response.ProductId = product.GetStoreID();
+                    response.ProductId = productId.ToString();
+
+                    Debug.LogWarning($"[IAP] Purchase Failed: {message}");
 
                     tcs.TrySetResult(response);
                 }
@@ -100,10 +109,12 @@ namespace IAPModule.Infrastructure.Providers
             {
                 if (status == IAPOperationStatus.Success)
                 {
+                    Debug.Log("[IAP] Restore success");
                     tcs.TrySetResult();
                 }
                 else
                 {
+                    Debug.LogWarning($"[IAP] Restore failed: {message}");
                     tcs.TrySetException(new System.Exception(message));
                 }
             });
@@ -111,23 +122,43 @@ namespace IAPModule.Infrastructure.Providers
             return tcs.Task;
         }
 
-        /// <summary>
-        /// Kiểm tra sản phẩm đã được mua chưa
-        /// (dùng cho NonConsumable / Subscription)
-        /// </summary>
+        // =================================
+        // PRODUCT INFO
+        // =================================
+
         public bool IsProductOwned(ShopProductNames productId)
         {
             return API.IsActive(productId);
         }
 
-        /// <summary>
-        /// Lấy loại product
-        /// Consumable / NonConsumable / Subscription
-        /// </summary>
         public ProductType GetProductType(ShopProductNames productId)
         {
             return API.GetProductType(productId);
         }
 
+        public float GetPrice(ShopProductNames productId)
+        {
+            return (float)API.GetPrice(productId);
+        }
+
+        public string GetCurrency(ShopProductNames productId)
+        {
+            return API.GetIsoCurrencyCode(productId);
+        }
+
+        public string GetLocalizedPrice(ShopProductNames productId)
+        {
+            return API.GetLocalizedPriceString(productId);
+        }
+
+        public string GetReceipt(ShopProductNames productId)
+        {
+            return API.GetReceipt(productId);
+        }
+
+        public int GetRewardValue(ShopProductNames productId)
+        {
+            return API.GetValue(productId);
+        }
     }
 }

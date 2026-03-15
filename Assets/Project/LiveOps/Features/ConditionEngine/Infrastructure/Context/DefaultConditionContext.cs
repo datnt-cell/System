@@ -50,12 +50,31 @@ namespace ConditionEngine.Infrastructure
 
         public float TotalSpend => _purchase.TotalSpend;
 
-        public int AdsWatchCount => _ads.GetRewardedAdsWatched();
+        public int PurchaseCount => _purchase.PurchaseCount;
 
-        public bool HasPurchased(string productId)
-        {
-            return _purchase.HasPurchased(productId);
-        }
+        public bool HasPurchased(string productId) => _purchase.HasPurchased(productId);
+
+        public bool HasAnyPurchase() => _purchase.HasAnyPurchase();
+
+        // =====================
+        // ADS
+        // =====================
+
+        public int RewardedAdsWatched => _ads.GetRewardedAdsWatched();
+
+        public int InterstitialAdsWatched => _ads.GetInterstitialAdsWatched();
+
+        public int AdsWatchCount => RewardedAdsWatched + InterstitialAdsWatched;
+
+        public double RewardedAdsRevenue => _ads.GetRewardedRevenue();
+
+        public double InterstitialAdsRevenue => _ads.GetInterstitialRevenue();
+
+        public double TotalAdsRevenue => _ads.GetTotalRevenue();
+
+        public double AdsRevenueToday => _ads.GetRevenueToday();
+
+        public bool IsRemoveAdsPurchased => _ads.IsRemoveAdsPurchased();
 
         // =====================
         // PLAYER INFO
@@ -65,19 +84,7 @@ namespace ConditionEngine.Infrastructure
 
         public string PlayerSegment => _player.Segment;
 
-        public int AppBuildVersion
-        {
-            get
-            {
-#if UNITY_ANDROID
-                return GetAndroidVersionCode();
-#elif UNITY_IOS
-                return 0;
-#else
-                return 0;
-#endif
-            }
-        }
+        public int AppBuildVersion => _player.AppVersion;
 
         // =====================
         // TIME
@@ -87,7 +94,8 @@ namespace ConditionEngine.Infrastructure
 
         public int DaysSinceInstall => _player.DaysSinceInstall;
 
-        public int TotalPlayTimeMinutes => _player.TotalPlayTimeMinutes;
+        public int TotalPlayTimeMinutes =>
+            _player.TotalPlayTimeSeconds / 60;
 
         // =====================
         // INVENTORY
@@ -110,25 +118,6 @@ namespace ConditionEngine.Infrastructure
         public int GetEventProgress(string eventId)
         {
             return _event.GetProgress(eventId);
-        }
-
-        // =====================
-        // ANDROID VERSION CODE
-        // =====================
-
-        private int GetAndroidVersionCode()
-        {
-#if UNITY_ANDROID && !UNITY_EDITOR
-            using var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-            using var activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
-            using var packageManager = activity.Call<AndroidJavaObject>("getPackageManager");
-            string packageName = activity.Call<string>("getPackageName");
-            using var packageInfo = packageManager.Call<AndroidJavaObject>("getPackageInfo", packageName, 0);
-
-            return packageInfo.Get<int>("versionCode");
-#else
-            return 0;
-#endif
         }
     }
 }

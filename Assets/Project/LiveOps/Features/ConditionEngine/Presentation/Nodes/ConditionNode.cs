@@ -17,7 +17,6 @@ namespace ConditionEngine.Presentation
         {
             return GetType().Name;
         }
-        
 
         public abstract ICondition Build();
     }

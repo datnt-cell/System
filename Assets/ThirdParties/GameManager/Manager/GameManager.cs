@@ -6,6 +6,7 @@ using IAPModule;
 using Sirenix.OdinInspector;
 using Cysharp.Threading.Tasks;
 using PlayerSystem.Presentation;
+using ConditionEngine;
 
 /// <summary>
 /// GameManager là entry point của game.
@@ -32,6 +33,11 @@ public partial class GameManager : SingletonPersistent<GameManager>
     [PropertyOrder(2)]
     [LabelText("Currency")]
     public CurrencyManager Currency;
+
+    [BoxGroup("Game Systems")]
+    [PropertyOrder(3)]
+    [LabelText("Conditions")]
+    public ConditionManager Conditions;
 
 
     [Title("💰 Monetization Systems")]
@@ -101,7 +107,7 @@ public partial class GameManager : SingletonPersistent<GameManager>
         // load setting (sound, vibration...)
         SettingManager.Initialize();
 
-        // khởi tạo player data (load save, session...)
+        // khởi tạo player data
         Player.Initialize();
 
         // load currency từ save
@@ -113,10 +119,13 @@ public partial class GameManager : SingletonPersistent<GameManager>
         // khởi tạo hệ thống IAP
         await IAPManager.Initialize();
 
-        // khởi tạo store item (cần CurrencyManager để check tiền)
+        // khởi tạo ConditionEngine
+        Conditions.Initialize();
+
+        // khởi tạo store item
         Store.Initialize(Currency);
 
-        // khởi tạo hệ thống offer (bundle, special pack)
+        // khởi tạo hệ thống offer
         GameOffers.Initialize();
     }
 }

@@ -5,33 +5,30 @@ using Gley.EasyIAP;
 
 namespace IAPModule.Application.UseCases
 {
-    /// <summary>
-    /// UseCase xử lý flow mua hàng
-    /// Không biết Unity
-    /// Không biết Gley
-    /// </summary>
     public class PurchaseUseCase
     {
         private readonly IIAPProvider _provider;
         private readonly IIAPRepository _repository;
         private readonly IIAPAnalytics _analytics;
         private readonly IRewardPolicy _rewardPolicy;
+        private readonly IPaymentService _paymentService;
 
+        public IPaymentService GetPaymentService()=> _paymentService;
+        
         public PurchaseUseCase(
             IIAPProvider provider,
             IIAPRepository repository,
             IIAPAnalytics analytics,
-            IRewardPolicy rewardPolicy)
+            IRewardPolicy rewardPolicy,
+            IPaymentService paymentService)
         {
             _provider = provider;
             _repository = repository;
             _analytics = analytics;
             _rewardPolicy = rewardPolicy;
+            _paymentService = paymentService;
         }
 
-        /// <summary>
-        /// Kiểm tra product có thể mua hay không
-        /// </summary>
         public PurchaseProductResponseData ValidatePurchase(ShopProductNames productId)
         {
             if (_provider.GetProductType(productId) == ProductType.NonConsumable)
@@ -48,29 +45,37 @@ namespace IAPModule.Application.UseCases
             return ResponseData.GetSuccessResponse<PurchaseProductResponseData>();
         }
 
-        /// <summary>
-        /// Thực hiện mua hàng
-        /// </summary>
         public async UniTask<PurchaseProductResponseData> ExecuteAsync(ShopProductNames productId)
         {
-            // Log show popup
+            // Analytics show
             _analytics.LogPurchaseShow(productId);
 
-            // Validate trước khi mua
             var validation = ValidatePurchase(productId);
             if (!validation.Success)
                 return validation;
 
-            // Gọi provider mua hàng
+            // Call store
             var result = await _provider.BuyAsync(productId);
 
-            // Log kết quả
+            // Analytics result
             _analytics.LogPurchaseResult(productId, result.Success);
 
             if (!result.Success)
                 return result;
 
-            // Kiểm tra policy reward
+            // =========================
+            // UPDATE PAYMENT STATE
+            // =========================
+
+            _paymentService.RegisterPurchase(
+                result.Price,
+                result.Currency
+            );
+
+            // =========================
+            // REWARD POLICY
+            // =========================
+
             if (_provider.GetProductType(productId) == ProductType.NonConsumable)
             {
                 if (_rewardPolicy.CanGrant(productId))

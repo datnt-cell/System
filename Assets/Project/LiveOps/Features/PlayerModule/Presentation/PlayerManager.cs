@@ -1,6 +1,6 @@
 using UnityEngine;
 using PlayerSystem.Application;
-using PlayerSystem.Domain;
+using System;
 
 namespace PlayerSystem.Presentation
 {
@@ -12,15 +12,15 @@ namespace PlayerSystem.Presentation
     {
         private PlayerInstaller _installer;
 
-        public PlayerService PlayerService { get; private set; }
+        public PlayerService Service { get; private set; }
 
         private float _playTimer;
-
         private bool _initialized;
 
-        /// <summary>
-        /// Khởi tạo PlayerModule
-        /// </summary>
+        // =====================
+        // INITIALIZE
+        // =====================
+
         public void Initialize()
         {
             if (_initialized)
@@ -30,83 +30,65 @@ namespace PlayerSystem.Presentation
             }
 
             _installer = new PlayerInstaller();
-
-            if (_installer == null)
-            {
-                Debug.LogError("[PlayerManager] Installer creation failed");
-                return;
-            }
-
             _installer.Install();
 
-            PlayerService = _installer.PlayerService;
+            Service = _installer.PlayerService;
 
-            if (PlayerService == null)
+            if (Service == null)
             {
-                Debug.LogError("[PlayerManager] Player dependencies missing");
+                Debug.LogError("[PlayerManager] Service missing");
                 return;
             }
 
-            AutoSetupPlayerInfo();
+            SetupPlayerSession();
 
             _initialized = true;
         }
 
-        private void AutoSetupPlayerInfo()
+        // =====================
+        // SESSION SETUP
+        // =====================
+
+        private void SetupPlayerSession()
         {
-            // =========================
-            // SET NEW USER
-            // =========================
+            // tăng session
+            Service.AddSession();
 
-            if (PlayerService.SessionCount.Value == 1)
-            {
-                PlayerService.SetNewUser(true);
-            }
-            else
-            {
-                PlayerService.SetNewUser(false);
-            }
-
-            // =========================
-            // SET COUNTRY
-            // =========================
-
-            if (string.IsNullOrEmpty(PlayerService.Country.Value))
-            {
-                // string country = DetectCountry();
-                // PlayerService.SetCountry(country);
-            }
-
-            PlayerService.AddSession();
-
-            PlayerService.UpdateDaysSinceInstall();
+            // xác định new user
+            bool isNewUser = Service.SessionCount.Value <= 1;
+            Service.SetNewUser(isNewUser);
         }
 
+        // =====================
+        // UPDATE
+        // =====================
 
         private void Update()
         {
             if (!_initialized)
                 return;
 
-
             _playTimer += Time.deltaTime;
 
-            if (_playTimer >= 60f)
+            if (_playTimer >= 1f)
             {
                 _playTimer = 0f;
-                PlayerService.AddPlayTime(1);
+
+                Service.AddPlayTime(1);
             }
         }
+
+        // =====================
+        // APP LIFECYCLE
+        // =====================
 
         private void OnApplicationPause(bool pause)
         {
             if (!_initialized)
                 return;
 
-            if (pause && PlayerService != null)
-            {
-                PlayerService.Save();
-            }
+            if (pause)
+                Service.Save();
         }
 
         private void OnApplicationQuit()
@@ -114,51 +96,95 @@ namespace PlayerSystem.Presentation
             if (!_initialized)
                 return;
 
-            PlayerService?.Save();
+            Service.Save();
         }
 
-        /// <summary>
-        /// Gameplay gọi khi player hoàn thành stage
-        /// </summary>
-        public void CompleteStage(int stage)
+        // =====================
+        // GAMEPLAY API
+        // =====================
+
+        public void CompleteStage(int amount = 1)
         {
             if (!_initialized)
                 return;
 
-            PlayerService?.AddStage(stage);
+            Service.AddStage(amount);
         }
 
-        /// <summary>
-        /// Lấy level hiện tại
-        /// </summary>
+        public void SetLevel(int level)
+        {
+            if (!_initialized)
+                return;
+
+            Service.SetLevel(level);
+        }
+
+        public void SetTutorialStep(int step)
+        {
+            if (!_initialized)
+                return;
+
+            Service.SetTutorialStep(step);
+        }
+
+        public void OnPurchaseSuccess()
+        {
+            if (!_initialized)
+                return;
+
+            long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+            Service.SetLastPurchaseTime(now);
+        }
+
+        public void SetTrafficCampaign(string campaign)
+        {
+            if (!_initialized)
+                return;
+
+            Service.SetTrafficCampaign(campaign);
+        }
+
+        public void SetTrafficSource(string source)
+        {
+            if (!_initialized)
+                return;
+
+            Service.SetTrafficSource(source);
+        }
+
+        // =====================
+        // READ API
+        // =====================
+
         public int GetLevel()
         {
-            if (PlayerService == null)
-                return 0;
-
-            return PlayerService.Level.Value;
+            return Service?.Level.Value ?? 0;
         }
 
-        /// <summary>
-        /// Lấy stage hiện tại
-        /// </summary>
         public int GetStage()
         {
-            if (PlayerService == null)
-                return 0;
-
-            return PlayerService.Stage.Value;
+            return Service?.Stage.Value ?? 0;
         }
 
-        /// <summary>
-        /// Lấy playtime
-        /// </summary>
+        public int GetSessionCount()
+        {
+            return Service?.SessionCount.Value ?? 0;
+        }
+
         public int GetPlayTime()
         {
-            if (PlayerService == null)
-                return 0;
+            return Service?.PlayTimeSeconds.Value ?? 0;
+        }
 
-            return PlayerService.PlayTimeMinutes.Value;
+        public bool IsNewUser()
+        {
+            return Service?.IsNewUser.Value ?? false;
+        }
+
+        public string GetCountry()
+        {
+            return Service?.Country.Value ?? "";
         }
     }
 }

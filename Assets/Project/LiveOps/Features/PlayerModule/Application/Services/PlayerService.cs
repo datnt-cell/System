@@ -1,44 +1,84 @@
 using R3;
 using PlayerSystem.Domain;
 using System;
+using UnityEngine;
 
 namespace PlayerSystem.Application
 {
-    /// <summary>
-    /// Service quản lý PlayerData và expose reactive stream
-    /// </summary>
     public class PlayerService
     {
         private readonly IPlayerRepository _repository;
         private PlayerData _data;
 
         // =====================
-        // PLAYER PROGRESS
+        // PROGRESS
         // =====================
 
         public ReactiveProperty<int> Level { get; } = new();
         public ReactiveProperty<int> Stage { get; } = new();
-        public ReactiveProperty<int> SessionCount { get; } = new();
+        public ReactiveProperty<int> TutorialStep { get; } = new();
 
         // =====================
-        // PLAYER INFO
+        // SESSION
+        // =====================
+
+        public ReactiveProperty<int> SessionCount { get; } = new();
+        public ReactiveProperty<int> PlayTimeSeconds { get; } = new();
+
+        // =====================
+        // USER
         // =====================
 
         public ReactiveProperty<bool> IsNewUser { get; } = new();
+        public ReactiveProperty<bool> DontDisturb { get; } = new();
+
+        // =====================
+        // REGION
+        // =====================
+
         public ReactiveProperty<string> Country { get; } = new();
-        public ReactiveProperty<string> Segment { get; } = new();
+        public ReactiveProperty<string> SystemLanguage { get; } = new();
+
+        // =====================
+        // TRAFFIC
+        // =====================
+
+        public ReactiveProperty<string> TrafficSource { get; } = new();
+        public ReactiveProperty<string> TrafficCampaign { get; } = new();
+
+        // =====================
+        // IDENTITY
+        // =====================
+
+        public ReactiveProperty<string> ProfileId { get; } = new();
+        public ReactiveProperty<string> DeviceId { get; } = new();
+        public ReactiveProperty<string> CustomId { get; } = new();
+
+        // =====================
+        // DEVICE
+        // =====================
+
+        public ReactiveProperty<string> Platform { get; } = new();
+        public ReactiveProperty<int> AppVersion { get; } = new();
+        public ReactiveProperty<string> EngineVersion { get; } = new();
 
         // =====================
         // TIME
         // =====================
 
-        public ReactiveProperty<int> DaysSinceInstall { get; } = new();
-        public ReactiveProperty<int> PlayTimeMinutes { get; } = new();
+        public ReactiveProperty<long> FirstLoginTime { get; } = new();
+        public ReactiveProperty<long> LastLoginTime { get; } = new();
+        public ReactiveProperty<long> CurrentDay { get; } = new();
+        public ReactiveProperty<long> LastPurchaseTime { get; } = new();
 
         public PlayerService(IPlayerRepository repository)
         {
             _repository = repository;
         }
+
+        // =====================
+        // LOAD
+        // =====================
 
         public void Load()
         {
@@ -47,48 +87,96 @@ namespace PlayerSystem.Application
             if (_data == null)
                 _data = new PlayerData();
 
-            if (_data.FirstInstallTimestamp == 0)
-            {
-                _data.FirstInstallTimestamp = GetNow();
-            }
-
-            UpdateDaysSinceInstall();
-
-            Level.Value = _data.Level;
-            Stage.Value = _data.Stage;
-            SessionCount.Value = _data.SessionCount;
-
-            IsNewUser.Value = _data.IsNewUser;
-            Country.Value = _data.Country;
-            Segment.Value = _data.Segment;
-
-            DaysSinceInstall.Value = _data.DaysSinceInstall;
-            PlayTimeMinutes.Value = _data.TotalPlayTimeMinutes;
-        }
-
-        public void UpdateDaysSinceInstall()
-        {
             long now = GetNow();
 
-            int days = (int)((now - _data.FirstInstallTimestamp) / 86400);
+            if (_data.FirstLoginTime == 0)
+                _data.FirstLoginTime = now;
 
-            _data.DaysSinceInstall = days;
+            _data.LastLoginTime = now;
+            _data.CurrentDay = now / 86400;
 
-            DaysSinceInstall.Value = days;
+            // auto detect device info
+            AutoDetectDeviceInfo();
+
+            SyncReactive();
         }
 
-        private long GetNow()
+        private void SyncReactive()
         {
-            return DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        }
+            Level.Value = _data.Level;
+            Stage.Value = _data.Stage;
+            TutorialStep.Value = _data.TutorialStep;
 
-        public void Save()
-        {
-            _repository.Save(_data);
+            SessionCount.Value = _data.SessionCount;
+            PlayTimeSeconds.Value = _data.TotalPlayTimeSeconds;
+
+            IsNewUser.Value = _data.IsNewUser;
+            DontDisturb.Value = _data.DontDisturb;
+
+            Country.Value = _data.Country;
+            SystemLanguage.Value = _data.SystemLanguage;
+
+            TrafficSource.Value = _data.TrafficSource;
+            TrafficCampaign.Value = _data.TrafficCampaign;
+
+            ProfileId.Value = _data.ProfileId;
+            DeviceId.Value = _data.DeviceId;
+            CustomId.Value = _data.CustomId;
+
+            Platform.Value = _data.Platform;
+            AppVersion.Value = _data.AppVersion;
+            EngineVersion.Value = _data.EngineVersion;
+
+            FirstLoginTime.Value = _data.FirstLoginTime;
+            LastLoginTime.Value = _data.LastLoginTime;
+            CurrentDay.Value = _data.CurrentDay;
+            LastPurchaseTime.Value = _data.LastPurchaseTime;
         }
 
         // =====================
-        // STAGE
+        // DEVICE AUTO DETECT
+        // =====================
+
+        private void AutoDetectDeviceInfo()
+        {
+            if (string.IsNullOrEmpty(_data.DeviceId))
+                _data.DeviceId = SystemInfo.deviceUniqueIdentifier;
+
+            _data.Platform = UnityEngine.Application.platform.ToString();
+            _data.AppVersion = HelperLiveOps.GetBuildNumber();
+            _data.EngineVersion = UnityEngine.Application.unityVersion;
+            _data.SystemLanguage = UnityEngine.Application.systemLanguage.ToString();
+        }
+
+        // =====================
+        // SESSION
+        // =====================
+
+        public void AddSession()
+        {
+            _data.SessionCount++;
+
+            SessionCount.Value = _data.SessionCount;
+
+            Save();
+        }
+
+        // =====================
+        // PLAYTIME
+        // =====================
+
+        public void AddPlayTime(int seconds)
+        {
+            if (seconds <= 0)
+                return;
+
+            _data.TotalPlayTimeSeconds += seconds;
+
+            PlayTimeSeconds.Value = _data.TotalPlayTimeSeconds;
+        }
+
+        // =====================
+        // PROGRESS
         // =====================
 
         public void SetStage(int stage)
@@ -115,60 +203,33 @@ namespace PlayerSystem.Application
             Save();
         }
 
-        // =====================
-        // SESSION
-        // =====================
-
-        public void AddSession()
+        public void SetLevel(int level)
         {
-            _data.SessionCount++;
+            if (_data.Level == level)
+                return;
 
-            SessionCount.Value = _data.SessionCount;
+            _data.Level = level;
+
+            Level.Value = level;
+
+            Save();
+        }
+
+        public void SetTutorialStep(int step)
+        {
+            if (_data.TutorialStep == step)
+                return;
+
+            _data.TutorialStep = step;
+
+            TutorialStep.Value = step;
 
             Save();
         }
 
         // =====================
-        // PLAYTIME
+        // USER
         // =====================
-
-        public void AddPlayTime(int minutes)
-        {
-            if (minutes <= 0)
-                return;
-
-            _data.TotalPlayTimeMinutes += minutes;
-
-            PlayTimeMinutes.Value = _data.TotalPlayTimeMinutes;
-        }
-
-        // =====================
-        // PLAYER INFO
-        // =====================
-
-        public void SetCountry(string country)
-        {
-            if (_data.Country == country)
-                return;
-
-            _data.Country = country;
-
-            Country.Value = country;
-
-            Save();
-        }
-
-        public void SetSegment(string segment)
-        {
-            if (_data.Segment == segment)
-                return;
-
-            _data.Segment = segment;
-
-            Segment.Value = segment;
-
-            Save();
-        }
 
         public void SetNewUser(bool value)
         {
@@ -182,16 +243,74 @@ namespace PlayerSystem.Application
             Save();
         }
 
-        public void SetDaysSinceInstall(int days)
+        public void SetDontDisturb(bool value)
         {
-            if (_data.DaysSinceInstall == days)
+            if (_data.DontDisturb == value)
                 return;
 
-            _data.DaysSinceInstall = days;
+            _data.DontDisturb = value;
 
-            DaysSinceInstall.Value = days;
+            DontDisturb.Value = value;
 
             Save();
+        }
+
+        // =====================
+        // TRAFFIC
+        // =====================
+
+        public void SetTrafficSource(string source)
+        {
+            if (_data.TrafficSource == source)
+                return;
+
+            _data.TrafficSource = source;
+
+            TrafficSource.Value = source;
+
+            Save();
+        }
+
+        public void SetTrafficCampaign(string campaign)
+        {
+            if (_data.TrafficCampaign == campaign)
+                return;
+
+            _data.TrafficCampaign = campaign;
+
+            TrafficCampaign.Value = campaign;
+
+            Save();
+        }
+
+        // =====================
+        // PURCHASE
+        // =====================
+
+        public void SetLastPurchaseTime(long timestamp)
+        {
+            if (_data.LastPurchaseTime == timestamp)
+                return;
+
+            _data.LastPurchaseTime = timestamp;
+
+            LastPurchaseTime.Value = timestamp;
+
+            Save();
+        }
+
+        // =====================
+        // SAVE
+        // =====================
+
+        public void Save()
+        {
+            _repository.Save(_data);
+        }
+
+        private long GetNow()
+        {
+            return DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         }
     }
 }

@@ -11,5 +11,7 @@ public class PlayerInstaller
         IPlayerRepository repository = new EasySavePlayerRepository();
 
         PlayerService = new PlayerService(repository);
+
+        PlayerService.Load();
     }
 }

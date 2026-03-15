@@ -27,16 +27,23 @@ namespace GameEventModule.Domain
         /// </summary>
         public EventFinishPolicy FinishPolicy { get; }
 
+        /// <summary>
+        /// Attachment thực thi khi event start
+        /// </summary>
+        public IGameEventAttachment Attachment { get; }
+
         public GameEvent(
-            GameEventId id,
-            int priority,
-            ICondition condition,
-            EventFinishPolicy finishPolicy)
+               GameEventId id,
+               int priority,
+               ICondition condition,
+               EventFinishPolicy finishPolicy,
+               IGameEventAttachment attachment)
         {
             Id = id;
             Priority = priority;
             Condition = condition;
             FinishPolicy = finishPolicy;
+            Attachment = attachment;
         }
 
         /// <summary>

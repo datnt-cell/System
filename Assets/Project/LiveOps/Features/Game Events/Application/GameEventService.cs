@@ -14,6 +14,9 @@ namespace GameEventModule.Application
         private readonly IGameEventConfigProvider _configProvider;
         private readonly GameEventScheduler _scheduler;
 
+        // Attachment executors
+        private readonly IGameEventAttachmentExecutor _attachmentExecutor;
+
         private readonly List<GameEventRuntime> _events = new();
 
         public IReadOnlyList<GameEventRuntime> Events => _events;
@@ -21,14 +24,20 @@ namespace GameEventModule.Application
         public GameEventService(
             IGameEventRepository repository,
             IGameEventConfigProvider configProvider,
-            GameEventScheduler scheduler)
+            GameEventScheduler scheduler,
+            IGameEventAttachmentExecutor attachmentExecutor)
         {
             _repository = repository;
             _configProvider = configProvider;
             _scheduler = scheduler;
+            _attachmentExecutor = attachmentExecutor;
 
             Initialize();
         }
+
+        // =========================
+        // INIT
+        // =========================
 
         private void Initialize()
         {
@@ -43,12 +52,47 @@ namespace GameEventModule.Application
             }
         }
 
+        // =========================
+        // UPDATE LOOP
+        // =========================
+
         public void Tick(IConditionContext context, DateTime now)
         {
-            _scheduler.Tick(_events, context, now);
+            foreach (var runtime in _events)
+            {
+                bool wasActive = runtime.State.IsActive;
+
+                _scheduler.Tick(runtime, context, now);
+
+                bool isActive = runtime.State.IsActive;
+
+                // Event vừa start
+                if (!wasActive && isActive)
+                {
+                    OnEventStarted(runtime);
+                }
+            }
 
             SaveStates();
         }
+
+        // =========================
+        // EVENT START
+        // =========================
+
+        private void OnEventStarted(GameEventRuntime runtime)
+        {
+            var attachment = runtime.Event.Attachment;
+
+            if (attachment == null)
+                return;
+
+            _attachmentExecutor.Execute(attachment);
+        }
+
+        // =========================
+        // SAVE
+        // =========================
 
         private void SaveStates()
         {

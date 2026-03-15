@@ -1,6 +1,5 @@
 using GameOfferSystem.Domain;
 using GameOfferSystem.Infrastructure;
-using GameOfferSystem.Presentation;
 
 namespace GameOfferSystem.Installer
 {
@@ -63,20 +62,7 @@ namespace GameOfferSystem.Installer
                 groupEvents
             );
 
-            // =========================
-            // PRESENTATION
-            // =========================
-
-            var viewModel = new GameOfferViewModel(offerState, groupState);
-
-            var presenter = new GameOfferPresenter(
-                offerService,
-                groupService
-            );
-
             return new GameOfferInstallResult(
-                presenter,
-                viewModel,
                 offerService,
                 groupService
             );

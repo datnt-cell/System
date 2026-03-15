@@ -34,11 +34,12 @@ namespace GameEventModule.Infrastructure.Config
 
         [HorizontalGroup("Root", 0.65f)]
         [BoxGroup("Root/Config")]
+
         [HorizontalGroup("Root/Config/Condition")]
         [ValueDropdown(nameof(GetConditionDropdown))]
+        [LabelText("Condition")]
         public string ConditionId;
 
-        // nút i
         [HorizontalGroup("Root/Config/Condition", width: 24)]
         [Button(SdfIconType.InfoCircle)]
         private void ToggleHelp()
@@ -46,7 +47,6 @@ namespace GameEventModule.Infrastructure.Config
             showHelp = !showHelp;
         }
 
-        // help box
         [BoxGroup("Root/Config")]
         [ShowIf(nameof(showHelp))]
         [InfoBox(
@@ -73,14 +73,38 @@ namespace GameEventModule.Infrastructure.Config
         public UTimeSpan Cooldown;
 
         // =========================
+        // OFFER ATTACHMENT
+        // =========================
+
+        [HorizontalGroup("Root")]
+        [BoxGroup("Root/Config")]
+        [LabelText("Offer Group")]
+        [ValueDropdown(nameof(GetOfferGroupDropdown))]
+        [ShowIf(nameof(UseOfferGroup))]
+        public string OfferGroupId;
+
+        [HorizontalGroup("Root")]
+        [BoxGroup("Root/Config")]
+        [LabelText("Offer")]
+        [ValueDropdown(nameof(GetOfferDropdown))]
+        [ShowIf(nameof(UseSingleOffer))]
+        public string OfferId;
+
+        // =========================
+        // STATE
+        // =========================
 
         [NonSerialized]
         private bool showHelp;
 
         private bool IsDurationMode => FinishType == EventFinishType.Duration;
 
+        private bool UseOfferGroup => string.IsNullOrEmpty(OfferId);
+
+        private bool UseSingleOffer => string.IsNullOrEmpty(OfferGroupId);
+
         // =========================
-        // DROPDOWN
+        // DROPDOWNS
         // =========================
 
         private static ValueDropdownList<string> GetConditionDropdown()
@@ -96,8 +120,34 @@ namespace GameEventModule.Infrastructure.Config
             return list;
         }
 
+        private static ValueDropdownList<string> GetOfferGroupDropdown()
+        {
+            var list = new ValueDropdownList<string>();
+
+            foreach (var group in GameOfferGroupGlobalConfig.Instance.Groups)
+            {
+                if (group == null) continue;
+                list.Add($"{group.Id} | {group.DisplayName}", group.Id);
+            }
+
+            return list;
+        }
+
+        private static ValueDropdownList<string> GetOfferDropdown()
+        {
+            var list = new ValueDropdownList<string>();
+
+            foreach (var offer in GameOfferGlobalConfig.Instance.Offers)
+            {
+                if (offer == null) continue;
+                list.Add($"{offer.Id} | {offer.DisplayName}", offer.Id);
+            }
+
+            return list;
+        }
+
         // =========================
-        // BUILD
+        // BUILD DOMAIN
         // =========================
 
         public GameEvent Build()
@@ -112,11 +162,16 @@ namespace GameEventModule.Infrastructure.Config
                 Duration,
                 Cooldown);
 
+            var attachment = new GameOfferAttachment(
+                OfferGroupId,
+                OfferId);
+
             return new GameEvent(
                 new GameEventId(Id),
                 Priority,
                 condition,
-                finishPolicy);
+                finishPolicy,
+                attachment);
         }
     }
 }

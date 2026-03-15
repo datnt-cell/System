@@ -1,5 +1,4 @@
 using UnityEngine;
-using GameOfferSystem.Presentation;
 using GameOfferSystem.Installer;
 
 /// <summary>
@@ -11,16 +10,6 @@ using GameOfferSystem.Installer;
 /// </summary>
 public class GameOfferManager : MonoBehaviour
 {
-    /// <summary>
-    /// ViewModel dùng cho UI binding
-    /// </summary>
-    public GameOfferViewModel ViewModel { get; private set; }
-
-    /// <summary>
-    /// Presenter dùng cho Gameplay/UI gọi logic
-    /// </summary>
-    public GameOfferPresenter Presenter { get; private set; }
-
     /// <summary>
     /// Service xử lý logic Offer
     /// </summary>
@@ -42,42 +31,8 @@ public class GameOfferManager : MonoBehaviour
         _installer = new GameOfferInstaller();
 
         var result = _installer.Install();
-
-        Presenter = result.Presenter;
-        ViewModel = result.ViewModel;
+;
         OfferService = result.OfferService;
         GroupService = result.GroupService;
-    }
-
-    [ContextMenu("TestOfferService")]
-    public void TestOfferService()
-    {
-        Presenter.ActivateOffer("OFFER_001");
-
-        var result = Presenter.PurchaseOffer("OFFER_001");
-
-        if (!result.Success)
-        {
-            Debug.Log(result.Error);
-            return;
-        }
-
-        Debug.Log("Purchased: " + result.Offer.OfferId);
-    }
-
-    [ContextMenu("TestOfferGROUPService")]
-    public void TestOfferGROUPService()
-    {
-        Presenter.ActivateGroup("GROUP_001");
-
-        var result = Presenter.PurchaseGroupOffer("GROUP_001", "STORE_001");
-
-        if (!result.Success)
-        {
-            Debug.LogError(result.Error);
-            return;
-        }
-
-        Debug.Log($"Purchased offer {result.OfferId} in group {result.GroupId}");
     }
 }

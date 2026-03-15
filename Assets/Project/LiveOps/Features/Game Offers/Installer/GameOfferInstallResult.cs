@@ -1,5 +1,3 @@
-using GameOfferSystem.Presentation;
-
 namespace GameOfferSystem.Installer
 {
     /// <summary>
@@ -8,22 +6,14 @@ namespace GameOfferSystem.Installer
     /// </summary>
     public readonly struct GameOfferInstallResult
     {
-        public GameOfferPresenter Presenter { get; }
-
-        public GameOfferViewModel ViewModel { get; }
-
         public GameOfferService OfferService { get; }
 
         public GameOfferGroupService GroupService { get; }
 
         public GameOfferInstallResult(
-            GameOfferPresenter presenter,
-            GameOfferViewModel viewModel,
             GameOfferService offerService,
             GameOfferGroupService groupService)
         {
-            Presenter = presenter;
-            ViewModel = viewModel;
             OfferService = offerService;
             GroupService = groupService;
         }

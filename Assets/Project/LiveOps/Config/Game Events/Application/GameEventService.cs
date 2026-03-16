@@ -212,5 +212,41 @@ namespace GameEventModule.Application
                 _repository.SaveState(runtime.Event.Id, runtime.State);
             }
         }
+
+        // =========================
+        // PROGRESS
+        // =========================
+
+        public int GetProgress(string eventId, string progressKey)
+        {
+            var runtime = _eventsList.FirstOrDefault(x => x.Event.Id.Value == eventId);
+
+            if (runtime == null)
+                return 0;
+
+            return runtime.State.GetProgress(progressKey);
+        }
+
+        public void AddProgress(string eventId, string progressKey, int amount)
+        {
+            var runtime = _eventsList.FirstOrDefault(x => x.Event.Id.Value == eventId);
+
+            if (runtime == null)
+                return;
+
+            runtime.State.AddProgress(progressKey, amount);
+
+            SaveStates();
+        }
+
+        public int GetTotalProgress(string eventId)
+        {
+            var runtime = _eventsList.FirstOrDefault(x => x.Event.Id.Value == eventId);
+
+            if (runtime == null)
+                return 0;
+
+            return runtime.State.GetTotalProgress();
+        }
     }
 }

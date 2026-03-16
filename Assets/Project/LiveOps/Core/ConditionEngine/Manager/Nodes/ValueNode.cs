@@ -201,9 +201,6 @@ namespace ConditionEngine.Presentation
                 case ConditionType.Not:
                     return $"🚫 Không ({Child?.Summary})";
 
-                case ConditionType.PlayerSegment:
-                    return $"👥 Phân nhóm người chơi = {Value}";
-
                 case ConditionType.EventProgress:
                     return $"🎯 Tiến độ sự kiện {EventKey} [{EventMin} - {EventMax}]";
 
@@ -212,7 +209,26 @@ namespace ConditionEngine.Presentation
 
                 case ConditionType.PlayTime:
                     return $"⏱ Thời gian chơi [{Min} - {Max}]";
+                case ConditionType.PurchaseCount:
+                    return $"💰 Số lần mua [{Min} - {Max}]";
 
+                case ConditionType.HasAnyPurchase:
+                    return "🛒 Đã từng mua IAP";
+
+                case ConditionType.RemoveAdsPurchased:
+                    return "🚫 Đã mua Remove Ads";
+
+                case ConditionType.RewardedAdsWatched:
+                    return $"📺 Rewarded Ads đã xem [{Min} - {Max}]";
+
+                case ConditionType.InterstitialAdsWatched:
+                    return $"📺 Interstitial Ads đã xem [{Min} - {Max}]";
+
+                case ConditionType.TotalAdsRevenue:
+                    return $"💵 Tổng doanh thu Ads [{Min} - {Max}]";
+
+                case ConditionType.AdsRevenueToday:
+                    return $"📅 Doanh thu Ads hôm nay [{Min} - {Max}]";
                 default:
                     return Type.ToString();
             }
@@ -231,7 +247,12 @@ namespace ConditionEngine.Presentation
             Type == ConditionType.Stage ||
             Type == ConditionType.SessionCount ||
             Type == ConditionType.TotalSpend ||
+            Type == ConditionType.PurchaseCount ||
             Type == ConditionType.AdsWatchCount ||
+            Type == ConditionType.RewardedAdsWatched ||
+            Type == ConditionType.InterstitialAdsWatched ||
+            Type == ConditionType.TotalAdsRevenue ||
+            Type == ConditionType.AdsRevenueToday ||
             Type == ConditionType.CurrencyAmount ||
             Type == ConditionType.AppBuildVersion ||
             Type == ConditionType.DaysSinceInstall ||
@@ -246,8 +267,7 @@ namespace ConditionEngine.Presentation
             Type == ConditionType.ProductPurchased ||
             Type == ConditionType.InventoryItem ||
             Type == ConditionType.Country ||
-            Type == ConditionType.Quest ||
-            Type == ConditionType.PlayerSegment;
+            Type == ConditionType.Quest;
 
 
         // ======================
@@ -287,6 +307,10 @@ namespace ConditionEngine.Presentation
         bool IsNot() =>
             Type == ConditionType.Not;
 
+        bool IsBool() =>
+            Type == ConditionType.HasAnyPurchase ||
+            Type == ConditionType.RemoveAdsPurchased;
+
         #endregion
 
         // ======================
@@ -297,31 +321,60 @@ namespace ConditionEngine.Presentation
         {
             var list = new List<ValueDropdownItem<ConditionType>>();
 
-            // 👤 Người chơi
+            // ======================
+            // 👤 NGƯỜI CHƠI
+            // ======================
+
             list.Add(new ValueDropdownItem<ConditionType>("👤 Người chơi/Level", ConditionType.PlayerLevel));
             list.Add(new ValueDropdownItem<ConditionType>("👤 Người chơi/Stage", ConditionType.Stage));
             list.Add(new ValueDropdownItem<ConditionType>("👤 Người chơi/Số lần mở game", ConditionType.SessionCount));
 
-            // 💰 Kiếm tiền
-            list.Add(new ValueDropdownItem<ConditionType>("💰 Kiếm tiền/Tổng tiền đã nạp", ConditionType.TotalSpend));
-            list.Add(new ValueDropdownItem<ConditionType>("💰 Kiếm tiền/Số quảng cáo đã xem", ConditionType.AdsWatchCount));
-            list.Add(new ValueDropdownItem<ConditionType>("💰 Kiếm tiền/Đã mua sản phẩm", ConditionType.ProductPurchased));
+            // ======================
+            // 💰 KIẾM TIỀN (IAP)
+            // ======================
 
-            // 🎒 Kho đồ
+            list.Add(new ValueDropdownItem<ConditionType>("💰 Kiếm tiền/Tổng tiền đã nạp", ConditionType.TotalSpend));
+            list.Add(new ValueDropdownItem<ConditionType>("💰 Kiếm tiền/Số lần mua", ConditionType.PurchaseCount));
+            list.Add(new ValueDropdownItem<ConditionType>("💰 Kiếm tiền/Đã từng mua", ConditionType.HasAnyPurchase));
+            list.Add(new ValueDropdownItem<ConditionType>("💰 Kiếm tiền/Đã mua sản phẩm", ConditionType.ProductPurchased));
+            list.Add(new ValueDropdownItem<ConditionType>("💰 Kiếm tiền/Đã mua Remove Ads", ConditionType.RemoveAdsPurchased));
+
+            // ======================
+            // 📺 QUẢNG CÁO
+            // ======================
+
+            list.Add(new ValueDropdownItem<ConditionType>("📺 Ads/Số quảng cáo đã xem", ConditionType.AdsWatchCount));
+            list.Add(new ValueDropdownItem<ConditionType>("📺 Ads/Rewarded đã xem", ConditionType.RewardedAdsWatched));
+            list.Add(new ValueDropdownItem<ConditionType>("📺 Ads/Interstitial đã xem", ConditionType.InterstitialAdsWatched));
+            list.Add(new ValueDropdownItem<ConditionType>("📺 Ads/Tổng doanh thu", ConditionType.TotalAdsRevenue));
+            list.Add(new ValueDropdownItem<ConditionType>("📺 Ads/Doanh thu hôm nay", ConditionType.AdsRevenueToday));
+
+            // ======================
+            // 🎒 KHO ĐỒ
+            // ======================
+
             list.Add(new ValueDropdownItem<ConditionType>("🎒 Kho đồ/Có item", ConditionType.InventoryItem));
             list.Add(new ValueDropdownItem<ConditionType>("🎒 Kho đồ/Số lượng tiền", ConditionType.CurrencyAmount));
 
-            // 🌍 Thông tin người chơi
+            // ======================
+            // 🌍 THÔNG TIN NGƯỜI CHƠI
+            // ======================
+
             list.Add(new ValueDropdownItem<ConditionType>("🌍 Thông tin người chơi/Quốc gia", ConditionType.Country));
             list.Add(new ValueDropdownItem<ConditionType>("🌍 Thông tin người chơi/Phiên bản build", ConditionType.AppBuildVersion));
-            list.Add(new ValueDropdownItem<ConditionType>("🌍 Thông tin người chơi/Phân nhóm người chơi", ConditionType.PlayerSegment));
 
-            // 🎮 Trạng thái game
+            // ======================
+            // 🎮 TRẠNG THÁI GAME
+            // ======================
+
             list.Add(new ValueDropdownItem<ConditionType>("🎮 Trạng thái game/Người chơi mới", ConditionType.NewUser));
             list.Add(new ValueDropdownItem<ConditionType>("🎮 Trạng thái game/Nhiệm vụ", ConditionType.Quest));
             list.Add(new ValueDropdownItem<ConditionType>("🎮 Trạng thái game/Tiến độ sự kiện", ConditionType.EventProgress));
 
-            // ⏱ Thời gian
+            // ======================
+            // ⏱ THỜI GIAN
+            // ======================
+
             list.Add(new ValueDropdownItem<ConditionType>("⏱ Thời gian/Khoảng ngày", ConditionType.DateRange));
             list.Add(new ValueDropdownItem<ConditionType>("⏱ Thời gian/Khoảng giờ", ConditionType.TimeRange));
             list.Add(new ValueDropdownItem<ConditionType>("⏱ Thời gian/Ngày trong tuần", ConditionType.DayOfWeek));
@@ -329,7 +382,10 @@ namespace ConditionEngine.Presentation
             list.Add(new ValueDropdownItem<ConditionType>("⏱ Thời gian/Số ngày từ khi cài game", ConditionType.DaysSinceInstall));
             list.Add(new ValueDropdownItem<ConditionType>("⏱ Thời gian/Tổng thời gian chơi", ConditionType.PlayTime));
 
-            // 🔀 Logic
+            // ======================
+            // 🔀 LOGIC
+            // ======================
+
             list.Add(new ValueDropdownItem<ConditionType>("🔀 Logic/Phủ định (Not)", ConditionType.Not));
 
             return list;
@@ -486,14 +542,6 @@ namespace ConditionEngine.Presentation
                            "Ví dụ:\n" +
                            "NOT (Country = US) → Player KHÔNG ở US.";
 
-                case ConditionType.PlayerSegment:
-                    return "👥 Player Segment\n\n" +
-                           "Kiểm tra player thuộc phân nhóm LiveOps.\n\n" +
-                           "Cần nhập:\n" +
-                           "• Value: Id của segment\n\n" +
-                           "Ví dụ:\n" +
-                           "whale / spender / new_user.";
-
                 case ConditionType.EventProgress:
                     return "🎯 Event Progress\n\n" +
                            "Kiểm tra tiến độ player trong một event.\n\n" +
@@ -522,6 +570,66 @@ namespace ConditionEngine.Presentation
                            "• Max\n\n" +
                            "Ví dụ:\n" +
                            "Min = 3600 → Player chơi ≥ 1 giờ.";
+
+                case ConditionType.PurchaseCount:
+                    return "💰 Purchase Count\n\n" +
+                           "Kiểm tra tổng số lần player đã mua IAP.\n\n" +
+                           "Cần nhập:\n" +
+                           "• Min: Số lần mua tối thiểu\n" +
+                           "• Max: Số lần mua tối đa\n\n" +
+                           "Ví dụ:\n" +
+                           "Min = 1 → Player đã mua ít nhất 1 lần.";
+
+                case ConditionType.HasAnyPurchase:
+                    return "🛒 Has Any Purchase\n\n" +
+                           "Kiểm tra player đã từng mua IAP hay chưa.\n\n" +
+                           "Không cần nhập Min / Max.\n\n" +
+                           "Ví dụ:\n" +
+                           "Condition TRUE nếu player đã từng mua ít nhất 1 sản phẩm.";
+
+                case ConditionType.RemoveAdsPurchased:
+                    return "🚫 Remove Ads Purchased\n\n" +
+                           "Kiểm tra player đã mua gói Remove Ads hay chưa.\n\n" +
+                           "Không cần nhập Min / Max.\n\n" +
+                           "Ví dụ:\n" +
+                           "Condition TRUE nếu player đã mua Remove Ads.";
+
+                case ConditionType.RewardedAdsWatched:
+                    return "📺 Rewarded Ads Watched\n\n" +
+                           "Số lượng quảng cáo Rewarded player đã xem.\n\n" +
+                           "Cần nhập:\n" +
+                           "• Min\n" +
+                           "• Max\n\n" +
+                           "Ví dụ:\n" +
+                           "Min = 5 → Player đã xem ít nhất 5 Rewarded Ads.";
+
+                case ConditionType.InterstitialAdsWatched:
+                    return "📺 Interstitial Ads Watched\n\n" +
+                           "Số lượng quảng cáo Interstitial đã hiển thị cho player.\n\n" +
+                           "Cần nhập:\n" +
+                           "• Min\n" +
+                           "• Max\n\n" +
+                           "Ví dụ:\n" +
+                           "Min = 10 → Player đã thấy ít nhất 10 Interstitial Ads.";
+
+                case ConditionType.TotalAdsRevenue:
+                    return "💵 Total Ads Revenue\n\n" +
+                           "Tổng doanh thu quảng cáo từ player.\n\n" +
+                           "Cần nhập:\n" +
+                           "• Min\n" +
+                           "• Max\n\n" +
+                           "Ví dụ:\n" +
+                           "Min = 0.5 → Player đã tạo ≥ $0.5 doanh thu ads.";
+
+                case ConditionType.AdsRevenueToday:
+                    return "📅 Ads Revenue Today\n\n" +
+                           "Doanh thu quảng cáo player tạo ra trong hôm nay.\n\n" +
+                           "Cần nhập:\n" +
+                           "• Min\n" +
+                           "• Max\n\n" +
+                           "Ví dụ:\n" +
+                           "Min = 0.1 → Player đã tạo ≥ $0.1 doanh thu ads hôm nay.";
+
                 default: return "";
             }
         }

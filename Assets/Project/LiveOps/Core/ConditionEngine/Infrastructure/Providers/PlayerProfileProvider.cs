@@ -48,8 +48,6 @@ namespace ConditionEngine.Infrastructure
 
         public string Country => _playerService.GetCountry();
 
-        public string Segment => "";
-
         public int DaysSinceInstall => (int)_playerService.GetCurrentDay();
 
         // =====================

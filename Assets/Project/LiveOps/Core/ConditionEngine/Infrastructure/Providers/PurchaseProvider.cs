@@ -24,6 +24,5 @@ namespace ConditionEngine.Infrastructure
         public bool HasPurchased(string productId) => _iAPService.GetPaymentService().HasPurchased(productId);
 
         public bool HasAnyPurchase() => _iAPService.GetPaymentService().HasAnyPurchase();
-
     }
 }

@@ -12,10 +12,6 @@ namespace ConditionEngine.Presentation
         {
             switch (node.Type)
             {
-                // =====================
-                // PLAYER PROGRESS
-                // =====================
-
                 case ConditionType.PlayerLevel:
                     return new PlayerLevelCondition(node.Min, node.Max);
 
@@ -24,12 +20,6 @@ namespace ConditionEngine.Presentation
 
                 case ConditionType.SessionCount:
                     return new SessionCountCondition(node.Min, node.Max);
-                    
-                case ConditionType.PlayerSegment:
-                    return new PlayerSegmentCondition(node.Value);
-                // =====================
-                // MONETIZATION
-                // =====================
 
                 case ConditionType.TotalSpend:
                     return new TotalSpendCondition(node.Min, node.Max);
@@ -40,29 +30,17 @@ namespace ConditionEngine.Presentation
                 case ConditionType.ProductPurchased:
                     return new ProductPurchasedCondition(node.Value);
 
-                // =====================
-                // INVENTORY
-                // =====================
-
                 case ConditionType.InventoryItem:
                     return new InventoryItemCondition(node.Value);
 
                 case ConditionType.CurrencyAmount:
                     return new CurrencyAmountCondition(node.Value, node.Min);
 
-                // =====================
-                // PLAYER INFO
-                // =====================
-
                 case ConditionType.Country:
                     return new CountryCondition(node.Value);
 
                 case ConditionType.AppBuildVersion:
                     return new AppBuildVersionCondition(node.Min, node.Max);
-
-                // =====================
-                // GAME STATE
-                // =====================
 
                 case ConditionType.NewUser:
                     return new NewUserCondition();
@@ -72,9 +50,6 @@ namespace ConditionEngine.Presentation
 
                 case ConditionType.EventProgress:
                     return new EventProgressCondition(node.Value, node.Min, node.Max);
-                // =====================
-                // TIME
-                // =====================
 
                 case ConditionType.DateRange:
                     return new DateRangeCondition(node.StartDate, node.EndDate);
@@ -94,9 +69,26 @@ namespace ConditionEngine.Presentation
                 case ConditionType.PlayTime:
                     return new PlayTimeCondition(node.Min, node.Max);
 
-                // =====================
-                // LOGIC
-                // =====================
+                case ConditionType.PurchaseCount:
+                    return new PurchaseCountCondition(node.Min, node.Max);
+
+                case ConditionType.HasAnyPurchase:
+                    return new HasAnyPurchaseCondition();
+
+                case ConditionType.RemoveAdsPurchased:
+                    return new RemoveAdsPurchasedCondition();
+
+                case ConditionType.RewardedAdsWatched:
+                    return new RewardedAdsWatchedCondition(node.Min, node.Max);
+
+                case ConditionType.InterstitialAdsWatched:
+                    return new InterstitialAdsWatchedCondition(node.Min, node.Max);
+
+                case ConditionType.TotalAdsRevenue:
+                    return new TotalAdsRevenueCondition(node.Min, node.Max);
+
+                case ConditionType.AdsRevenueToday:
+                    return new AdsRevenueTodayCondition(node.Min, node.Max);
 
                 case ConditionType.Not:
 

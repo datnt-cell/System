@@ -16,11 +16,33 @@ public enum ConditionType
     [LabelText("💰 Kiếm tiền/Tổng tiền đã nạp")]
     TotalSpend,
 
-    [LabelText("📺 Kiếm tiền/Số quảng cáo đã xem")]
-    AdsWatchCount,
+    [LabelText("💰 Kiếm tiền/Số lần mua")]
+    PurchaseCount,
+
+    [LabelText("🛒 Kiếm tiền/Đã từng mua")]
+    HasAnyPurchase,
 
     [LabelText("🛒 Kiếm tiền/Đã mua sản phẩm")]
     ProductPurchased,
+
+    [LabelText("🚫 Ads/Đã mua remove ads")]
+    RemoveAdsPurchased,
+
+    // ADS
+    [LabelText("📺 Ads/Số quảng cáo đã xem")]
+    AdsWatchCount,
+
+    [LabelText("📺 Ads/Rewarded đã xem")]
+    RewardedAdsWatched,
+
+    [LabelText("📺 Ads/Interstitial đã xem")]
+    InterstitialAdsWatched,
+
+    [LabelText("💵 Ads/Tổng doanh thu quảng cáo")]
+    TotalAdsRevenue,
+
+    [LabelText("📅 Ads/Doanh thu quảng cáo hôm nay")]
+    AdsRevenueToday,
 
     // INVENTORY
     [LabelText("🎒 Kho đồ/Có item")]
@@ -35,9 +57,6 @@ public enum ConditionType
 
     [LabelText("📦 Thông tin người chơi/Phiên bản build")]
     AppBuildVersion,
-
-    [LabelText("👥 Thông tin người chơi/Phân nhóm người chơi")]
-    PlayerSegment,
 
     // GAME STATE
     [LabelText("🆕 Trạng thái game/Người chơi mới")]
@@ -70,5 +89,5 @@ public enum ConditionType
 
     // LOGIC
     [LabelText("🚫 Logic/Phủ định (Not)")]
-    Not
+    Not,
 }

@@ -5,6 +5,9 @@ namespace ConditionEngine.Domain
     /// <summary>
     /// Context chứa toàn bộ dữ liệu runtime của player
     /// Condition sẽ đọc dữ liệu từ đây
+    /// 
+    /// Đây là contract trung tâm của ConditionEngine
+    /// mọi Provider sẽ được adapter vào đây
     /// </summary>
     public interface IConditionContext
     {
@@ -24,10 +27,32 @@ namespace ConditionEngine.Domain
         // MONETIZATION
         // =====================
 
+        /// <summary>
+        /// Tổng tiền player đã spend
+        /// </summary>
         float TotalSpend { get; }
 
         /// <summary>
-        /// Tổng số ads đã xem
+        /// Tổng số purchase
+        /// </summary>
+        int PurchaseCount { get; }
+
+        /// <summary>
+        /// Player đã từng mua IAP chưa
+        /// </summary>
+        bool HasAnyPurchase();
+
+        /// <summary>
+        /// Player đã mua product cụ thể
+        /// </summary>
+        bool HasPurchased(string productId);
+
+        // =====================
+        // ADS
+        // =====================
+
+        /// <summary>
+        /// Tổng ads đã xem
         /// </summary>
         int AdsWatchCount { get; }
 
@@ -40,6 +65,16 @@ namespace ConditionEngine.Domain
         /// Interstitial ads đã hiển thị
         /// </summary>
         int InterstitialAdsWatched { get; }
+
+        /// <summary>
+        /// Revenue rewarded ads
+        /// </summary>
+        double RewardedAdsRevenue { get; }
+
+        /// <summary>
+        /// Revenue interstitial ads
+        /// </summary>
+        double InterstitialAdsRevenue { get; }
 
         /// <summary>
         /// Tổng revenue từ ads
@@ -56,8 +91,6 @@ namespace ConditionEngine.Domain
         /// </summary>
         bool IsRemoveAdsPurchased { get; }
 
-        bool HasPurchased(string productId);
-
         // =====================
         // PLAYER INFO
         // =====================
@@ -66,11 +99,6 @@ namespace ConditionEngine.Domain
 
         int AppBuildVersion { get; }
 
-        /// <summary>
-        /// Segment của player (whale, spender, non_spender...)
-        /// </summary>
-        string PlayerSegment { get; }
-
         // =====================
         // TIME
         // =====================
@@ -78,7 +106,7 @@ namespace ConditionEngine.Domain
         DateTime UtcNow { get; }
 
         /// <summary>
-        /// Số ngày kể từ khi player cài game
+        /// Số ngày từ lúc cài game
         /// </summary>
         int DaysSinceInstall { get; }
 
@@ -92,7 +120,7 @@ namespace ConditionEngine.Domain
         // =====================
 
         /// <summary>
-        /// Kiểm tra player có item không
+        /// Player có item không
         /// </summary>
         bool HasItem(string itemId);
 
@@ -106,7 +134,7 @@ namespace ConditionEngine.Domain
         // =====================
 
         /// <summary>
-        /// Lấy progress của event
+        /// Progress của event
         /// </summary>
         int GetEventProgress(string eventId);
     }

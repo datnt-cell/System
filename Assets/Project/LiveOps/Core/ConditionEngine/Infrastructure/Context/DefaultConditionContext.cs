@@ -82,8 +82,6 @@ namespace ConditionEngine.Infrastructure
 
         public string Country => _player.Country;
 
-        public string PlayerSegment => _player.Segment;
-
         public int AppBuildVersion => _player.AppVersion;
 
         // =====================

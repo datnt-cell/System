@@ -7,6 +7,13 @@ using UniLabs.Time;
 
 namespace GameEventModule.Infrastructure.Config
 {
+    public enum OfferAttachmentType
+    {
+        None,
+        SingleOffer,
+        OfferGroup
+    }
+
     [Serializable]
     [InlineProperty]
     public class GameEventConfig
@@ -78,16 +85,21 @@ namespace GameEventModule.Infrastructure.Config
 
         [HorizontalGroup("Root")]
         [BoxGroup("Root/Config")]
+        [LabelText("Attachment Type")]
+        public OfferAttachmentType OfferType;
+
+        [HorizontalGroup("Root")]
+        [BoxGroup("Root/Config")]
         [LabelText("Offer Group")]
         [ValueDropdown(nameof(GetOfferGroupDropdown))]
-        [ShowIf(nameof(UseOfferGroup))]
+        [ShowIf("@OfferType == OfferAttachmentType.OfferGroup")]
         public string OfferGroupId;
 
         [HorizontalGroup("Root")]
         [BoxGroup("Root/Config")]
         [LabelText("Offer")]
         [ValueDropdown(nameof(GetOfferDropdown))]
-        [ShowIf(nameof(UseSingleOffer))]
+        [ShowIf("@OfferType == OfferAttachmentType.SingleOffer")]
         public string OfferId;
 
         // =========================
@@ -95,10 +107,6 @@ namespace GameEventModule.Infrastructure.Config
         // =========================
 
         private bool IsDurationMode => FinishType == EventFinishType.Duration;
-
-        private bool UseOfferGroup => string.IsNullOrEmpty(OfferId);
-
-        private bool UseSingleOffer => string.IsNullOrEmpty(OfferGroupId);
 
         // =========================
         // DROPDOWNS
@@ -159,9 +167,18 @@ namespace GameEventModule.Infrastructure.Config
                 Duration,
                 Cooldown);
 
+            string offerGroup = null;
+            string offer = null;
+
+            if (OfferType == OfferAttachmentType.OfferGroup)
+                offerGroup = OfferGroupId;
+
+            if (OfferType == OfferAttachmentType.SingleOffer)
+                offer = OfferId;
+
             var attachment = new GameOfferAttachment(
-                OfferGroupId,
-                OfferId);
+                offerGroup,
+                offer);
 
             return new GameEvent(
                 new GameEventId(Id),

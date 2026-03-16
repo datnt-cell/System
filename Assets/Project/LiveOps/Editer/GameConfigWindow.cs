@@ -3,6 +3,7 @@ using UnityEngine;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
 using ConditionEngine.Presentation;
+using GameEventModule.Infrastructure.Config;
 
 public class GameConfigManagerWindow : OdinMenuEditorWindow
 {
@@ -13,6 +14,8 @@ public class GameConfigManagerWindow : OdinMenuEditorWindow
         window.titleContent = new GUIContent("Game Config Manager");
         window.Show();
     }
+
+    private ConditionContextDocumentation _conditionDoc = new ConditionContextDocumentation();
 
     // =========================
     // MENU TREE
@@ -28,13 +31,18 @@ public class GameConfigManagerWindow : OdinMenuEditorWindow
         tree.Add("ECONOMY/💰 Currencies", CurrencyGlobalConfig.Instance);
         tree.Add("ECONOMY/📦 Currency Bundles", CurrencyBundleGlobalConfig.Instance);
         tree.Add("ECONOMY/🛒 Store Items", StoreItemsGlobalConfig.Instance);
+        tree.Add("ECONOMY/🎰 Gacha Pools", GachaGlobalConfig.Instance);
 
         // OFFERS
         tree.Add("OFFERS/🎁 Game Offers", GameOfferGlobalConfig.Instance);
         tree.Add("OFFERS/🗂 Offer Groups", GameOfferGroupGlobalConfig.Instance);
 
+        // GAME EVENTS
+        tree.Add("GAMEPLAY/🎯 Game Events", GameEventGlobalConfig.Instance);
+
         // CONDITIONS
         tree.Add("CONDITIONS/⚙ Condition Config", ConditionGlobalConfig.Instance);
+        tree.Add("CONDITIONS/📘 Context Fields", _conditionDoc);
 
         return tree;
     }

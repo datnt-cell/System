@@ -1,14 +1,25 @@
+using GameEventModule.Application;
+
 namespace ConditionEngine.Infrastructure
 {
     /// <summary>
-    /// Provider lấy progress của event
+    /// Provider lấy progress của event từ GameEventService
     /// </summary>
     public class EventProvider
     {
+        private readonly GameEventService _eventService;
+
+        public EventProvider(GameEventService eventService)
+        {
+            _eventService = eventService;
+        }
+
+        /// <summary>
+        /// Lấy progress của event
+        /// </summary>
         public int GetProgress(string eventId)
         {
-            // TODO: đọc từ EventSystem của game
-            return 0;
+            return _eventService.GetTotalProgress(eventId);
         }
     }
 }

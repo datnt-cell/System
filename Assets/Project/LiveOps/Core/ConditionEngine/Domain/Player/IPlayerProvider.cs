@@ -38,8 +38,6 @@ namespace ConditionEngine.Domain
 
         string Country { get; }
 
-        string Segment { get; }
-
         int DaysSinceInstall { get; }
 
         // =====================

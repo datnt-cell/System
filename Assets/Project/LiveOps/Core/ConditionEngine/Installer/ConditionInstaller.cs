@@ -15,7 +15,7 @@ namespace ConditionEngine.Infrastructure
             var adsProvider = new AdsProvider(GameManager.Instance.AdsManager.Service.GetState());
             var timeProvider = new TimeProvider();
             var inventoryProvider = new InventoryProvider(GameManager.Instance.Currency.Service);
-            var eventProvider = new EventProvider();
+            var eventProvider = new EventProvider(GameManager.Instance.GameEvents.Service);
 
             IConditionContext context = new DefaultConditionContext(
                 playerProvider,

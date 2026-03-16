@@ -14,7 +14,8 @@ public class AdsService : IDisposable
     private readonly CompositeDisposable _disposables = new();
 
     private LoadingView _view;
-    public AdsViewModel vm;
+
+    public ReadOnlyReactiveProperty<bool> IsShieldVisible { get; }
 
     public AdsState GetState() => _state;
 
@@ -46,9 +47,7 @@ public class AdsService : IDisposable
     {
         _view = view;
 
-        vm = new AdsViewModel(_state);
-
-        vm.IsShieldVisible
+        IsShieldVisible
             .DistinctUntilChanged()
             .Subscribe(active =>
             {

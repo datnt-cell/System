@@ -23,26 +23,30 @@ public partial class GameManager : SingletonPersistent<GameManager>
 
     [Title("🎮 Game Systems")]
 
-    [BoxGroup("Game Systems/Core")]
+    [BoxGroup("Game Systems")]
+    [PropertyOrder(0)]
     [LabelText("Settings")]
     public SettingManager SettingManager;
 
-    [BoxGroup("Game Systems/Core")]
+    [BoxGroup("Game Systems")]
+    [PropertyOrder(1)]
     [LabelText("Player")]
     public PlayerManager Player;
 
-    [BoxGroup("Game Systems/Core")]
+    [BoxGroup("Game Systems")]
+    [PropertyOrder(2)]
     [LabelText("Currency")]
     public CurrencyManager Currency;
 
-    [BoxGroup("Game Systems/Core")]
+    [BoxGroup("Game Systems")]
+    [PropertyOrder(3)]
     [LabelText("Conditions")]
     public ConditionManager Conditions;
 
-    [BoxGroup("Game Systems/Core")]
+    [BoxGroup("Game Systems")]
+    [PropertyOrder(4)]
     [LabelText("Game Events")]
     public GameEventManager GameEvents;
-
 
     // =========================
     // MONETIZATION
@@ -50,20 +54,24 @@ public partial class GameManager : SingletonPersistent<GameManager>
 
     [Title("💰 Monetization Systems")]
 
-    [BoxGroup("Monetization/Ads")]
+    [BoxGroup("Monetization")]
+    [PropertyOrder(10)]
     [LabelText("Ads")]
     public AdsManager AdsManager;
 
-    [BoxGroup("Monetization/IAP")]
+    [BoxGroup("Monetization")]
+    [PropertyOrder(11)]
     [LabelText("IAP")]
     public IAPManager IAPManager;
 
-    [BoxGroup("Monetization/Store")]
-    [LabelText("Store Items")]
+    [BoxGroup("Monetization")]
+    [PropertyOrder(12)]
+    [LabelText("Store")]
     public StoreItemsManager Store;
 
-    [BoxGroup("Monetization/Offers")]
-    [LabelText("Game Offers")]
+    [BoxGroup("Monetization")]
+    [PropertyOrder(13)]
+    [LabelText("Offers")]
     public GameOfferManager GameOffers;
 
     /// <summary>

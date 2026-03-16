@@ -35,6 +35,50 @@ Transform:
   - {fileID: 8193817652475676239}
   m_Father: {fileID: 3170347156942585391}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &645735985175306756
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6058279760995897623}
+  - component: {fileID: 2894511348050029873}
+  m_Layer: 0
+  m_Name: GameEvents
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6058279760995897623
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 645735985175306756}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5599267637901203969}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2894511348050029873
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 645735985175306756}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93be118845c279f4b9f1572fe57f7e72, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameEventManager
 --- !u!1 &1082823650702821447
 GameObject:
   m_ObjectHideFlags: 0
@@ -410,6 +454,50 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &4716712873944963630
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8561774934943655684}
+  - component: {fileID: 5099271793196669910}
+  m_Layer: 0
+  m_Name: Conditions
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8561774934943655684
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4716712873944963630}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5599267637901203969}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5099271793196669910
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4716712873944963630}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e43437c42cb9bd0478f28d016b4b8d04, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ConditionEngine.ConditionManager
 --- !u!1 &6522335959525721056
 GameObject:
   m_ObjectHideFlags: 0
@@ -420,7 +508,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4248042350450664700}
   - component: {fileID: 7885220587143030275}
-  - component: {fileID: 451110433276936816}
   m_Layer: 0
   m_Name: Ads
   m_TagString: Untagged
@@ -456,19 +543,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AdsManager
   loading: {fileID: 8845258254802045241}
---- !u!114 &451110433276936816
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6522335959525721056}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 98a2f40b6e78c374c8c1f38c915184fb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AdsView
-  shield: {fileID: 9209645789887705952}
 --- !u!1 &6578075392098795611
 GameObject:
   m_ObjectHideFlags: 0
@@ -518,6 +592,8 @@ MonoBehaviour:
   SettingManager: {fileID: 8169388961647755493}
   Player: {fileID: 7705759188875597743}
   Currency: {fileID: 7714250369056624337}
+  Conditions: {fileID: 5099271793196669910}
+  GameEvents: {fileID: 2894511348050029873}
   AdsManager: {fileID: 7885220587143030275}
   IAPManager: {fileID: 8223761890390700125}
   Store: {fileID: 2316430197385865433}
@@ -678,6 +754,8 @@ Transform:
   - {fileID: 8398240129883861459}
   - {fileID: 7143210108396980139}
   - {fileID: 3615758039341185851}
+  - {fileID: 6058279760995897623}
+  - {fileID: 8561774934943655684}
   m_Father: {fileID: 3170347156942585391}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8791545412522607683

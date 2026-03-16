@@ -4,6 +4,7 @@ using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
 using ConditionEngine.Presentation;
 using GameEventModule.Infrastructure.Config;
+using BattlePassModule.Infrastructure.Config;
 
 public class GameConfigManagerWindow : OdinMenuEditorWindow
 {
@@ -27,23 +28,38 @@ public class GameConfigManagerWindow : OdinMenuEditorWindow
 
         tree.Config.DrawSearchToolbar = true;
 
+        // =========================
         // ECONOMY
+        // =========================
+
         tree.Add("ECONOMY/💰 Currencies", CurrencyGlobalConfig.Instance);
         tree.Add("ECONOMY/📦 Currency Bundles", CurrencyBundleGlobalConfig.Instance);
         tree.Add("ECONOMY/🛒 Store Items", StoreItemsGlobalConfig.Instance);
         tree.Add("ECONOMY/🎰 Gacha Pools", GachaGlobalConfig.Instance);
 
+        // =========================
         // OFFERS
+        // =========================
+
         tree.Add("OFFERS/🎁 Game Offers", GameOfferGlobalConfig.Instance);
         tree.Add("OFFERS/🗂 Offer Groups", GameOfferGroupGlobalConfig.Instance);
 
-        // GAME EVENTS
-        tree.Add("GAMEPLAY/🎯 Game Events", GameEventGlobalConfig.Instance);
+        // =========================
+        // GAMEPLAY
+        // =========================
 
+        tree.Add("GAMEPLAY/🎯 Game Events", GameEventGlobalConfig.Instance);
+        tree.Add("GAMEPLAY/🏆 Battle Pass", BattlePassGlobalConfig.Instance);
+
+        // =========================
         // CONDITIONS
+        // =========================
+
         tree.Add("CONDITIONS/⚙ Condition Config", ConditionGlobalConfig.Instance);
         tree.Add("CONDITIONS/📘 Context Fields", _conditionDoc);
 
+        tree.DefaultMenuStyle.IconSize = 20;
+        
         return tree;
     }
 

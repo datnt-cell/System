@@ -4,44 +4,46 @@ using System.Linq;
 
 namespace GameEventModule.Domain
 {
-    /// <summary>
-    /// Trạng thái runtime của Game Event
-    /// </summary>
     public class GameEventState
     {
-        /// <summary>
-        /// Event đang active
-        /// </summary>
         public bool IsActive { get; set; }
 
-        /// <summary>
-        /// Thời điểm event bắt đầu
-        /// </summary>
         public DateTime StartTime { get; set; }
 
-        /// <summary>
-        /// Thời điểm event kết thúc
-        /// </summary>
         public DateTime EndTime { get; set; }
 
-        /// <summary>
-        /// Thời điểm cooldown kết thúc
-        /// </summary>
         public DateTime CooldownEndTime { get; set; }
 
-        /// <summary>
-        /// Progress của event
-        /// key = progressId
-        /// </summary>
+        public DateTime NextCheckTime { get; set; }
+
         public Dictionary<string, int> Progress { get; set; } = new();
+
+        // =========================
+        // STATE API
+        // =========================
+
+        public void Start(DateTime now, DateTime endTime)
+        {
+            IsActive = true;
+            StartTime = now;
+            EndTime = endTime;
+        }
+
+        public void Stop(DateTime now, TimeSpan cooldown)
+        {
+            IsActive = false;
+            CooldownEndTime = now + cooldown;
+        }
+
+        public bool IsInCooldown(DateTime now)
+        {
+            return CooldownEndTime > now;
+        }
 
         // =========================
         // PROGRESS API
         // =========================
 
-        /// <summary>
-        /// Lấy progress theo key
-        /// </summary>
         public int GetProgress(string key)
         {
             if (Progress.TryGetValue(key, out var value))
@@ -50,17 +52,11 @@ namespace GameEventModule.Domain
             return 0;
         }
 
-        /// <summary>
-        /// Set progress theo key
-        /// </summary>
         public void SetProgress(string key, int value)
         {
             Progress[key] = value;
         }
 
-        /// <summary>
-        /// Cộng progress theo key
-        /// </summary>
         public void AddProgress(string key, int amount)
         {
             if (!Progress.ContainsKey(key))
@@ -69,13 +65,6 @@ namespace GameEventModule.Domain
             Progress[key] += amount;
         }
 
-        // =========================
-        // TOTAL PROGRESS
-        // =========================
-
-        /// <summary>
-        /// Tổng progress của event
-        /// </summary>
         public int GetTotalProgress()
         {
             if (Progress.Count == 0)

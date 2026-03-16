@@ -58,6 +58,16 @@ namespace GameEventModule.Application
             };
         }
 
+        public static GameEventEvent CooldownStarted(GameEventRuntime runtime)
+        {
+            return new GameEventEvent
+            {
+                Type = GameEventEventType.CooldownStarted,
+                EventId = runtime.Event.Id.Value,
+                Runtime = runtime
+            };
+        }
+
         public static GameEventEvent CooldownReset(string id)
         {
             return new GameEventEvent

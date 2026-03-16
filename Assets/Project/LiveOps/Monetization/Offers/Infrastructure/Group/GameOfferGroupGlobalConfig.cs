@@ -9,6 +9,49 @@ using Sirenix.OdinInspector.Editor;
 [GlobalConfig("Assets/Resources/GlobalConfig/Offers/")]
 public class GameOfferGroupGlobalConfig : GlobalConfig<GameOfferGroupGlobalConfig>
 {
+     // =========================
+    // HEADER HELP
+    // =========================
+
+    [PropertyOrder(-10)]
+    [HorizontalGroup("OfferHeader", Width = 28)]
+    [Button("ℹ", ButtonSizes.Small)]
+    [PropertyTooltip("@GetConfigNote()")]
+    private void ShowConfigInfo()
+    {
+        Sirenix.Utilities.Editor.SirenixEditorGUI.MessageBox(GetConfigNote());
+    }
+
+    [PropertyOrder(-11)]
+    [Title("🎁 GAME OFFERS", bold: true)]
+    [HorizontalGroup("OfferHeader/Title")]
+    [HideLabel]
+    [ShowInInspector]
+    private string HeaderSpacer => "";
+
+    private string GetConfigNote()
+    {
+        return
+            "GAME OFFER CONFIG\n\n" +
+
+            "Duration\n" +
+            "• Thời gian offer tồn tại sau khi kích hoạt.\n" +
+            "• 00:00:00 → Infinity (không hết hạn).\n" +
+            "• Ví dụ: 1 day → Offer tồn tại 24h.\n\n" +
+
+            "Wait For Activation\n" +
+            "• FALSE → Offer active ngay khi spawn.\n" +
+            "• TRUE → Offer chỉ active khi có trigger (fail level, complete level...).\n\n" +
+
+            "Purchase Limit\n" +
+            "• Số lần player có thể mua offer.\n" +
+            "• Ví dụ: Limit = 1 → chỉ mua 1 lần.";
+    }
+
+    // =========================
+    // DATA
+    // =========================
+    
     [Title("🎁 GAME OFFERS GROUP", bold: true)]
 
     [TableList()]

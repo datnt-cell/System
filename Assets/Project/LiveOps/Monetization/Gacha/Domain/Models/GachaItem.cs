@@ -1,12 +1,9 @@
 using System;
 
-namespace GachaSystem.Domain.Models
+public enum GachaRewardType
 {
-    public enum GachaRewardType
-    {
-        Currency,
-        CurrencyBundle
-    }
+    Currency,
+    CurrencyBundle
 }
 
 namespace GachaSystem.Domain.Models
@@ -14,13 +11,19 @@ namespace GachaSystem.Domain.Models
     [Serializable]
     public class GachaItem
     {
-        public GachaRewardType RewardType;
+        public GachaRewardType RewardType { get; }
 
-        public string RewardId;
+        /// <summary>
+        /// CurrencyId hoặc BundleId
+        /// </summary>
+        public string RewardId { get; }
 
-        public int Amount;
+        /// <summary>
+        /// Amount chỉ dùng cho Currency
+        /// </summary>
+        public int Amount { get; }
 
-        public int Weight;
+        public int Weight { get; }
 
         public GachaItem(
             GachaRewardType rewardType,
@@ -28,9 +31,18 @@ namespace GachaSystem.Domain.Models
             int amount,
             int weight)
         {
+            if (string.IsNullOrEmpty(rewardId))
+                throw new ArgumentException("RewardId cannot be null");
+
+            if (weight <= 0)
+                throw new ArgumentException("Weight must be > 0");
+
+            if (rewardType == GachaRewardType.Currency && amount <= 0)
+                throw new ArgumentException("Currency reward must have amount > 0");
+
             RewardType = rewardType;
             RewardId = rewardId;
-            Amount = amount;
+            Amount = rewardType == GachaRewardType.Currency ? amount : 1;
             Weight = weight;
         }
     }

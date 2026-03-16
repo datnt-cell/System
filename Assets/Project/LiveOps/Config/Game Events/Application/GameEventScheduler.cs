@@ -4,11 +4,10 @@ using GameEventModule.Domain;
 
 namespace GameEventModule.Application
 {
-    /// <summary>
-    /// Scheduler xử lý start / stop logic cho GameEvent
-    /// </summary>
     public class GameEventScheduler
     {
+        private static readonly TimeSpan DefaultTickInterval = TimeSpan.FromSeconds(1);
+
         public void Tick(
             GameEventRuntime runtime,
             IConditionContext context,
@@ -17,14 +16,19 @@ namespace GameEventModule.Application
             var gameEvent = runtime.Event;
             var state = runtime.State;
 
-            if (!state.IsActive)
-            {
-                TryStartEvent(gameEvent, state, context, now);
-            }
-            else
+            if (state.NextCheckTime > now)
+                return;
+
+            if (state.IsActive)
             {
                 TryEndEvent(gameEvent, state, context, now);
             }
+            else
+            {
+                TryStartEvent(gameEvent, state, context, now);
+            }
+
+            state.NextCheckTime = now + DefaultTickInterval;
         }
 
         // =========================
@@ -37,23 +41,28 @@ namespace GameEventModule.Application
             IConditionContext context,
             DateTime now)
         {
-            if (state.CooldownEndTime > now)
+            if (state.IsInCooldown(now))
                 return;
 
             if (!gameEvent.CanStart(context))
                 return;
 
-            state.IsActive = true;
-            state.StartTime = now;
+            DateTime endTime;
 
-            if (gameEvent.FinishPolicy.FinishType == EventFinishType.Duration)
+            if (gameEvent.FinishPolicy.IsDuration())
             {
-                state.EndTime = now + gameEvent.FinishPolicy.Duration;
+                var duration = gameEvent.FinishPolicy.Duration;
+
+                endTime = duration <= TimeSpan.Zero
+                    ? DateTime.MaxValue
+                    : now + duration;
             }
             else
             {
-                state.EndTime = DateTime.MinValue;
+                endTime = DateTime.MaxValue;
             }
+
+            state.Start(now, endTime);
         }
 
         // =========================
@@ -66,40 +75,23 @@ namespace GameEventModule.Application
             IConditionContext context,
             DateTime now)
         {
-            switch (gameEvent.FinishPolicy.FinishType)
+            if (gameEvent.FinishPolicy.IsDuration())
             {
-                case EventFinishType.Duration:
+                if (now >= state.EndTime)
+                {
+                    state.Stop(now, gameEvent.FinishPolicy.Cooldown);
+                }
 
-                    if (now >= state.EndTime)
-                    {
-                        StopEvent(gameEvent, state, now);
-                    }
-
-                    break;
-
-                case EventFinishType.Condition:
-
-                    if (!gameEvent.CanStart(context))
-                    {
-                        StopEvent(gameEvent, state, now);
-                    }
-
-                    break;
+                return;
             }
-        }
 
-        // =========================
-        // STOP
-        // =========================
-
-        private void StopEvent(
-            GameEvent gameEvent,
-            GameEventState state,
-            DateTime now)
-        {
-            state.IsActive = false;
-
-            state.CooldownEndTime = now + gameEvent.FinishPolicy.Cooldown;
+            if (gameEvent.FinishPolicy.IsCondition())
+            {
+                if (!gameEvent.CanStart(context))
+                {
+                    state.Stop(now, gameEvent.FinishPolicy.Cooldown);
+                }
+            }
         }
     }
 }

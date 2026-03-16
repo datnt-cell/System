@@ -9,43 +9,42 @@ using GachaSystem.Domain.Models;
 public class GachaItemConfigData
 {
     // =========================
-    // TYPE
+    // ROW 1 : REWARD
     // =========================
 
-    [HorizontalGroup("Row1", Width = 120)]
+    [VerticalGroup("RowReward")]
     [LabelText("Type")]
     public GachaRewardType RewardType;
 
-    // =========================
-    // REWARD
-    // =========================
+    // CurrencyId
 
-    [HorizontalGroup("Row1")]
-    [HideLabel]
+    [VerticalGroup("RowReward")]
     [ShowIf(nameof(IsCurrency))]
+    [LabelText("Currency")]
     [ValueDropdown(nameof(GetCurrencyIds))]
     public string CurrencyId;
 
-    [HorizontalGroup("Row1")]
-    [HideLabel]
-    [ShowIf(nameof(IsBundle))]
-    [ValueDropdown(nameof(GetBundleIds))]
-    public string BundleId;
+    // Amount
 
-    // =========================
-    // AMOUNT
-    // =========================
-
-    [HorizontalGroup("Row2", Width = 140)]
+    [VerticalGroup("RowReward")]
+    [ShowIf(nameof(IsCurrency))]
     [LabelText("Amount")]
     [MinValue(1)]
     public int Amount = 1;
 
+    // BundleId
+
+    [VerticalGroup("RowReward")]
+    [ShowIf(nameof(IsBundle))]
+    [LabelText("Bundle")]
+    [ValueDropdown(nameof(GetBundleIds))]
+    public string BundleId;
+
     // =========================
-    // WEIGHT
+    // ROW 2 : WEIGHT
     // =========================
 
-    [HorizontalGroup("Row2", Width = 140)]
+    [HorizontalGroup("RowWeight", Width = 140)]
     [LabelText("Weight")]
     [MinValue(1)]
     public int Weight = 10;

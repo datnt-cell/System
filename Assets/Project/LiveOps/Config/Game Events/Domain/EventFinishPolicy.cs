@@ -7,19 +7,10 @@ namespace GameEventModule.Domain
     /// </summary>
     public class EventFinishPolicy
     {
-        /// <summary>
-        /// Cách kết thúc event
-        /// </summary>
         public EventFinishType FinishType { get; }
 
-        /// <summary>
-        /// Thời gian tồn tại nếu FinishType = Duration
-        /// </summary>
         public TimeSpan Duration { get; }
 
-        /// <summary>
-        /// Thời gian cooldown trước khi event có thể kích hoạt lại
-        /// </summary>
         public TimeSpan Cooldown { get; }
 
         public EventFinishPolicy(
@@ -30,6 +21,21 @@ namespace GameEventModule.Domain
             FinishType = finishType;
             Duration = duration;
             Cooldown = cooldown;
+        }
+
+        public bool IsDuration()
+        {
+            return FinishType == EventFinishType.Duration;
+        }
+
+        public bool IsCondition()
+        {
+            return FinishType == EventFinishType.Condition;
+        }
+
+        public bool IsInfiniteDuration()
+        {
+            return FinishType == EventFinishType.Duration && Duration <= TimeSpan.Zero;
         }
     }
 }

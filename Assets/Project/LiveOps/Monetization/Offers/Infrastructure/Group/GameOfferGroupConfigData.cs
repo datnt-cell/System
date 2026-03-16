@@ -10,10 +10,6 @@ using UniLabs.Time;
 [Serializable]
 public class GameOfferGroupConfigData
 {
-    // =========================
-    // BASIC
-    // =========================
-
     [BoxGroup("Info")]
     [ReadOnly]
     [LabelWidth(40)]
@@ -23,10 +19,18 @@ public class GameOfferGroupConfigData
     [LabelWidth(100)]
     public string DisplayName;
 
-    [BoxGroup("Info")]
-    [TableColumnWidth(40)]
+    [HorizontalGroup("Info/TypeRow")]
+    [BoxGroup("Info/TypeRow/Type")]
     [LabelText("Group Type")]
     public OfferGroupType Type;
+
+    [HorizontalGroup("Info/TypeRow", Width = 28)]
+    [Button("ℹ", ButtonSizes.Small)]
+    [PropertyTooltip("@GetTypeNote()")]
+    private void ShowTypeInfo()
+    {
+        Sirenix.Utilities.Editor.SirenixEditorGUI.MessageBox(GetTypeNote());
+    }
 
     [BoxGroup("CONFIG")]
     [LabelText("Duration")]
@@ -64,5 +68,27 @@ public class GameOfferGroupConfigData
 
                 return new ValueDropdownItem<string>(label, offer.Id);
             });
+    }
+
+    private string GetTypeNote()
+    {
+        return
+            "OFFER GROUP TYPE\n\n" +
+
+            "UnlimitedPurchases\n" +
+            "• Player có thể mua offer nhiều lần.\n" +
+            "• Không giới hạn số lần mua.\n\n" +
+
+            "ChainDeals\n" +
+            "• Offer xuất hiện theo thứ tự.\n" +
+            "• Mua xong offer hiện tại → mở offer tiếp theo.\n\n" +
+
+            "OnlyOnePurchase\n" +
+            "• Player chỉ được mua 1 offer trong group.\n" +
+            "• Sau khi mua 1 offer → các offer khác sẽ bị khóa.\n\n" +
+
+            "PurchaseEachOfferOnce\n" +
+            "• Mỗi offer chỉ mua được 1 lần.\n" +
+            "• Player có thể mua tất cả offer trong group.";
     }
 }

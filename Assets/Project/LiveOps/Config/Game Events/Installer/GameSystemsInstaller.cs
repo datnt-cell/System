@@ -18,6 +18,11 @@ public class GameSystemsInstaller
             GameManager.Instance.GameOffers.GroupService
         );
 
+        var currencyAdapter = new CurrencyServiceAdapter(GameManager.Instance.Currency.Service);
+
+        var popupAdapter = new PopupServiceAdapter();
+
+        var missionAdapter = new MissionServiceAdapter();
         // =========================
         // CORE SYSTEM
         // =========================
@@ -26,8 +31,11 @@ public class GameSystemsInstaller
         var configProvider = new GameEventConfigProvider();
         var scheduler = new GameEventScheduler();
 
-        var attachmentExecutor =
-            new GameEventAttachmentExecutor(offerAdapter);
+        var attachmentExecutor = new GameEventAttachmentExecutor(
+                offerAdapter,
+                currencyAdapter,
+                popupAdapter,
+                missionAdapter);
 
         var events = new GameEventEvents();
 

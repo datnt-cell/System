@@ -27,6 +27,11 @@ public class GameOfferGroupService
         Load();
     }
 
+    private bool IsInfinite(GameOfferGroupConfigData group)
+    {
+        return group.Duration.TimeSpan <= TimeSpan.Zero;
+    }
+
     private void Load()
     {
         var data = repository.Load();
@@ -95,7 +100,7 @@ public class GameOfferGroupService
         if (!data.IsActivated)
             return false;
 
-        if (group.Duration <= TimeSpan.Zero)
+        if (IsInfinite(group))
             return false;
 
         if (data.StartTime <= 0)
@@ -283,6 +288,9 @@ public class GameOfferGroupService
 
         if (!runtime.IsActivated)
             return 0;
+
+        if (IsInfinite(group))
+            return int.MaxValue; // Infinity
 
         var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 

@@ -15,7 +15,7 @@ namespace ConditionEngine.Presentation
         public string Id;
 
         [BoxGroup("Info")]
-        [LabelWidth(100)]
+        [LabelWidth(40)]
         public string DisplayName;
 
         [BoxGroup("Condition")]

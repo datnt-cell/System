@@ -4,9 +4,10 @@ namespace GameEventModule.Application
     {
         Started,
         Stopped,
-        Tick,
+        CooldownStarted,
+        CooldownReset,
         ForcedStart,
         ForcedStop,
-        CooldownReset
+        Tick,
     }
 }

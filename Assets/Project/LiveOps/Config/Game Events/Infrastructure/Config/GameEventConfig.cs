@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Collections.Generic;
 using ConditionEngine.Presentation;
 using GameEventModule.Domain;
 using Sirenix.OdinInspector;
@@ -7,13 +8,6 @@ using UniLabs.Time;
 
 namespace GameEventModule.Infrastructure.Config
 {
-    public enum OfferAttachmentType
-    {
-        None,
-        SingleOffer,
-        OfferGroup
-    }
-
     [Serializable]
     [InlineProperty]
     public class GameEventConfig
@@ -80,27 +74,13 @@ namespace GameEventModule.Infrastructure.Config
         public UTimeSpan Cooldown;
 
         // =========================
-        // OFFER ATTACHMENT
+        // ATTACHMENTS
         // =========================
 
         [HorizontalGroup("Root")]
         [BoxGroup("Root/Config")]
-        [LabelText("Attachment Type")]
-        public OfferAttachmentType OfferType;
-
-        [HorizontalGroup("Root")]
-        [BoxGroup("Root/Config")]
-        [LabelText("Offer Group")]
-        [ValueDropdown(nameof(GetOfferGroupDropdown))]
-        [ShowIf("@OfferType == OfferAttachmentType.OfferGroup")]
-        public string OfferGroupId;
-
-        [HorizontalGroup("Root")]
-        [BoxGroup("Root/Config")]
-        [LabelText("Offer")]
-        [ValueDropdown(nameof(GetOfferDropdown))]
-        [ShowIf("@OfferType == OfferAttachmentType.SingleOffer")]
-        public string OfferId;
+        [ListDrawerSettings(Expanded = true)]
+        public List<GameEventAttachmentConfig> Attachments = new();
 
         // =========================
         // STATE
@@ -109,7 +89,7 @@ namespace GameEventModule.Infrastructure.Config
         private bool IsDurationMode => FinishType == EventFinishType.Duration;
 
         // =========================
-        // DROPDOWNS
+        // DROPDOWN
         // =========================
 
         private static ValueDropdownList<string> GetConditionDropdown()
@@ -119,33 +99,8 @@ namespace GameEventModule.Infrastructure.Config
             foreach (var node in ConditionGlobalConfig.Instance.Nodes)
             {
                 if (node == null) continue;
+
                 list.Add($"{node.Id} | {node.DisplayName}", node.Id);
-            }
-
-            return list;
-        }
-
-        private static ValueDropdownList<string> GetOfferGroupDropdown()
-        {
-            var list = new ValueDropdownList<string>();
-
-            foreach (var group in GameOfferGroupGlobalConfig.Instance.Groups)
-            {
-                if (group == null) continue;
-                list.Add($"{group.Id} | {group.DisplayName}", group.Id);
-            }
-
-            return list;
-        }
-
-        private static ValueDropdownList<string> GetOfferDropdown()
-        {
-            var list = new ValueDropdownList<string>();
-
-            foreach (var offer in GameOfferGlobalConfig.Instance.Offers)
-            {
-                if (offer == null) continue;
-                list.Add($"{offer.Id} | {offer.DisplayName}", offer.Id);
             }
 
             return list;
@@ -167,25 +122,17 @@ namespace GameEventModule.Infrastructure.Config
                 Duration,
                 Cooldown);
 
-            string offerGroup = null;
-            string offer = null;
-
-            if (OfferType == OfferAttachmentType.OfferGroup)
-                offerGroup = OfferGroupId;
-
-            if (OfferType == OfferAttachmentType.SingleOffer)
-                offer = OfferId;
-
-            var attachment = new GameOfferAttachment(
-                offerGroup,
-                offer);
+            var attachments = Attachments
+                .Select(a => a.Build())
+                .Where(a => a != null)
+                .ToList();
 
             return new GameEvent(
                 new GameEventId(Id),
                 Priority,
                 condition,
                 finishPolicy,
-                attachment);
+                attachments);
         }
     }
 }

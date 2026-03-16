@@ -6,16 +6,12 @@ using GameEventModule.Domain;
 
 namespace GameEventModule.Application
 {
-    /// <summary>
-    /// Service quản lý toàn bộ GameEvent
-    /// </summary>
     public class GameEventService
     {
         private readonly IGameEventRepository _repository;
         private readonly IGameEventConfigProvider _configProvider;
         private readonly GameEventScheduler _scheduler;
         private readonly IGameEventAttachmentExecutor _attachmentExecutor;
-
         private readonly GameEventEvents _events;
 
         private readonly List<GameEventRuntime> _eventsList = new();
@@ -55,6 +51,15 @@ namespace GameEventModule.Application
 
                 _eventsList.Add(new GameEventRuntime(gameEvent, state));
             }
+
+            // sort theo priority cao -> thấp
+            _eventsList.Sort((a, b) =>
+                b.Event.Priority.CompareTo(a.Event.Priority));
+        }
+
+        private GameEventRuntime FindRuntime(string eventId)
+        {
+            return _eventsList.FirstOrDefault(x => x.Event.Id.Value == eventId);
         }
 
         // =========================
@@ -63,6 +68,8 @@ namespace GameEventModule.Application
 
         public void Tick(IConditionContext context, DateTime now)
         {
+            bool dirty = false;
+
             foreach (var runtime in _eventsList)
             {
                 bool wasActive = runtime.State.IsActive;
@@ -78,15 +85,19 @@ namespace GameEventModule.Application
                     OnEventStarted(runtime);
 
                     _events.Publish(GameEventEvent.Started(runtime));
+                    dirty = true;
                 }
 
                 if (wasActive && !isActive)
                 {
                     _events.Publish(GameEventEvent.Stopped(runtime));
+                    _events.Publish(GameEventEvent.CooldownStarted(runtime));
+                    dirty = true;
                 }
             }
 
-            SaveStates();
+            if (dirty)
+                SaveStates();
         }
 
         // =========================
@@ -95,12 +106,15 @@ namespace GameEventModule.Application
 
         private void OnEventStarted(GameEventRuntime runtime)
         {
-            var attachment = runtime.Event.Attachment;
+            var attachments = runtime.Event.Attachments;
 
-            if (attachment == null)
+            if (attachments == null || attachments.Count == 0)
                 return;
 
-            _attachmentExecutor.Execute(attachment);
+            foreach (var attachment in attachments)
+            {
+                _attachmentExecutor.Execute(attachment);
+            }
         }
 
         // =========================
@@ -114,8 +128,7 @@ namespace GameEventModule.Application
 
         public bool IsEventActive(string eventId)
         {
-            var runtime = _eventsList.FirstOrDefault(x => x.Event.Id.Value == eventId);
-
+            var runtime = FindRuntime(eventId);
             return runtime != null && runtime.State.IsActive;
         }
 
@@ -128,7 +141,7 @@ namespace GameEventModule.Application
 
         public bool HasEvent(string eventId)
         {
-            return _eventsList.Any(x => x.Event.Id.Value == eventId);
+            return FindRuntime(eventId) != null;
         }
 
         // =========================
@@ -137,39 +150,48 @@ namespace GameEventModule.Application
 
         public void ForceStart(string eventId, DateTime now)
         {
-            var runtime = _eventsList.FirstOrDefault(x => x.Event.Id.Value == eventId);
+            var runtime = FindRuntime(eventId);
 
             if (runtime == null)
                 return;
 
-            runtime.State.IsActive = true;
-            runtime.State.StartTime = now;
+            DateTime endTime = DateTime.MaxValue;
+
+            if (runtime.Event.FinishPolicy.IsDuration())
+            {
+                var duration = runtime.Event.FinishPolicy.Duration;
+
+                endTime = duration <= TimeSpan.Zero
+                    ? DateTime.MaxValue
+                    : now + duration;
+            }
+
+            runtime.State.Start(now, endTime);
 
             OnEventStarted(runtime);
 
             _events.Publish(GameEventEvent.ForcedStart(eventId));
 
-            SaveStates();
+            SaveState(runtime);
         }
 
         public void ForceStop(string eventId, DateTime now)
         {
-            var runtime = _eventsList.FirstOrDefault(x => x.Event.Id.Value == eventId);
+            var runtime = FindRuntime(eventId);
 
             if (runtime == null)
                 return;
 
-            runtime.State.IsActive = false;
-            runtime.State.CooldownEndTime = now + runtime.Event.FinishPolicy.Cooldown;
+            runtime.State.Stop(now, runtime.Event.FinishPolicy.Cooldown);
 
             _events.Publish(GameEventEvent.ForcedStop(eventId));
 
-            SaveStates();
+            SaveState(runtime);
         }
 
         public void ResetCooldown(string eventId)
         {
-            var runtime = _eventsList.FirstOrDefault(x => x.Event.Id.Value == eventId);
+            var runtime = FindRuntime(eventId);
 
             if (runtime == null)
                 return;
@@ -178,7 +200,7 @@ namespace GameEventModule.Application
 
             _events.Publish(GameEventEvent.CooldownReset(eventId));
 
-            SaveStates();
+            SaveState(runtime);
         }
 
         // =========================
@@ -187,7 +209,7 @@ namespace GameEventModule.Application
 
         public TimeSpan GetRemainingTime(string eventId, DateTime now)
         {
-            var runtime = _eventsList.FirstOrDefault(x => x.Event.Id.Value == eventId);
+            var runtime = FindRuntime(eventId);
 
             if (runtime == null)
                 return TimeSpan.Zero;
@@ -195,10 +217,17 @@ namespace GameEventModule.Application
             if (!runtime.State.IsActive)
                 return TimeSpan.Zero;
 
-            if (runtime.Event.FinishPolicy.FinishType != EventFinishType.Duration)
+            if (!runtime.Event.FinishPolicy.IsDuration())
                 return TimeSpan.Zero;
 
-            return runtime.State.EndTime - now;
+            if (runtime.State.EndTime == DateTime.MaxValue)
+                return TimeSpan.MaxValue;
+
+            var remaining = runtime.State.EndTime - now;
+
+            return remaining > TimeSpan.Zero
+                ? remaining
+                : TimeSpan.Zero;
         }
 
         // =========================
@@ -213,13 +242,18 @@ namespace GameEventModule.Application
             }
         }
 
+        private void SaveState(GameEventRuntime runtime)
+        {
+            _repository.SaveState(runtime.Event.Id, runtime.State);
+        }
+
         // =========================
         // PROGRESS
         // =========================
 
         public int GetProgress(string eventId, string progressKey)
         {
-            var runtime = _eventsList.FirstOrDefault(x => x.Event.Id.Value == eventId);
+            var runtime = FindRuntime(eventId);
 
             if (runtime == null)
                 return 0;
@@ -229,19 +263,19 @@ namespace GameEventModule.Application
 
         public void AddProgress(string eventId, string progressKey, int amount)
         {
-            var runtime = _eventsList.FirstOrDefault(x => x.Event.Id.Value == eventId);
+            var runtime = FindRuntime(eventId);
 
             if (runtime == null)
                 return;
 
             runtime.State.AddProgress(progressKey, amount);
 
-            SaveStates();
+            SaveState(runtime);
         }
 
         public int GetTotalProgress(string eventId)
         {
-            var runtime = _eventsList.FirstOrDefault(x => x.Event.Id.Value == eventId);
+            var runtime = FindRuntime(eventId);
 
             if (runtime == null)
                 return 0;

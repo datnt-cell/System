@@ -2,7 +2,6 @@ using System;
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using System.Linq;
-using Sirenix.Serialization;
 using UniLabs.Time;
 
 [Serializable]
@@ -21,8 +20,9 @@ public class GameOfferConfigData
     public string DisplayName;
 
     // =========================
-    // TIME
+    // TIME / CONFIG
     // =========================
+
     [BoxGroup("CONFIG")]
     [LabelText("Duration")]
     public UTimeSpan Duration = TimeSpan.FromDays(1);
@@ -35,6 +35,7 @@ public class GameOfferConfigData
     [LabelText("Purchase Limit")]
     [MinValue(1)]
     public int Limit = 1;
+
     // =========================
     // STORE
     // =========================

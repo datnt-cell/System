@@ -25,21 +25,11 @@ public class GachaPoolConfigData
 
     [BoxGroup("ITEMS")]
     [TableList]
-    [ValidateInput(nameof(ValidateItems), "Reward bị trùng!")]
     public List<GachaItemConfigData> Items = new();
 
     // =========================
     // VALIDATE
     // =========================
-
-    private bool ValidateItems(List<GachaItemConfigData> list)
-    {
-        return list
-            .Select(GetRewardKey)
-            .Where(x => !string.IsNullOrEmpty(x))
-            .Distinct()
-            .Count() == list.Count;
-    }
 
     private string GetRewardKey(GachaItemConfigData item)
     {

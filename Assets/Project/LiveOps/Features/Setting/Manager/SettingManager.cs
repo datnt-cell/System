@@ -6,16 +6,16 @@ using UnityEngine;
 /// </summary>
 public class SettingManager : MonoBehaviour
 {
-    public SettingPresenter Presenter { get; private set; }
+    public SettingService Service { get; private set; }
 
     public void Initialize()
     {
         SettingInstaller installer = new SettingInstaller();
-        Presenter = installer.Install();
+        Service = installer.Install();
     }
 
     private void OnDestroy()
     {
-        Presenter?.Dispose();
+        Service?.Dispose();
     }
 }

@@ -1,49 +1,43 @@
 using System;
 using GameOfferSystem.Infrastructure;
+using R3;
 
-/// <summary>
-/// Event dispatcher cho GameOfferGroup.
-/// Các hệ khác (UI, Analytics, Gameplay) có thể subscribe.
-/// </summary>
 public class GameOfferGroupEvents : IGameOfferGroupEvents
 {
-    /// <summary>
-    /// Khi group được kích hoạt
-    /// </summary>
-    public event Action<GameOfferGroupRuntimeData> GroupActivated;
+    private readonly Subject<GameOfferGroupRuntimeData> groupActivated = new();
+    private readonly Subject<(string groupId, string offerId)> groupOfferPurchased = new();
+    private readonly Subject<(string groupId, string offerId, string reason)> groupPurchaseFailed = new();
+    private readonly Subject<string> groupCompleted = new();
+    private readonly Subject<GameOfferGroupRuntimeData> groupExpired = new();
 
-    /// <summary>
-    /// Khi player mua một offer trong group
-    /// </summary>
-    public event Action<string, string> GroupOfferPurchased;
-
-    /// <summary>
-    /// Khi purchase thất bại
-    /// </summary>
-    public event Action<string, string, string> GroupPurchaseFailed;
-
-    /// <summary>
-    /// Khi group hoàn thành (optional)
-    /// </summary>
-    public event Action<string> GroupCompleted;
+    public Observable<GameOfferGroupRuntimeData> GroupActivated => groupActivated;
+    public Observable<(string groupId, string offerId)> GroupOfferPurchased => groupOfferPurchased;
+    public Observable<(string groupId, string offerId, string reason)> GroupPurchaseFailed => groupPurchaseFailed;
+    public Observable<string> GroupCompleted => groupCompleted;
+    public Observable<GameOfferGroupRuntimeData> GroupExpired => groupExpired;
 
     public void OnGroupActivated(GameOfferGroupRuntimeData data)
     {
-        GroupActivated?.Invoke(data);
+        groupActivated.OnNext(data);
     }
 
     public void OnGroupOfferPurchased(string groupId, string offerId)
     {
-        GroupOfferPurchased?.Invoke(groupId, offerId);
+        groupOfferPurchased.OnNext((groupId, offerId));
     }
 
     public void OnGroupPurchaseFailed(string groupId, string offerId, string reason)
     {
-        GroupPurchaseFailed?.Invoke(groupId, offerId, reason);
+        groupPurchaseFailed.OnNext((groupId, offerId, reason));
     }
 
     public void OnGroupCompleted(string groupId)
     {
-        GroupCompleted?.Invoke(groupId);
+        groupCompleted.OnNext(groupId);
+    }
+
+    public void OnGroupExpired(GameOfferGroupRuntimeData data)
+    {
+        groupExpired.OnNext(data);
     }
 }

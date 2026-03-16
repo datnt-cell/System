@@ -22,6 +22,23 @@ namespace StoreSystem.Domain
             _rewardStrategy = rewardStrategy;
         }
 
+        // =========================
+        // VALIDATION
+        // =========================
+
+        /// <summary>
+        /// Kiểm tra có thể mua item không (không thực hiện payment).
+        /// </summary>
+        public bool CanPurchase()
+        {
+            var validation = _priceStrategy.ValidatePayment();
+            return validation.Success;
+        }
+
+        // =========================
+        // PURCHASE
+        // =========================
+
         /// <summary>
         /// Thực hiện mua item.
         /// </summary>
@@ -42,6 +59,10 @@ namespace StoreSystem.Domain
 
             return payment;
         }
+
+        // =========================
+        // REWARD
+        // =========================
 
         public void GrantReward()
         {

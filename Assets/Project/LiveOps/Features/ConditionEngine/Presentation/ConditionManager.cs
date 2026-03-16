@@ -12,7 +12,7 @@ namespace ConditionEngine
     /// </summary>
     public class ConditionManager : MonoBehaviour
     {
-        private ConditionService _service;
+        public ConditionService Service;
 
         // cache condition theo Id
         private readonly Dictionary<string, ICondition> _conditions = new();
@@ -24,7 +24,7 @@ namespace ConditionEngine
         public void Initialize()
         {
             var installer = new ConditionInstaller();
-            _service = installer.Install();
+            Service = installer.Install();
 
             LoadConditions();
         }
@@ -69,7 +69,7 @@ namespace ConditionEngine
                 return false;
             }
 
-            return _service.Evaluate(condition);
+            return Service.Evaluate(condition);
         }
 
         // =========================

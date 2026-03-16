@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using GameOfferSystem.Infrastructure;
 using GameOfferSystem.Domain;
-using UnityEngine;
+
 
 /// <summary>
 /// Service quản lý toàn bộ business logic của Offer Groups
@@ -35,6 +35,9 @@ public class GameOfferGroupService
     {
         var data = repository.Load();
 
+        if (data == null)
+            return;
+
         foreach (var group in data)
         {
             state.Add(group);
@@ -42,7 +45,7 @@ public class GameOfferGroupService
     }
 
     /// <summary>
-    /// Save runtime
+    /// Save runtime data
     /// </summary>
     private void Save()
     {
@@ -65,6 +68,7 @@ public class GameOfferGroupService
         var runtime = new GameOfferGroupRuntimeData
         {
             GroupId = groupId,
+
             StartTime = group.WaitForActivation
                 ? 0
                 : DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
@@ -91,13 +95,33 @@ public class GameOfferGroupService
         if (data == null)
             return;
 
-        if (!data.IsActivated)
-        {
-            data.IsActivated = true;
-            data.StartTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        if (data.IsActivated)
+            return;
 
-            Save();
-        }
+        data.IsActivated = true;
+        data.StartTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        Save();
+    }
+
+    /// <summary>
+    /// Kiểm tra group đã hết hạn chưa
+    /// </summary>
+    private bool IsExpired(GameOfferGroupRuntimeData data, GameOfferGroupConfigData group)
+    {
+        if (!data.IsActivated)
+            return false;
+
+        if (group.Duration <= TimeSpan.Zero)
+            return false;
+
+        if (data.StartTime <= 0)
+            return false;
+
+        var start = DateTimeOffset.FromUnixTimeSeconds(data.StartTime);
+        var now = DateTimeOffset.UtcNow;
+
+        return now - start >= group.Duration;
     }
 
     /// <summary>
@@ -118,6 +142,13 @@ public class GameOfferGroupService
         if (group == null)
             return null;
 
+        // check expiration
+        if (IsExpired(data, group))
+        {
+            events?.OnGroupExpired(data);
+            return null;
+        }
+
         switch (group.Type)
         {
             case OfferGroupType.ChainDeals:
@@ -128,15 +159,6 @@ public class GameOfferGroupService
                 return group.OfferIds[data.CurrentIndex];
 
             case OfferGroupType.OnlyOnePurchase:
-
-                foreach (var offer in group.OfferIds)
-                {
-                    if (!data.PurchasedOffers.Contains(offer))
-                        return offer;
-                }
-
-                return null;
-
             case OfferGroupType.PurchaseEachOfferOnce:
 
                 foreach (var offer in group.OfferIds)
@@ -159,6 +181,22 @@ public class GameOfferGroupService
         if (string.IsNullOrEmpty(groupId) || string.IsNullOrEmpty(offerId))
             return OfferPurchaseError.OfferNotFound;
 
+        var data = state.Get(groupId);
+
+        if (data == null)
+            return OfferPurchaseError.OfferNotActive;
+
+        var group = config.Get(groupId);
+
+        if (group == null)
+            return OfferPurchaseError.OfferNotFound;
+
+        if (!data.IsActivated)
+            return OfferPurchaseError.OfferNotActive;
+
+        if (IsExpired(data, group))
+            return OfferPurchaseError.OfferExpired;
+
         var availableOffer = GetAvailableOffer(groupId);
 
         if (availableOffer == null)
@@ -171,11 +209,12 @@ public class GameOfferGroupService
     }
 
     /// <summary>
-    /// Player mua offer
+    /// Player mua offer trong group
     /// </summary>
     public PurchaseOfferGroupResponse Purchase(string groupId, string offerId)
     {
         var data = state.Get(groupId);
+
         if (data == null)
         {
             events?.OnGroupPurchaseFailed(groupId, offerId, "Group not found");
@@ -188,6 +227,7 @@ public class GameOfferGroupService
         }
 
         var group = config.Get(groupId);
+
         if (group == null)
         {
             events?.OnGroupPurchaseFailed(groupId, offerId, "Config not found");
@@ -201,6 +241,7 @@ public class GameOfferGroupService
         }
 
         var check = CanPurchase(groupId, offerId);
+
         if (check != OfferPurchaseError.None)
         {
             events?.OnGroupPurchaseFailed(groupId, offerId, check.ToString());
@@ -222,21 +263,54 @@ public class GameOfferGroupService
         return PurchaseOfferGroupResponse.SuccessResult(groupId, offerId, data);
     }
 
+    /// <summary>
+    /// Áp dụng logic purchase cho group
+    /// </summary>
     private void ApplyPurchase(
-    GameOfferGroupConfigData group,
-    GameOfferGroupRuntimeData data,
-    string offerId)
+        GameOfferGroupConfigData group,
+        GameOfferGroupRuntimeData data,
+        string offerId)
     {
         switch (group.Type)
         {
             case OfferGroupType.ChainDeals:
+
                 data.CurrentIndex++;
                 break;
 
             case OfferGroupType.OnlyOnePurchase:
+
+                data.PurchasedOffers.Add(offerId);
+                break;
+
             case OfferGroupType.PurchaseEachOfferOnce:
+
                 data.PurchasedOffers.Add(offerId);
                 break;
         }
+    }
+
+    public int GetRemainingTime(string offerId)
+    {
+        var runtime = state.Get(offerId);
+
+        if (runtime == null)
+            return 0;
+
+        var offer = config.Get(offerId);
+
+        if (offer == null)
+            return 0;
+
+        if (!runtime.IsActivated)
+            return 0;
+
+        var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        var endTime = runtime.StartTime + (long)offer.Duration.TimeSpan.TotalSeconds;
+
+        var remaining = endTime - now;
+
+        return remaining > 0 ? (int)remaining : 0;
     }
 }

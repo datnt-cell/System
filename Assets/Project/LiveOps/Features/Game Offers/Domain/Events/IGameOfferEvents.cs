@@ -1,3 +1,5 @@
+using GameOfferSystem.Domain;
+
 /// <summary>
 /// Interface sự kiện của Game Offer System
 /// Tương tự cách Balancy gửi sự kiện LiveOps
@@ -5,12 +7,12 @@
 public interface IGameOfferEvents
 {
     /// <summary>
-    /// Offer mới được kích hoạt
+    /// Offer được kích hoạt
     /// </summary>
     void OnOfferActivated(GameOfferRuntimeData offer);
 
     /// <summary>
-    /// Offer bị tắt / hết hạn
+    /// Offer hết hạn hoặc bị deactivate
     /// </summary>
     void OnOfferDeactivated(GameOfferRuntimeData offer, bool wasPurchased);
 
@@ -20,7 +22,7 @@ public interface IGameOfferEvents
     void OnOfferPurchased(GameOfferRuntimeData offer);
 
     /// <summary>
-    /// Player mua thất bại
+    /// Player mua offer thất bại
     /// </summary>
-    void OnOfferPurchaseFailed(GameOfferRuntimeData offer, string error);
+    void OnOfferPurchaseFailed(string offerId, OfferPurchaseError error);
 }

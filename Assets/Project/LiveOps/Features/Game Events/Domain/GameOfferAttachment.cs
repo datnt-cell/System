@@ -1,3 +1,5 @@
+using GameEventModule.Application;
+
 namespace GameEventModule.Domain
 {
     /// <summary>
@@ -24,10 +26,9 @@ namespace GameEventModule.Domain
         /// <summary>
         /// Thực thi attachment
         /// </summary>
-        public void Execute()
+        public void Execute(IGameEventAttachmentExecutor executor)
         {
-            // Domain không gọi service trực tiếp
-            // Logic thực tế sẽ được xử lý ở Application layer
+            executor.Execute(this);
         }
 
         public bool HasOfferGroup()

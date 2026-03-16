@@ -17,48 +17,52 @@ using ConditionEngine;
 /// </summary>
 public partial class GameManager : SingletonPersistent<GameManager>
 {
+    // =========================
+    // GAME SYSTEMS
+    // =========================
+
     [Title("🎮 Game Systems")]
 
-    [BoxGroup("Game Systems")]
-    [PropertyOrder(0)]
+    [BoxGroup("Game Systems/Core")]
     [LabelText("Settings")]
     public SettingManager SettingManager;
 
-    [BoxGroup("Game Systems")]
-    [PropertyOrder(1)]
+    [BoxGroup("Game Systems/Core")]
     [LabelText("Player")]
     public PlayerManager Player;
 
-    [BoxGroup("Game Systems")]
-    [PropertyOrder(2)]
+    [BoxGroup("Game Systems/Core")]
     [LabelText("Currency")]
     public CurrencyManager Currency;
 
-    [BoxGroup("Game Systems")]
-    [PropertyOrder(3)]
+    [BoxGroup("Game Systems/Core")]
     [LabelText("Conditions")]
     public ConditionManager Conditions;
 
+    [BoxGroup("Game Systems/Core")]
+    [LabelText("Game Events")]
+    public GameEventManager GameEvents;
+
+
+    // =========================
+    // MONETIZATION
+    // =========================
 
     [Title("💰 Monetization Systems")]
 
-    [BoxGroup("Monetization")]
-    [PropertyOrder(10)]
+    [BoxGroup("Monetization/Ads")]
     [LabelText("Ads")]
     public AdsManager AdsManager;
 
-    [BoxGroup("Monetization")]
-    [PropertyOrder(11)]
+    [BoxGroup("Monetization/IAP")]
     [LabelText("IAP")]
     public IAPManager IAPManager;
 
-    [BoxGroup("Monetization")]
-    [PropertyOrder(12)]
-    [LabelText("Store")]
+    [BoxGroup("Monetization/Store")]
+    [LabelText("Store Items")]
     public StoreItemsManager Store;
 
-    [BoxGroup("Monetization")]
-    [PropertyOrder(13)]
+    [BoxGroup("Monetization/Offers")]
     [LabelText("Game Offers")]
     public GameOfferManager GameOffers;
 
@@ -127,5 +131,7 @@ public partial class GameManager : SingletonPersistent<GameManager>
 
         // khởi tạo hệ thống offer
         GameOffers.Initialize();
+
+        GameEvents.Initialize(Conditions.Service.GetContext());
     }
 }

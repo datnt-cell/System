@@ -10,6 +10,8 @@ using GameOfferSystem.Installer;
 /// </summary>
 public class GameOfferManager : MonoBehaviour
 {
+    public GameOfferFacadeService Service { get; private set; }
+
     /// <summary>
     /// Service xử lý logic Offer
     /// </summary>
@@ -31,8 +33,10 @@ public class GameOfferManager : MonoBehaviour
         _installer = new GameOfferInstaller();
 
         var result = _installer.Install();
-;
+
         OfferService = result.OfferService;
         GroupService = result.GroupService;
+
+        Service = new GameOfferFacadeService(OfferService, GroupService);
     }
 }

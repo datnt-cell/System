@@ -2,11 +2,7 @@ using System;
 using System.Collections.Generic;
 using GameOfferSystem.Domain;
 using GameOfferSystem.Infrastructure;
-using UnityEngine;
 
-/// <summary>
-/// Service quản lý toàn bộ business logic của Game Offers
-/// </summary>
 public class GameOfferService
 {
     private readonly GameOfferState state;
@@ -28,12 +24,12 @@ public class GameOfferService
         Load();
     }
 
-    /// <summary>
-    /// Load runtime data từ storage
-    /// </summary>
     private void Load()
     {
         var data = repository.Load();
+
+        if (data == null)
+            return;
 
         foreach (var offer in data)
         {
@@ -41,16 +37,13 @@ public class GameOfferService
         }
     }
 
-    /// <summary>
-    /// Save runtime data
-    /// </summary>
     private void Save()
     {
         repository.Save(new List<GameOfferRuntimeData>(state.ActiveOffers));
     }
 
     /// <summary>
-    /// Kích hoạt một offer
+    /// Activate offer
     /// </summary>
     public void ActivateOffer(string offerId)
     {
@@ -65,7 +58,10 @@ public class GameOfferService
         var runtime = new GameOfferRuntimeData
         {
             OfferId = offerId,
-            StartTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+            StartTime = offerConfig.WaitForActivation
+                ? 0
+                : DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+
             PurchasedCount = 0,
             IsActivated = !offerConfig.WaitForActivation
         };
@@ -74,12 +70,11 @@ public class GameOfferService
 
         Save();
 
-        // 🔔 Event
         events?.OnOfferActivated(runtime);
     }
 
     /// <summary>
-    /// Player nhìn thấy offer → bắt đầu timer
+    /// Player thấy offer → bắt đầu timer
     /// </summary>
     public void MarkSeen(string offerId)
     {
@@ -101,7 +96,7 @@ public class GameOfferService
     }
 
     /// <summary>
-    /// Kiểm tra có thể mua offer không
+    /// Kiểm tra có thể mua
     /// </summary>
     public OfferPurchaseError CanPurchase(string offerId)
     {
@@ -136,7 +131,7 @@ public class GameOfferService
 
         if (check != OfferPurchaseError.None)
         {
-            events?.OnOfferPurchaseFailed(null, check.ToString());
+            events?.OnOfferPurchaseFailed(offerId, check);
             return PurchaseOfferResponse.Fail(check);
         }
 
@@ -152,11 +147,12 @@ public class GameOfferService
     }
 
     /// <summary>
-    /// Lấy danh sách offer đang active
+    /// Lấy danh sách offer active
     /// </summary>
     public List<GameOfferRuntimeData> GetActiveOffers()
     {
         List<GameOfferRuntimeData> result = new();
+        List<string> expiredOffers = new();
 
         foreach (var runtime in state.ActiveOffers)
         {
@@ -171,11 +167,56 @@ public class GameOfferService
             }
             else
             {
-                // 🔔 Offer expired
-                events?.OnOfferDeactivated(runtime, runtime.PurchasedCount > 0);
+                if (!runtime.ExpiredHandled)
+                {
+                    runtime.ExpiredHandled = true;
+
+                    events?.OnOfferDeactivated(
+                        runtime,
+                        runtime.PurchasedCount > 0
+                    );
+                }
+
+                expiredOffers.Add(runtime.OfferId);
             }
         }
 
+        // cleanup expired
+        foreach (var id in expiredOffers)
+        {
+            state.Remove(id);
+        }
+
+        if (expiredOffers.Count > 0)
+            Save();
+
         return result;
+    }
+
+    /// <summary>
+    /// Lấy runtime data của offer
+    /// </summary>
+    public int GetRemainingTime(string offerId)
+    {
+        var runtime = state.Get(offerId);
+
+        if (runtime == null)
+            return 0;
+
+        var offer = config.Get(offerId);
+
+        if (offer == null)
+            return 0;
+
+        if (!runtime.IsActivated)
+            return 0;
+
+        var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        var endTime = runtime.StartTime + (long)offer.Duration.TimeSpan.TotalSeconds;
+
+        var remaining = endTime - now;
+
+        return remaining > 0 ? (int)remaining : 0;
     }
 }

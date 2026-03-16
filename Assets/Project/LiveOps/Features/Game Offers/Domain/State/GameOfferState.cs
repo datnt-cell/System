@@ -33,5 +33,10 @@ namespace GameOfferSystem.Domain
             _offers.TryGetValue(offerId, out var data);
             return data;
         }
+
+        public void Remove(string offerId)
+        {
+            _offers.Remove(offerId);
+        }
     }
 }

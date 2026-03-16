@@ -40,24 +40,24 @@ namespace GameEventModule.Infrastructure.Config
         [LabelText("Condition")]
         public string ConditionId;
 
-        [HorizontalGroup("Root/Config/Condition", width: 24)]
-        [Button(SdfIconType.InfoCircle)]
-        private void ToggleHelp()
+        [HorizontalGroup("Root/Config/Condition", Width = 28)]
+        [Button("ℹ", ButtonSizes.Small)]
+        [PropertyTooltip("@GetConditionNote()")]
+        private void ShowInfo()
         {
-            showHelp = !showHelp;
+            UnityEngine.Debug.Log(GetConditionNote());
         }
 
-        [BoxGroup("Root/Config")]
-        [ShowIf(nameof(showHelp))]
-        [InfoBox(
-            "Event kích hoạt khi Condition = TRUE\n\n" +
-            "Finish Type:\n" +
-            "• Condition: Event tắt khi Condition FALSE\n" +
-            "• Duration: Event chạy thêm một khoảng thời gian sau khi kích hoạt\n\n" +
-            "Sau khi Event kết thúc và hết Cooldown,\n" +
-            "nếu Condition vẫn TRUE thì Event sẽ kích hoạt lại.",
-            InfoMessageType.None)]
-        private bool _;
+        private string GetConditionNote()
+        {
+            return
+                "Event kích hoạt khi Condition = TRUE\n\n" +
+                "Finish Type:\n" +
+                "• Condition: Event tắt khi Condition FALSE\n" +
+                "• Duration: Event chạy thêm một khoảng thời gian sau khi kích hoạt\n\n" +
+                "Sau khi Event kết thúc và hết Cooldown,\n" +
+                "nếu Condition vẫn TRUE thì Event sẽ kích hoạt lại.";
+        }
 
         [HorizontalGroup("Root")]
         [BoxGroup("Root/Config")]
@@ -93,9 +93,6 @@ namespace GameEventModule.Infrastructure.Config
         // =========================
         // STATE
         // =========================
-
-        [NonSerialized]
-        private bool showHelp;
 
         private bool IsDurationMode => FinishType == EventFinishType.Duration;
 

@@ -11,7 +11,9 @@ namespace StoreSystem.Presentation
     /// </summary>
     public class StoreItemsManager : MonoBehaviour
     {
-        public StoreItemUseCase UseCase { get; private set; }
+        public StoreService Service { get; private set; }
+
+        private StoreItemUseCase UseCase;
 
         /// <summary>
         /// Khởi tạo Store System
@@ -26,45 +28,7 @@ namespace StoreSystem.Presentation
             var result = installer.Install();
 
             UseCase = result.UseCase;
+            Service = new StoreService(UseCase);
         }
-
-        /// <summary>
-        /// Mua item trong Store
-        /// </summary>
-        public async UniTask<PurchaseProductResponseData> PurchaseStoreItem(string itemId)
-        {
-            if (UseCase == null)
-            {
-                Debug.LogError("StoreItemsManager not initialized");
-
-                return ResponseData.GetErrorResponse<PurchaseProductResponseData>(
-                    Errors.NotAvailable,
-                    "Store system not initialized"
-                );
-            }
-
-            return await UseCase.Purchase(itemId);
-        }
-
-        // public string test;
-
-        // [Button]
-        // public void BuyCheck()
-        // {
-        //     Buy().Forget();
-        // }
-
-        // async UniTask Buy()
-        // {
-        //     var result = await PurchaseStoreItem(test);
-
-        //     if (!result.Success)
-        //     {
-        //         Debug.LogError(result.Error);
-        //         return;
-        //     }
-
-        //     Debug.Log("Item purchased!");
-        // }
     }
 }

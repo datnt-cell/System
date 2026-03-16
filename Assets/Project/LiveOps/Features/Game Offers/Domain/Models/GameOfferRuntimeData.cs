@@ -15,16 +15,19 @@ public class GameOfferRuntimeData
     // offer đã activate chưa
     public bool IsActivated;
 
+    public bool ExpiredHandled;
+
     // kiểm tra offer có hết hạn chưa
-    public bool IsExpired(TimeSpan duration)
+    public bool IsExpired(System.TimeSpan duration)
     {
-        // duration = 0 => infinity (never expire)
-        if (duration == TimeSpan.Zero)
+        if (!IsActivated)
             return false;
 
-        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        long endTime = StartTime + (long)duration.TotalSeconds;
+        if (StartTime <= 0)
+            return false;
 
-        return now > endTime;
+        var now = System.DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        return now - StartTime >= duration.TotalSeconds;
     }
 }

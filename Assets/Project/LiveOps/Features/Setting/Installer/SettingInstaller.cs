@@ -3,7 +3,7 @@
 /// </summary>
 public class SettingInstaller
 {
-    public SettingPresenter Install()
+    public SettingService Install()
     {
         // Infrastructure
         ISettingRepository repository = new EasySaveSettingRepository();
@@ -19,10 +19,6 @@ public class SettingInstaller
         // Application
         SettingService service = new SettingService(state, repository, haptic);
 
-        // Presentation
-        SettingViewModel viewModel = new SettingViewModel(state);
-        SettingPresenter presenter = new SettingPresenter(viewModel, service);
-
-        return presenter;
+        return service;
     }
 }

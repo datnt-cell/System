@@ -24,4 +24,25 @@ public class PurchaseProductResponseData : ResponseData
 
     [JsonIgnore]
     public int RewardValue;
+
+    // =========================
+    // FACTORY (OPTIONAL)
+    // =========================
+
+    public static PurchaseProductResponseData CreateSuccess(string productId)
+    {
+        var res = GetSuccessResponse<PurchaseProductResponseData>();
+        res.ProductId = productId;
+        return res;
+    }
+
+    public static PurchaseProductResponseData CreateError(Errors code, string message = "")
+    {
+        return GetErrorResponse<PurchaseProductResponseData>(code, message);
+    }
+
+    public static PurchaseProductResponseData CreateError(ResponseData data)
+    {
+        return GetErrorResponse<PurchaseProductResponseData>(data);
+    }
 }

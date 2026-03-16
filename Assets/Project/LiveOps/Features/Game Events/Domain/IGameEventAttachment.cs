@@ -1,3 +1,5 @@
+using GameEventModule.Application;
+
 namespace GameEventModule.Domain
 {
     /// <summary>
@@ -5,6 +7,6 @@ namespace GameEventModule.Domain
     /// </summary>
     public interface IGameEventAttachment
     {
-        void Execute();
+        void Execute(IGameEventAttachmentExecutor executor);
     }
 }

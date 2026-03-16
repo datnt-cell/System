@@ -18,18 +18,24 @@ namespace CurrencySystem.Application
             _state = state;
             _repository = repository;
 
-            // Load khi khởi tạo
+            // Load state khi khởi tạo
             _repository.Load(_state);
         }
 
-        public void Add(CurrencyId id, int amount, string source)
+        public void Add(CurrencyId id, int amount, string source = "")
         {
+            if (amount <= 0)
+                return;
+
             _state.Add(id, amount, source);
             _repository.Save(_state);
         }
 
-        public bool Spend(CurrencyId id, int amount, string source)
+        public bool Spend(CurrencyId id, int amount, string source = "")
         {
+            if (amount <= 0)
+                return false;
+
             bool result = _state.Spend(id, amount, source);
 
             if (result)
@@ -42,8 +48,6 @@ namespace CurrencySystem.Application
             => _state.GetBalance(id);
 
         public bool HasEnough(CurrencyId id, int amount)
-        {
-            return _state.GetBalance(id) >= amount;
-        }
+            => _state.GetBalance(id) >= amount;
     }
 }

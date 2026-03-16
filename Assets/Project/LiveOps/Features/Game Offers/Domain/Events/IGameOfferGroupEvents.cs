@@ -11,5 +11,7 @@ namespace GameOfferSystem.Infrastructure
         void OnGroupPurchaseFailed(string groupId, string offerId, string reason);
 
         void OnGroupCompleted(string groupId);
+
+        void OnGroupExpired(GameOfferGroupRuntimeData data);
     }
 }

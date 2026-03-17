@@ -7,6 +7,8 @@ using Sirenix.OdinInspector;
 using Cysharp.Threading.Tasks;
 using PlayerSystem.Presentation;
 using ConditionEngine;
+using BattlePassModule;
+using System;
 
 /// <summary>
 /// GameManager là entry point của game.
@@ -47,6 +49,16 @@ public partial class GameManager : SingletonPersistent<GameManager>
     [PropertyOrder(4)]
     [LabelText("Game Events")]
     public GameEventManager GameEvents;
+
+    [BoxGroup("Game Systems")]
+    [PropertyOrder(4)]
+    [LabelText("Gacha")]
+    public GachaManager Gacha;
+
+    [BoxGroup("Game Systems")]
+    [PropertyOrder(4)]
+    [LabelText("Battle Pass")]
+    public BattlePassManager BattlePass;
 
     // =========================
     // MONETIZATION
@@ -116,30 +128,34 @@ public partial class GameManager : SingletonPersistent<GameManager>
     /// </summary>
     async UniTask InitSystem()
     {
-        // load setting (sound, vibration...)
-        SettingManager.Initialize();
+        await Step(SettingManager.Initialize);
+        await Step(Player.Initialize);
+        await Step(Currency.Initialize);
 
-        // khởi tạo player data
-        Player.Initialize();
+        await StepAsync(AdsManager.Initialize);
+        await StepAsync(IAPManager.Initialize);
 
-        // load currency từ save
-        Currency.Initialize();
+        await Step(Conditions.Initialize);
+        await Step(() => Store.Initialize(Currency));
+        await Step(GameOffers.Initialize);
 
-        // khởi tạo Ads SDK
-        await AdsManager.Initialize();
+        await Step(() => GameEvents.Initialize(Conditions.Service.GetContext()));
 
-        // khởi tạo hệ thống IAP
-        await IAPManager.Initialize();
+        await Step(Gacha.Initialize);
+        await Step(BattlePass.Initialize);
+    }
 
-        // khởi tạo ConditionEngine
-        Conditions.Initialize();
+    async UniTask Step(Action action)
+    {
+        action?.Invoke();
+        await UniTask.Yield();
+    }
 
-        // khởi tạo store item
-        Store.Initialize(Currency);
+    async UniTask StepAsync(Func<UniTask> action)
+    {
+        if (action != null)
+            await action();
 
-        // khởi tạo hệ thống offer
-        GameOffers.Initialize();
-
-        GameEvents.Initialize(Conditions.Service.GetContext());
+        await UniTask.Yield();
     }
 }

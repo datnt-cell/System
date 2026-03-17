@@ -15,7 +15,7 @@ public class AdsService : IDisposable
 
     private LoadingView _view;
 
-    public ReadOnlyReactiveProperty<bool> IsShieldVisible { get; }
+    public ReactiveProperty<bool> IsProcessing = new(false);
 
     public AdsState GetState() => _state;
 
@@ -47,7 +47,7 @@ public class AdsService : IDisposable
     {
         _view = view;
 
-        IsShieldVisible
+        IsProcessing
             .DistinctUntilChanged()
             .Subscribe(active =>
             {

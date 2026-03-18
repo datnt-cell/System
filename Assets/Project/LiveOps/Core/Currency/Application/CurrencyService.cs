@@ -8,8 +8,6 @@ namespace CurrencySystem.Application
         private readonly ICurrencyRepository _repository;
         private readonly CurrencyEvents _events;
 
-        public ICurrencyEvents Events => _events;
-
         public CurrencyService(
             CurrencyState state,
             ICurrencyRepository repository,
@@ -22,43 +20,68 @@ namespace CurrencySystem.Application
             _repository.Load(_state);
         }
 
-        public void Add(CurrencyId id, int amount, string source = "")
+        /// <summary>
+        /// Thêm currency và trả về response chi tiết.
+        /// </summary>
+        public CurrencyResponse AddCurrency(CurrencyId id, int amount, string source = "")
         {
             if (amount <= 0)
-                return;
+            {
+                var failEvent = CurrencyEvent.Fail(id, amount, source, Errors.Unknown, "Amount must be greater than 0");
+                _events.Publish(failEvent);
 
-            _state.Add(id, amount, source);
+                return CurrencyResponse.CreateError(Errors.Unknown, "Amount must be greater than 0");
+            }
 
-            _events.Publish(
-                CurrencyEvent.Add(id, amount, source)
-            );
+            int delta = _state.Add(id, amount);
+            int balance = _state.GetBalance(id);
 
+            // Publish event
+            var evt = CurrencyEvent.Add(id, amount, balance, delta, source);
+            _events.Publish(evt);
+
+            // Save state
             _repository.Save(_state);
+
+            return CurrencyResponse.CreateSuccess(balance, delta, source);
         }
 
-        public bool Spend(CurrencyId id, int amount, string source = "")
+        /// <summary>
+        /// Trừ currency và trả về response chi tiết.
+        /// </summary>
+        public CurrencyResponse SpendCurrency(CurrencyId id, int amount, string source = "")
         {
             if (amount <= 0)
-                return false;
+            {
+                var failEvent = CurrencyEvent.Fail(id, amount, source, Errors.Unknown, "Amount must be greater than 0");
+                _events.Publish(failEvent);
 
-            bool result = _state.Spend(id, amount, source);
+                return CurrencyResponse.CreateError(Errors.Unknown, "Amount must be greater than 0");
+            }
+
+            bool result = _state.Spend(id, amount, out int delta);
+            int balance = _state.GetBalance(id);
 
             if (!result)
-                return false;
+            {
+                var failEvent = CurrencyEvent.Fail(id, amount, source, Errors.NotEnoughResources, $"Not enough {id} to spend {amount}");
+                _events.Publish(failEvent);
 
-            _events.Publish(
-                CurrencyEvent.Spend(id, amount, source)
-            );
+                return CurrencyResponse.CreateError(Errors.NotEnoughResources, $"Not enough {id} to spend {amount}");
+            }
 
+            // Publish event
+            var evt = CurrencyEvent.Spend(id, amount, balance, delta, source);
+            _events.Publish(evt);
+
+            // Save state
             _repository.Save(_state);
 
-            return true;
+            return CurrencyResponse.CreateSuccess(balance, delta, source);
         }
 
-        public int GetBalance(CurrencyId id)
-            => _state.GetBalance(id);
+        public int GetBalance(CurrencyId id) => _state.GetBalance(id);
 
-        public bool HasEnough(CurrencyId id, int amount)
-            => _state.GetBalance(id) >= amount;
+        public bool HasEnough(CurrencyId id, int amount) => _state.GetBalance(id) >= amount;
     }
 }

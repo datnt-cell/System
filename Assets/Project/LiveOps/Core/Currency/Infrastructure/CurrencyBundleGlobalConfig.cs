@@ -115,9 +115,4 @@ public class CurrencyRewardConfig
                 return new ValueDropdownItem<string>(label, c.Id);
             });
     }
-
-    public CurrencyId GetCurrencyId()
-    {
-        return new CurrencyId(CurrencyId);
-    }
 }

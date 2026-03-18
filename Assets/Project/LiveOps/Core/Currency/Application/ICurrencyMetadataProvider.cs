@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace CurrencySystem.Domain
 {
     /// <summary>
@@ -24,6 +26,12 @@ namespace CurrencySystem.Domain
         /// Lấy tên hiển thị (phục vụ UI).
         /// </summary>
         string GetDisplayName(CurrencyId id);
-        
+
+        IEnumerable<CurrencyConfigData> GetCurrenciesInventory();
+
+        IEnumerable<CurrencyConfigData> GetEventItemsInventory();
+
+        IEnumerable<CurrencyConfigData> GetItemsInventory();
+
     }
 }

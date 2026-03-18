@@ -20,10 +20,10 @@ public class CustomBundleRewardStrategy : IRewardStrategy
     {
         foreach (var reward in _rewards)
         {
-            _currencyService.Add(
+            _currencyService.AddCurrency(
                 new CurrencyId(reward.CurrencyId),
                 reward.Amount,
-                "store_custom_bundle");
+                reward.CurrencyId.ToString());
         }
     }
 }

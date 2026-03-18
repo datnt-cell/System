@@ -4,6 +4,7 @@ using Sirenix.OdinInspector;
 using System.Linq;
 using Sirenix.Utilities;
 using Sirenix.OdinInspector.Editor;
+using CurrencySystem.Domain;
 
 [CreateAssetMenu(fileName = "CurrencyGlobalConfig", menuName = "GlobalConfigs/CurrencyGlobalConfig")]
 [GlobalConfig("Assets/Resources/GlobalConfig/Items/")]
@@ -84,7 +85,7 @@ public class CurrencyConfigData
     [HorizontalGroup("Content")]
     [BoxGroup("Content/INFO")]
     [VerticalGroup("Content/INFO/Split/Fields")]
-    public ConfigType Type;
+    public ItemType Type;
 
 
     // =========================
@@ -96,11 +97,4 @@ public class CurrencyConfigData
     [LabelWidth(70)]
     [MinValue(0)]
     public int MaxStack = 0;
-}
-
-public enum ConfigType
-{
-    Currency,
-    Item,
-    Event
 }

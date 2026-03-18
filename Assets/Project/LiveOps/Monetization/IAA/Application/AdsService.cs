@@ -2,158 +2,145 @@ using R3;
 using UnityEngine.Events;
 using System;
 
-public class AdsService : IDisposable
+namespace AdsSystem.Application
 {
-    private readonly AdsState _state;
-    private readonly IAdsRepository _repo;
-    private readonly IAdsPolicy _policy;
-    private readonly IAdsProvider _provider;
-    private readonly ITimeProvider _timeProvider;
-    private readonly AdsEvents _events;
-
-    private readonly CompositeDisposable _disposables = new();
-
-    private LoadingView _view;
-
-    public ReactiveProperty<bool> IsProcessing = new(false);
-
-    public AdsState GetState() => _state;
-
-    public AdsService(
-        AdsState state,
-        IAdsRepository repo,
-        IAdsPolicy policy,
-        IAdsProvider provider,
-        ITimeProvider timeProvider,
-        AdsEvents events)
+    public class AdsService : IDisposable
     {
-        _state = state;
-        _repo = repo;
-        _policy = policy;
-        _provider = provider;
-        _timeProvider = timeProvider;
-        _events = events;
+        private readonly AdsState _state;
+        private readonly IAdsRepository _repo;
+        private readonly IAdsPolicy _policy;
+        private readonly IAdsProvider _provider;
+        private readonly ITimeProvider _timeProvider;
+        private readonly AdsEvents _events;
 
-        _repo.Load(_state);
+        private readonly CompositeDisposable _disposables = new();
+        private LoadingView _view;
 
-        _provider.SetRemoveAds(_state.IsRemoveAds.Value);
-    }
+        public ReactiveProperty<bool> IsProcessing = new(false);
 
-    // =========================
-    // VIEW
-    // =========================
+        public AdsState GetAdsState() => _state;
 
-    public void BindView(LoadingView view)
-    {
-        _view = view;
-
-        IsProcessing
-            .DistinctUntilChanged()
-            .Subscribe(active =>
-            {
-                _view.SetShield(active);
-            })
-            .AddTo(_disposables);
-    }
-
-    // =========================
-    // INTERSTITIAL
-    // =========================
-
-    public bool CanShowInterstitial(int level = 0, int season = 0)
-    {
-        if (_state.IsRemoveAds.Value)
-            return false;
-
-        if (!_provider.IsInterstitialAvailable())
-            return false;
-
-        float now = _timeProvider.CurrentTime;
-
-        return _policy.CanShowInterstitial(
-            level,
-            season,
-            now,
-            _state.NextAvailableAdTime);
-    }
-
-    public void TryShowInterstitial(int level = 0, int season = 0)
-    {
-        if (!CanShowInterstitial(level, season))
-            return;
-
-        float now = _timeProvider.CurrentTime;
-
-        _provider.ShowInterstitial(revenue =>
+        public AdsService(
+            AdsState state,
+            IAdsRepository repo,
+            IAdsPolicy policy,
+            IAdsProvider provider,
+            ITimeProvider timeProvider,
+            AdsEvents events)
         {
-            _state.AddAdRevenue(AdType.Interstitial, revenue);
+            _state = state;
+            _repo = repo;
+            _policy = policy;
+            _provider = provider;
+            _timeProvider = timeProvider;
+            _events = events;
 
-            float nextTime = _policy.GetNextCooldown(false, now);
-            _state.SetNextAdTime(nextTime);
-
-            _repo.Save(_state);
-
-            _events.Publish(AdsEvent.Interstitial(revenue));
-        });
-    }
-
-    // =========================
-    // REWARDED
-    // =========================
-
-    public void ShowRewarded(UnityAction<bool> callback)
-    {
-        if (!_provider.IsRewardedAvailable())
-        {
-            callback?.Invoke(false);
-            return;
+            _repo.Load(_state);
+            _provider.SetRemoveAds(_state.IsRemoveAds.Value);
         }
 
-        float now = _timeProvider.CurrentTime;
-
-        _events.Publish(AdsEvent.RewardStart());
-
-        _state.ShowShield();
-
-        _provider.ShowRewarded((success, revenue) =>
+        public void BindView(LoadingView view)
         {
-            if (success)
+            _view = view;
+            IsProcessing
+                .DistinctUntilChanged()
+                .Subscribe(active => _view.SetShield(active))
+                .AddTo(_disposables);
+        }
+
+        // =========================
+        // INTERSTITIAL
+        // =========================
+        public AdsResponse TryShowInterstitial(int level = 0, int season = 0)
+        {
+            if (_state.IsRemoveAds.Value)
+                return PublishFail(AdType.Interstitial, "Remove Ads active");
+
+            if (!_provider.IsInterstitialAvailable())
+                return PublishFail(AdType.Interstitial, "Interstitial not available");
+
+            float now = _timeProvider.CurrentTime;
+            if (!_policy.CanShowInterstitial(level, season, now, _state.NextAvailableAdTime))
+                return PublishFail(AdType.Interstitial, "Cooldown not finished");
+
+            _provider.ShowInterstitial(_ => { });
+
+            var response = new AdsResponse
             {
-                _state.AddAdRevenue(AdType.Rewarded, revenue);
+                Success = true,
+                Type = AdType.Interstitial
+            };
 
-                float nextTime = _policy.GetNextCooldown(true, now);
-                _state.SetNextAdTime(nextTime);
+            _events.Publish(AdsEvent.Interstitial());
 
-                _repo.Save(_state);
+            return response;
+        }
+
+        // =========================
+        // REWARDED
+        // =========================
+        public void ShowRewarded(UnityAction<AdsResponse> callback)
+        {
+            if (!_provider.IsRewardedAvailable())
+            {
+                var failResponse = PublishFail(AdType.Rewarded, "Rewarded not available");
+                callback?.Invoke(failResponse);
+                return;
             }
 
-            _state.HideShield();
+            _state.ShowShield();
+            IsProcessing.Value = true;
 
-            _events.Publish(AdsEvent.RewardResult(success, revenue));
+            _provider.ShowRewarded((success, _) =>
+            {
+                var response = new AdsResponse
+                {
+                    Success = success,
+                    Type = AdType.Rewarded
+                };
 
-            callback?.Invoke(success);
-        });
-    }
+                _state.HideShield();
+                IsProcessing.Value = false;
 
-    // =========================
-    // REMOVE ADS
-    // =========================
+                _events.Publish(AdsEvent.Rewarded(success));
+                callback?.Invoke(response);
+            });
+        }
 
-    public void RemoveAds()
-    {
-        _state.SetRemoveAds();
+        // =========================
+        // REMOVE ADS
+        // =========================
+        public AdsResponse RemoveAds()
+        {
+            _state.SetRemoveAds();
+            _provider.SetRemoveAds(true);
+            _repo.Save(_state);
 
-        _provider.SetRemoveAds(true);
+            _events.Publish(AdsEvent.RemoveAds());
 
-        _repo.Save(_state);
+            return new AdsResponse
+            {
+                Success = true,
+                Type = AdType.Custom
+            };
+        }
 
-        _events.Publish(AdsEvent.RemoveAds());
-    }
+        // =========================
+        // HELPER
+        // =========================
+        private AdsResponse PublishFail(AdType adType, string message)
+        {
+            var response = new AdsResponse
+            {
+                Success = false,
+                Type = adType,
+                ErrorMessage = message
+            };
 
-    // =========================
+            _events.Publish(AdsEvent.Fail(adType, message));
+            return response;
+        }
 
-    public void Dispose()
-    {
-        _disposables.Dispose();
+        public void Dispose() => _disposables.Dispose();
     }
 }

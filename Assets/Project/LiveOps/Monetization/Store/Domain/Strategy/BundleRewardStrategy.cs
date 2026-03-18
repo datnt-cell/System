@@ -20,7 +20,7 @@ namespace StoreSystem.Domain
 
         public void Grant()
         {
-            _bundleUseCase.OpenBundle(_bundleId, "store_item");
+            _bundleUseCase.OpenBundle(_bundleId, _bundleId);
         }
     }
 }

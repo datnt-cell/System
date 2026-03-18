@@ -9,7 +9,7 @@ namespace CurrencySystem.Installer
         public CurrencyInstallResult Install()
         {
             var config = CurrencyGlobalConfig.Instance;
-            var bundle = CurrencyBundleGlobalConfig.Instance;
+            var bundleConfig = CurrencyBundleGlobalConfig.Instance;
 
             ICurrencyMetadataProvider metadataProvider =
                 new GlobalConfigCurrencyMetadataProvider(config);
@@ -17,50 +17,52 @@ namespace CurrencySystem.Installer
             // =========================
             // DOMAIN
             // =========================
-
             var state = new CurrencyState(metadataProvider);
 
             // =========================
             // INFRASTRUCTURE
             // =========================
-
             var repository = new EasySaveCurrencyRepository();
-            var bundleProvider = new GlobalConfigBundleProvider(bundle);
+            var bundleProvider = new GlobalConfigBundleProvider(bundleConfig);
 
             // =========================
             // EVENTS
             // =========================
-
-            var events = new CurrencyEvents();
+            var currencyEvents = new CurrencyEvents();
+            var bundleEvents = new CurrencyBundleEvents();
 
             // =========================
             // APPLICATION
             // =========================
-
-            var service = new CurrencyService(state, repository, events);
-            var bundleUseCase = new CurrencyBundleUseCase(service, bundleProvider);
+            var service = new CurrencyService(state, repository, currencyEvents);
+            var bundleUseCase = new CurrencyBundleUseCase(service, bundleProvider, bundleEvents);
 
             return new CurrencyInstallResult(
                 service,
                 bundleUseCase,
-                events);
+                currencyEvents,
+                bundleEvents
+            );
         }
     }
-}
 
-public readonly struct CurrencyInstallResult
-{
-    public CurrencyService Service { get; }
-    public CurrencyBundleUseCase BundleUseCase { get; }
-    public CurrencyEvents Events { get; }
-
-    public CurrencyInstallResult(
-        CurrencyService service,
-        CurrencyBundleUseCase bundleUseCase,
-        CurrencyEvents events)
+    public readonly struct CurrencyInstallResult
     {
-        Service = service;
-        BundleUseCase = bundleUseCase;
-        Events = events;
+        public CurrencyService Service { get; }
+        public CurrencyBundleUseCase BundleUseCase { get; }
+        public CurrencyEvents CurrencyEvents { get; }
+        public CurrencyBundleEvents BundleEvents { get; }
+
+        public CurrencyInstallResult(
+            CurrencyService service,
+            CurrencyBundleUseCase bundleUseCase,
+            CurrencyEvents currencyEvents,
+            CurrencyBundleEvents bundleEvents)
+        {
+            Service = service;
+            BundleUseCase = bundleUseCase;
+            CurrencyEvents = currencyEvents;
+            BundleEvents = bundleEvents;
+        }
     }
 }

@@ -15,6 +15,6 @@ public class CurrencyServiceAdapter : ICurrencyService
         if (string.IsNullOrEmpty(currencyId) || amount <= 0)
             return;
 
-        currencyService.Add(new CurrencySystem.Domain.CurrencyId(currencyId), amount);
+      //  currencyService.AddCurrency(new CurrencySystem.Domain.CurrencyId(currencyId), amount);
     }
 }

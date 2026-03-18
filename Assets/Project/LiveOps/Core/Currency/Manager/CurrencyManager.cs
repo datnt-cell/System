@@ -14,9 +14,7 @@ public class CurrencyManager : MonoBehaviour
     public void Initialize()
     {
         _installer = new CurrencyInstaller();
-
         var result = _installer.Install();
-
         Service = result.Service;
         BundleUseCase = result.BundleUseCase;
         Events = result.CurrencyEvents;

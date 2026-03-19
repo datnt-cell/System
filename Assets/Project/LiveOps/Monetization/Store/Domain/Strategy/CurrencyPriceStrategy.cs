@@ -47,10 +47,10 @@ namespace StoreSystem.Domain
 
             foreach (var price in _prices)
             {
-                _currencyService.Spend(
+                _currencyService.SpendCurrency(
                     price.CurrencyId,
                     price.Amount,
-                    "store_item"
+                    price.CurrencyId.Value.ToString()
                 );
             }
 

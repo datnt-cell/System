@@ -44,7 +44,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7851719175541204033}
-  - component: {fileID: 8621108989004456746}
   - component: {fileID: 1968356821049010259}
   m_Layer: 0
   m_Name: BattlePass
@@ -68,18 +67,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5599267637901203969}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8621108989004456746
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 284661338590312692}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e43437c42cb9bd0478f28d016b4b8d04, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ConditionEngine.ConditionManager
 --- !u!114 &1968356821049010259
 MonoBehaviour:
   m_ObjectHideFlags: 0

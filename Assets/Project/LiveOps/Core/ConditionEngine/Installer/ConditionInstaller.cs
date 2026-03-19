@@ -12,7 +12,7 @@ namespace ConditionEngine.Infrastructure
         {
             var playerProvider = new PlayerProvider(GameManager.Instance.Player.Service);
             var purchaseProvider = new PurchaseProvider(GameManager.Instance.IAPManager.Service);
-            var adsProvider = new AdsProvider(GameManager.Instance.AdsManager.Service.GetState());
+            var adsProvider = new AdsProvider(GameManager.Instance.AdsManager.Service.GetAdsState());
             var timeProvider = new TimeProvider();
             var inventoryProvider = new InventoryProvider(GameManager.Instance.Currency.Service);
             var eventProvider = new EventProvider(GameManager.Instance.GameEvents.Service);

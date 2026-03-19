@@ -1,0 +1,235 @@
+📁 StructureDefault
+
+Mục tiêu: Dự án được tổ chức theo Clean Architecture + MVVM, module-based, dễ scale cho mobile game production.
+
+============================================================
+1️⃣ Application
+------------------------------------------------------------
+- Chứa các UseCase, Service, Manager logic.
+- Chỉ thao tác với Domain và Infrastructure thông qua interface.
+- Không trực tiếp tham chiếu Unity Engine trừ khi phục vụ binding UI (ví dụ ReactiveProperty).
+- Ví dụ:
+  - CurrencyService
+  - CurrencyBundleUseCase
+  - AdsService
+  - MissionService
+
+============================================================
+2️⃣ Domain
+------------------------------------------------------------
+- Chứa Entities, Value Objects, Aggregate, Domain Events.
+- Không phụ thuộc Unity hoặc bất cứ framework nào.
+- Chỉ mô tả logic cốt lõi.
+- Ví dụ:
+  - CurrencyId, CurrencyState
+  - CurrencyChangedEvent
+  - CurrencyBundleEvent
+  - AdType, AdTypeState
+
+============================================================
+3️⃣ Infrastructure
+------------------------------------------------------------
+- Chứa các implement chi tiết: lưu trữ, provider, network, remote config, analytics.
+- Thực hiện interface mà Application/Domain yêu cầu.
+- Có thể dùng Unity, EasySave, Firebase, hoặc các thư viện khác.
+- Ví dụ:
+  - EasySaveCurrencyRepository
+  - GlobalConfigCurrencyMetadataProvider
+  - GleyAdsProvider
+  - EasySaveAdsRepository
+
+============================================================
+4️⃣ Installer
+------------------------------------------------------------
+- Chịu trách nhiệm compose các module, wiring dependencies.
+- Trả về các Service / UseCase / Events đã sẵn sàng sử dụng.
+- Không chứa logic game, chỉ tạo object và inject dependencies.
+- Ví dụ:
+  - CurrencyInstaller
+  - AdsInstaller
+
+============================================================
+5️⃣ Manager
+------------------------------------------------------------
+- MonoBehaviour quản lý các module ở runtime.
+- Thường attach vào GameObject duy nhất trong scene.
+- Chỉ gọi Installer và expose Service/Events ra cho Presentation/UI.
+- Ví dụ:
+  - CurrencyManager
+  - AdsManager
+  - MissionManager
+
+============================================================
+6️⃣ Notes & Config
+------------------------------------------------------------
+- ScriptableObject configs, GlobalConfig.
+- Lưu metadata, giá trị mặc định, và mapping.
+- Không chứa logic runtime.
+- Ví dụ:
+  - CurrencyGlobalConfig
+  - CurrencyBundleGlobalConfig
+
+============================================================
+💡 Lưu ý:
+- Không để Domain biết về Infrastructure.
+- Application chỉ biết interface của Infrastructure.
+- Manager chỉ biết Service/UseCase trả về bởi Installer.
+- Mỗi module tách riêng, có thể tái sử dụng.
+- Event phải chuẩn hoá: CurrencyEvents, AdsEvents, CurrencyBundleEvents.
+- Sử dụng ReactiveProperty / Subject / Observable để communicate.
+
+
+Dưới đây là một thiết kế StructureDefault tuân theo Clean Architecture + MVVM dành cho hệ thống Tasks/Quests (như mô tả trong tài liệu LiveOps Tasks của Balancy) — nhưng được biến thành kiến trúc dự án Unity/Backend có thể mở rộng, scalable cho mobile games.
+
+📁 StructureDefault — LiveOps Tasks / Quests (Clean Architecture + MVVM)
+📁 Domain
+   ├── TaskAggregateRoot
+   │      ├── TaskId
+   │      ├── TaskDefinition  (type, goals, reward config)
+   │      ├── TaskProgress     (status, progress)
+   │      └── TaskReward
+   ├── TaskGoalTypes (enums / VO)
+   │      ├── CollectItemGoal
+   │      ├── CompleteLevelGoal
+   │      ├── LevelStreakGoal
+   ├── DomainEvents
+   │      ├── TaskActivated
+   │      ├── TaskProgressed
+   │      ├── TaskCompleted
+   │      └── TaskRewardClaimed
+   └── DomainErrors
+
+📁 Application
+   ├── DTOs
+   │      ├── TaskDTO
+   │      ├── TaskStatusDTO
+   │      └── TaskRewardDTO
+   ├── Interfaces
+   │      ├── ITaskRepository
+   │      ├── IPlayerProfileService
+   │      └── IRewardService
+   ├── UseCases
+   │      ├── ActivateTaskUseCase
+   │      ├── ProgressTaskUseCase
+   │      ├── CompleteTaskUseCase
+   │      └── ClaimRewardUseCase
+   └── ApplicationEvents/Notifications
+
+📁 Infrastructure
+   ├── Repository
+   │      ├── TaskRepositoryRemote  (calls Balancy CDN / API)
+   │      └── TaskRepositoryLocal   (cache / local save)
+   ├── Providers
+   │      ├── BalancyLiveOpsClient  (Unity/Backend SDK wrapper)
+   │      └── TimeProvider
+   ├── Mapping
+   │      ├── TaskMapper (JSON → Domain/DTO)
+   │      └── RewardMapper
+   └── InfrastructureEvents
+
+📁 Installer
+   ├── TaskModuleInstaller
+   │      ├── Bind ITaskRepository → TaskRepositoryRemote
+   │      ├── Bind IPlayerProfileService → PlayerProfileService
+   │      └── Bind IRewardService → RewardService
+   └── InstallDependencies()
+
+📁 Manager (Runtime MonoBehaviours)
+   ├── TaskManager (singleton)
+   │      ├── Inject ActivateTaskUseCase
+   │      ├── Inject ProgressTaskUseCase
+   │      ├── Inject CompleteTaskUseCase
+   │      └── Expose Reactive Status Streams
+   └── UI Task Controllers/ViewModels
+
+📁 Presentation / UI
+   ├── ViewModels
+   │      ├── TaskListVM
+   │      ├── TaskItemVM
+   │      └── TaskRewardVM
+   ├── Views/Prefabs
+   ├── Bindings (UI ↔ VM)
+   └── UI Events → VM Commands
+
+📁 Configs/Data
+   ├── ScriptableObject:
+   │      ├── TaskConfigData (local overrides)
+   │      └── RewardConfigData
+   └── Balancy JSON Schemas (code-gen)
+🧠 Giải thích từng layer (theo cách bạn đã định nghĩa)
+🧱 1. Domain
+
+Task là core entity (Base Task, Goal, Reward) — không phụ thuộc Unity hay network.
+
+TaskGoalTypes đại diện các loại goal tương tự LiveOps Task Item / Complete Level / Streak .
+
+Domain event phát ra khi task thay đổi status → giúp sync với UI / analytics.
+
+🧠 2. Application
+
+Chứa UseCases định nghĩa hành vi hệ thống:
+
+ActivateTask
+
+ProgressTask
+
+CompleteTask
+
+ClaimReward
+
+Hoạt động với các interface kết nối tới Infrastructure (repository/provider).
+
+Không trực tiếp dùng Unity API (chỉ dùng trong Presentation/UI cho binding).
+
+🚧 3. Infrastructure
+
+Triển khai giao tiếp thực với Balancy LiveOps API hoặc CDN để tải JSON Tasks dữ liệu khi deploy .
+
+Repository pattern để Abstract việc lưu trữ.
+
+Ví dụ:
+
+public class BalancyLiveOpsClient {
+    public Task<List<TaskDTO>> FetchTasks();
+    public Task<TaskProgressDTO> UpdateProgress(...);
+}
+🔌 4. Installer
+
+Dùng DI Container (Zenject / VContainer) để Bind Services/Repositories.
+
+Không chứa logic game, chỉ setup.
+
+🎛 5. Manager (MonoBehaviour)
+
+Manager duy nhất trong scene để chạy runtime systems: subscribe task progress, handle reward claim, push event to UI
+Ví dụ:
+
+TaskManager : MonoBehaviour {
+    public ReactiveProperty<List<TaskVM>> Tasks;
+}
+🪩 6. Presentation
+
+ViewModel phân tách UI logic khỏi UseCases.
+
+UI bindings (Unity UI Toolkit / UGUI) map dữ liệu từ ViewModel → Views.
+
+📦 7. Configs/Data
+
+ScriptableObject để store override configs (fallbacks, dev-preview).
+
+Balancy JSON Templates code-gen để convert vào data models DOM trên backend.
+
+🔄 Flow dữ liệu (simplified)
+Balancy JSON → Infrastructure Client  
+      → Map to Domain/DTO → Repository Cache  
+      → UseCase Load/Activate  
+      → Manager expo Reactive streams → UI VM  
+      → UI displays Tasks list + progress
+💡 Lợi ích của Structure này
+
+✅ Tách rõ domain logic với implementation details
+✅ Dễ test (domain/usecase ko depend Unity)
+✅ Dễ scale nhiều task/feature khác như Daily Bonus, Events, Battle Pass
+— theo chuẩn services-based scalable architecture của LiveOps
+
+Nếu bạn muốn, mình có thể làm diagram kiến trúc (UML/flow) trực quan hơn hoặc cung cấp template code cho từng layer (ví dụ: TaskAggregate, UseCase, Repository) để bắt đầu ngay trong Unity 📦🎮. Bạn có muốn nhìn sơ đồ hoặc code mẫu không?

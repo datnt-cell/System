@@ -6,16 +6,12 @@ namespace CurrencySystem.Domain
     /// <summary>
     /// Lưu toàn bộ số dư tiền tệ.
     /// Không phụ thuộc Unity.
+    /// Không còn event.
     /// </summary>
     public class CurrencyState
     {
         private readonly Dictionary<CurrencyId, int> _balances = new();
         private readonly ICurrencyMetadataProvider _metadata;
-
-        /// <summary>
-        /// Event khi currency thay đổi.
-        /// </summary>
-        public event Action<CurrencyChangedEvent> OnCurrencyChanged;
 
         public CurrencyState(ICurrencyMetadataProvider metadata)
         {
@@ -35,51 +31,35 @@ namespace CurrencySystem.Domain
         /// <summary>
         /// Thêm tiền (có clamp MaxStack).
         /// </summary>
-        public void Add(CurrencyId id, int amount, string source = "unknown")
+        public int Add(CurrencyId id, int amount)
         {
             int oldValue = GetBalance(id);
-
             int maxStack = _metadata.GetMaxStack(id);
-
             int newValue = Math.Min(oldValue + amount, maxStack);
-
             _balances[id] = newValue;
-
-            RaiseChangedEvent(
-                id,
-                oldValue,
-                newValue,
-                newValue - oldValue,
-                source);
+            return newValue - oldValue; // trả về delta
         }
 
         /// <summary>
         /// Trừ tiền.
         /// </summary>
-        public bool Spend(CurrencyId id, int amount, string source = "unknown")
+        public bool Spend(CurrencyId id, int amount, out int delta)
         {
             int oldValue = GetBalance(id);
-
             if (oldValue < amount)
+            {
+                delta = 0;
                 return false;
+            }
 
             int newValue = oldValue - amount;
-
             _balances[id] = newValue;
-
-            RaiseChangedEvent(
-                id,
-                oldValue,
-                newValue,
-                -amount,
-                source);
-
+            delta = -amount;
             return true;
         }
 
         /// <summary>
         /// Set giá trị trực tiếp (DÙNG CHO LOAD SAVE).
-        /// Không bắn event.
         /// </summary>
         public void SetRaw(CurrencyId id, int value)
         {
@@ -91,21 +71,5 @@ namespace CurrencySystem.Domain
         /// </summary>
         public IReadOnlyDictionary<CurrencyId, int> GetAll()
             => _balances;
-
-        private void RaiseChangedEvent(
-            CurrencyId id,
-            int oldValue,
-            int newValue,
-            int delta,
-            string source)
-        {
-            OnCurrencyChanged?.Invoke(
-                new CurrencyChangedEvent(
-                    id,
-                    oldValue,
-                    newValue,
-                    delta,
-                    source));
-        }
     }
 }
